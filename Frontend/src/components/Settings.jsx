@@ -1,9 +1,22 @@
 import React, { useState } from 'react';
-import { User, Bell, Shield, Palette, Globe, HelpCircle, LogOut, Camera, Mail, Phone, MapPin, Save } from 'lucide-react';
+import { User, Bell, Shield, Palette, Globe, HelpCircle, LogOut, Camera, Mail, Phone, MapPin, Save, Trophy, Star, Award } from 'lucide-react';
 import './Settings.css';
+import './LanguageStyles.css';
 
 export const Settings = () => {
   const [activeTab, setActiveTab] = useState('profile');
+  const [selectedLanguage, setSelectedLanguage] = useState('en');
+  
+  const languages = [
+    { code: 'en', name: 'English', flag: '🇺🇸' },
+    { code: 'hi', name: 'हिंदी', flag: '🇮🇳' },
+    { code: 'es', name: 'Español', flag: '🇪🇸' },
+    { code: 'fr', name: 'Français', flag: '🇫🇷' },
+    { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+    { code: 'ja', name: '日本語', flag: '🇯🇵' },
+    { code: 'ko', name: '한국어', flag: '🇰🇷' },
+    { code: 'zh', name: '中文', flag: '🇨🇳' }
+  ];
   
   const [profileData, setProfileData] = useState({
     firstName: 'Rahul',
@@ -40,6 +53,7 @@ export const Settings = () => {
     { id: 'privacy', name: 'Privacy', icon: Shield },
     { id: 'appearance', name: 'Appearance', icon: Palette },
     { id: 'language', name: 'Language', icon: Globe },
+    { id: 'achievements', name: 'Achievements', icon: Trophy },
     { id: 'help', name: 'Help', icon: HelpCircle }
   ];
 
@@ -395,7 +409,26 @@ export const Settings = () => {
             {activeTab === 'language' && (
               <div>
                 <h2 className="settings-section-title">Language & Region</h2>
-                <p className="settings-comingsoon">Language settings coming soon...</p>
+                <div className="language-selection">
+                  <label className="settings-label">Select Language / भाषा चुनें</label>
+                  <div className="language-grid">
+                    {languages.map(lang => (
+                      <button
+                        key={lang.code}
+                        onClick={() => setSelectedLanguage(lang.code)}
+                        className={`language-option ${selectedLanguage === lang.code ? 'selected' : ''}`}
+                      >
+                        <span className="language-flag">{lang.flag}</span>
+                        <span className="language-name">{lang.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="settings-save-row">
+                  <button className="settings-save-btn">
+                    Save Language
+                  </button>
+                </div>
               </div>
             )}
 
@@ -404,6 +437,53 @@ export const Settings = () => {
               <div>
                 <h2 className="settings-section-title">Help & Support</h2>
                 <p className="settings-comingsoon">Help center and support options coming soon...</p>
+              </div>
+            )}
+
+            {/* Achievements Tab */}
+            {activeTab === 'achievements' && (
+              <div>
+                <h2 className="settings-section-title">Your Achievements</h2>
+                <div className="achievements-grid">
+                  <div className="achievement-card unlocked">
+                    <div className="achievement-icon">
+                      <Trophy className="achievement-icon-svg" />
+                    </div>
+                    <h3 className="achievement-title">First Steps</h3>
+                    <p className="achievement-desc">Completed your first chapter</p>
+                    <span className="achievement-date">Earned 2 days ago</span>
+                  </div>
+                  <div className="achievement-card unlocked">
+                    <div className="achievement-icon">
+                      <Star className="achievement-icon-svg" />
+                    </div>
+                    <h3 className="achievement-title">Quiz Master</h3>
+                    <p className="achievement-desc">Scored 90%+ in 5 quizzes</p>
+                    <span className="achievement-date">Earned 1 week ago</span>
+                  </div>
+                  <div className="achievement-card locked">
+                    <div className="achievement-icon">
+                      <Award className="achievement-icon-svg" />
+                    </div>
+                    <h3 className="achievement-title">Chapter Champion</h3>
+                    <p className="achievement-desc">Complete 10 chapters</p>
+                    <span className="achievement-progress">Progress: 7/10</span>
+                  </div>
+                </div>
+                
+                <h3 className="settings-subsection-title">Applied Opportunities</h3>
+                <div className="applied-opportunities">
+                  <div className="opportunity-item">
+                    <h4>JEE Advanced Merit Scholarship</h4>
+                    <p>Applied on: Dec 15, 2024</p>
+                    <span className="status pending">Pending</span>
+                  </div>
+                  <div className="opportunity-item">
+                    <h4>Smart India Hackathon 2024</h4>
+                    <p>Applied on: Dec 10, 2024</p>
+                    <span className="status accepted">Accepted</span>
+                  </div>
+                </div>
               </div>
             )}
           </div>

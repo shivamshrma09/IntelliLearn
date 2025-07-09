@@ -1,407 +1,586 @@
+// LandingPage.jsx
+
 import React, { useState } from 'react';
-import { BookOpen, Brain, Users, Trophy, Star, CheckCircle, ArrowRight, Play, Menu, X } from 'lucide-react';
-import './LandingPage.css'; // Import the CSS file
+import './LandingPage.css';
 
-export const LandingPage = ({ onNavigate }) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+// --- START: Icon Imports from react-icons ---
+import { FaRocket, FaAward } from 'react-icons/fa'; // Rocket and Award icons from FontAwesome
+import {
+    MdLightbulb,           // For Lightbulb
+    MdCheckCircle,         // For Checkmark circles (solutions, pricing features)
+    MdBarChart,            // For features
+    MdBook,                // For features
+    MdPeople,              // For features
+    MdTrendingUp,          // For solutions
+    MdStar,                // For testimonials
+    MdOutlineAttachMoney,  // For pricing if needed
+    MdQuestionMark         // For FAQ
+} from 'react-icons/md';
+import { AiOutlineMenu, AiOutlineClose } from 'react-icons/ai';
+// --- END: Icon Imports ---
 
-  const features = [
-    {
-      icon: Brain,
-      title: "AI-Powered Personalization",
-      description: "Generate custom learning chapters tailored to your curriculum and learning style instantly."
-    },
-    {
-      icon: BookOpen,
-      title: "Custom Batch Creation",
-      description: "Upload your syllabus and let AI create a complete course structure with integrated quizzes."
-    },
-    {
-      icon: Users,
-      title: "Adaptive Learning",
-      description: "Quizzes that adapt to your performance and provide targeted feedback for improvement."
-    },
-    {
-      icon: Trophy,
-      title: "Gamified Experience",
-      description: "Earn points, maintain streaks, and get certificates to stay motivated in your learning journey."
-    }
-  ];
+const LandingPage = () => {
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const testimonials = [
-    {
-      name: "Priya Sharma",
-      exam: "JEE Main 2024",
-      image: "https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150",
-      quote: "IntelliLearn's custom batch feature helped me create perfect study materials for my specific coaching curriculum."
-    },
-    {
-      name: "Rahul Patel",
-      exam: "NEET 2024",
-      image: "https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=150",
-      quote: "The AI-generated chapters are incredibly detailed and exactly what I needed for my preparation."
-    },
-    {
-      name: "Sneha Gupta",
-      exam: "UPSC CSE 2024",
-      image: "https://images.pexels.com/photos/3586091/pexels-photo-3586091.jpeg?auto=compress&cs=tinysrgb&w=150",
-      quote: "Finally, a platform that understands my unique study requirements. The personalization is amazing!"
-    }
-  ];
+    const toggleMobileMenu = () => {
+        setIsMobileMenuOpen(!isMobileMenuOpen);
+    };
 
-  const stats = [
-    { number: "50,000+", label: "Students Enrolled" },
-    { number: "500+", label: "Courses Created" },
-    { number: "95%", label: "Success Rate" },
-    { number: "24/7", label: "AI Support" }
-  ];
+    return (
+        <div className="landing-page-container">
+            {/* Header */}
+            <header className="header-main">
+                <div className="header-content-wrapper">
+                    <a href="#" className="header-logo-group">
+                        <div className="header-logo-icon-wrapper">
+                            <FaRocket className="header-logo-text" size={24} />
+                        </div>
+                        <span className="header-brand-name">IntelliLearn</span>
+                    </a>
 
-  return (
-    <div className="landing-page-container">
-      {/* Header */}
-      <header className="header-main">
-        <div className="header-content-wrapper">
-          <div className="header-logo-group">
-            <div className="header-logo-icon-wrapper">
-              <span className="header-logo-text">IL</span>
-            </div>
-            <span className="header-brand-name">IntelliLearn</span>
-          </div>
-          
-          <nav className="header-nav-desktop">
-            <a href="#features" className="header-nav-link">Features</a>
-            <a href="#how-it-works" className="header-nav-link">How it Works</a>
-            <a href="#testimonials" className="header-nav-link">Testimonials</a>
-            <a href="#pricing" className="header-nav-link">Pricing</a>
-          </nav>
+                    <nav className="header-nav-desktop">
+                        <a href="#features" className="header-nav-link">Features</a>
+                        <a href="#how-it-works" className="header-nav-link">How It Works</a>
+                        <a href="#testimonials" className="header-nav-link">Testimonials</a>
+                        <a href="#pricing" className="header-nav-link">Pricing</a>
+                    </nav>
 
-          <div className="header-actions-desktop">
-            <button 
-              onClick={() => onNavigate('login')}
-              className="header-login-button"
-            >
-              Login
-            </button>
-            <button 
-              onClick={() => onNavigate('signup')}
-              className="header-get-started-button"
-            >
-              Get Started
-            </button>
-          </div>
+                    <div className="header-actions-desktop">
+                        <button className="header-login-button">Login</button>
+                        <button className="header-get-started-button">Get Started Free</button>
+                    </div>
 
-          <button 
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="header-menu-toggle-button"
-          >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="mobile-menu">
-            <div className="mobile-menu-items">
-              <a href="#features" className="mobile-menu-link">Features</a>
-              <a href="#how-it-works" className="mobile-menu-link">How it Works</a>
-              <a href="#testimonials" className="mobile-menu-link">Testimonials</a>
-              <a href="#pricing" className="mobile-menu-link">Pricing</a>
-              <button 
-                onClick={() => onNavigate('login')}
-                className="mobile-menu-login-button"
-              >
-                Login
-              </button>
-              <button 
-                onClick={() => onNavigate('signup')}
-                className="mobile-menu-get-started-button"
-              >
-                Get Started
-              </button>
-            </div>
-          </div>
-        )}
-      </header>
-
-      {/* Hero Section */}
-      <section className="hero-section">
-        <div className="hero-content-wrapper">
-          <div className="hero-text-container">
-            <h1 className="hero-title">
-              Your <span className="hero-title-gradient">AI-Powered</span> Learning Partner
-            </h1>
-            <p className="hero-subtitle">
-              Create personalized learning experiences with AI-generated content, adaptive quizzes, and custom course creation. Upload your syllabus and let AI build your perfect study plan.
-            </p>
-            <div className="hero-buttons-group">
-              <button 
-                onClick={() => onNavigate('signup')}
-                className="hero-primary-button"
-              >
-                <span>Start Learning Free</span>
-                <ArrowRight size={20} />
-              </button>
-              <button className="hero-secondary-button">
-                <Play size={20} />
-                <span>Watch Demo</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Stats */}
-          <div className="hero-stats-grid">
-            {stats.map((stat, index) => (
-              <div key={index} className="hero-stat-item">
-                <div className="hero-stat-number">{stat.number}</div>
-                <div className="hero-stat-label">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-
-          {/* Hero Image */}
-          <div className="hero-image-container">
-            <div className="hero-image-card">
-              <img 
-                src="https://images.pexels.com/photos/3184357/pexels-photo-3184357.jpeg?auto=compress&cs=tinysrgb&w=800"
-                alt="IntelliLearn Dashboard"
-                className="hero-main-image"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="features-section">
-        <div className="section-content-wrapper">
-          <div className="section-header">
-            <h2 className="section-title">
-              Revolutionary Learning Features
-            </h2>
-            <p className="section-subtitle">
-              Experience the future of education with AI-powered personalization and adaptive learning technology.
-            </p>
-          </div>
-
-          <div className="features-grid">
-            {features.map((feature, index) => {
-              const Icon = feature.icon;
-              return (
-                <div key={index} className="feature-card">
-                  <div className="feature-icon-wrapper">
-                    <Icon className="feature-icon" />
-                  </div>
-                  <h3 className="feature-title">{feature.title}</h3>
-                  <p className="feature-description">{feature.description}</p>
+                    <button className="header-menu-toggle-button" onClick={toggleMobileMenu}>
+                        {isMobileMenuOpen ? <AiOutlineClose size={28} /> : <AiOutlineMenu size={28} />}
+                    </button>
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+            </header>
 
-      {/* How it Works */}
-      <section id="how-it-works" className="how-it-works-section">
-        <div className="section-content-wrapper">
-          <div className="section-header">
-            <h2 className="section-title">
-              How IntelliLearn Works
-            </h2>
-            <p className="section-subtitle">
-              Three simple steps to transform your learning experience with AI-powered personalization.
-            </p>
-          </div>
-
-          <div className="how-it-works-grid">
-            <div className="how-it-works-item">
-              <div className="how-it-works-icon-wrapper">
-                <span className="how-it-works-number">1</span>
-              </div>
-              <h3 className="how-it-works-title">Upload Your Syllabus</h3>
-              <p className="how-it-works-description">Upload your curriculum PDF or paste your syllabus text. Our AI will analyze and understand your learning requirements.</p>
-            </div>
-            <div className="how-it-works-item">
-              <div className="how-it-works-icon-wrapper">
-                <span className="how-it-works-number">2</span>
-              </div>
-              <h3 className="how-it-works-title">AI Creates Your Batch</h3>
-              <p className="how-it-works-description">Our AI generates a complete course structure with chapters, quizzes, and learning materials tailored to your needs.</p>
-            </div>
-            <div className="how-it-works-item">
-              <div className="how-it-works-icon-wrapper">
-                <span className="how-it-works-number">3</span>
-              </div>
-              <h3 className="how-it-works-title">Learn & Excel</h3>
-              <p className="how-it-works-description">Start learning with adaptive content, track your progress, and earn certificates as you master each topic.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section id="testimonials" className="testimonials-section">
-        <div className="section-content-wrapper">
-          <div className="section-header">
-            <h2 className="section-title">
-              What Students Say
-            </h2>
-            <p className="section-subtitle">
-              Join thousands of successful students who've transformed their learning with IntelliLearn.
-            </p>
-          </div>
-
-          <div className="testimonials-grid">
-            {testimonials.map((testimonial, index) => (
-              <div key={index} className="testimonial-card">
-                <div className="testimonial-author-info">
-                  <img 
-                    src={testimonial.image} 
-                    alt={testimonial.name}
-                    className="testimonial-author-image"
-                  />
-                  <div>
-                    <h4 className="testimonial-author-name">{testimonial.name}</h4>
-                    <p className="testimonial-author-exam">{testimonial.exam}</p>
-                  </div>
+            {/* Mobile Menu */}
+            {isMobileMenuOpen && (
+                <div className="mobile-menu">
+                    <div className="mobile-menu-items">
+                        <a href="#features" className="mobile-menu-link" onClick={toggleMobileMenu}>Features</a>
+                        <a href="#how-it-works" className="mobile-menu-link" onClick={toggleMobileMenu}>How It Works</a>
+                        <a href="#testimonials" className="mobile-menu-link" onClick={toggleMobileMenu}>Testimonials</a>
+                        <a href="#pricing" className="mobile-menu-link" onClick={toggleMobileMenu}>Pricing</a>
+                        <button className="mobile-menu-login-button" onClick={toggleMobileMenu}>Login</button>
+                        <button className="mobile-menu-get-started-button" onClick={toggleMobileMenu}>Get Started Free</button>
+                    </div>
                 </div>
-                <p className="testimonial-quote">"{testimonial.quote}"</p>
-                <div className="testimonial-stars">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={16} fill="currentColor" />
-                  ))}
+            )}
+
+            {/* Hero Section */}
+            <section className="hero-section">
+                <div className="section-content-wrapper hero-content-wrapper-modified">
+                    <div className="hero-video-container">
+                        {/* Replace YOUR_YOUTUBE_VIDEO_ID with your actual YouTube video ID */}
+                        <iframe
+                            src="https://www.youtube.com/embed/YOUR_YOUTUBE_VIDEO_ID"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            title="IntelliLearn Demo Video"
+                        ></iframe>
+                    </div>
+                    <div className="hero-text-and-buttons">
+                        <h1 className="hero-title">
+                            Master Your Exams with <span className="hero-title-gradient">AI-Powered Learning</span>
+                        </h1>
+                        <p className="hero-subtitle">
+                            IntelliLearn is your personal AI tutor, providing adaptive lessons, instant feedback, and
+                            in-depth analytics to help you excel in any competitive exam.
+                        </p>
+                        <div className="hero-buttons-group">
+                            <button className="hero-primary-button">Start Free Trial</button>
+                            <button className="hero-secondary-button">Watch Demo</button>
+                        </div>
+                    </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing */}
-      <section id="pricing" className="pricing-section">
-        <div className="section-content-wrapper">
-          <div className="section-header">
-            <h2 className="section-title">
-              Choose Your Plan
-            </h2>
-            <p className="section-subtitle">
-              Start free and upgrade as you grow. All plans include core AI features.
-            </p>
-          </div>
-
-          <div className="pricing-grid">
-            <div className="pricing-card">
-              <h3 className="pricing-plan-title">Free</h3>
-              <div className="pricing-price">₹0<span className="pricing-price-period">/month</span></div>
-              <ul className="pricing-features-list">
-                <li className="pricing-feature-item"><CheckCircle className="feature-check-icon" />5 AI-generated chapters</li>
-                <li className="pricing-feature-item"><CheckCircle className="feature-check-icon" />Basic quizzes</li>
-                <li className="pricing-feature-item"><CheckCircle className="feature-check-icon" />1 custom batch</li>
-                <li className="pricing-feature-item"><CheckCircle className="feature-check-icon" />Community support</li>
-              </ul>
-              <button className="pricing-button-secondary">
-                Get Started
-              </button>
-            </div>
-
-            <div className="pricing-card pricing-card-popular">
-              <div className="pricing-popular-tag">
-                Popular
-              </div>
-              <h3 className="pricing-plan-title">Pro</h3>
-              <div className="pricing-price">₹299<span className="pricing-price-period">/month</span></div>
-              <ul className="pricing-features-list">
-                <li className="pricing-feature-item"><CheckCircle className="feature-check-icon" />Unlimited AI chapters</li>
-                <li className="pricing-feature-item"><CheckCircle className="feature-check-icon" />Advanced analytics</li>
-                <li className="pricing-feature-item"><CheckCircle className="feature-check-icon" />Unlimited custom batches</li>
-                <li className="pricing-feature-item"><CheckCircle className="feature-check-icon" />Priority support</li>
-                <li className="pricing-feature-item"><CheckCircle className="feature-check-icon" />Certificate downloads</li>
-              </ul>
-              <button className="pricing-button-primary">
-                Choose Pro
-              </button>
-            </div>
-
-            <div className="pricing-card">
-              <h3 className="pricing-plan-title">Enterprise</h3>
-              <div className="pricing-price">₹999<span className="pricing-price-period">/month</span></div>
-              <ul className="pricing-features-list">
-                <li className="pricing-feature-item"><CheckCircle className="feature-check-icon" />Everything in Pro</li>
-                <li className="pricing-feature-item"><CheckCircle className="feature-check-icon" />Multi-user accounts</li>
-                <li className="pricing-feature-item"><CheckCircle className="feature-check-icon" />Custom branding</li>
-                <li className="pricing-feature-item"><CheckCircle className="feature-check-icon" />API access</li>
-                <li className="pricing-feature-item"><CheckCircle className="feature-check-icon" />Dedicated support</li>
-              </ul>
-              <button className="pricing-button-secondary">
-                Contact Sales
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="cta-section">
-        <div className="section-content-wrapper cta-text-center">
-          <h2 className="cta-title">
-            Ready to Transform Your Learning?
-          </h2>
-          <p className="cta-subtitle">
-            Join thousands of students who are already learning smarter with AI-powered personalization.
-          </p>
-          <button 
-            onClick={() => onNavigate('signup')}
-            className="cta-button"
-          >
-            Get Started Free Today
-          </button>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="footer-main">
-        <div className="section-content-wrapper">
-          <div className="footer-grid">
-            <div>
-              <div className="footer-logo-group">
-                <div className="footer-logo-icon-wrapper">
-                  <span className="footer-logo-text">IL</span>
+                <div className="section-content-wrapper hero-stats-section">
+                    <div className="hero-stats-grid">
+                        <div className="hero-stat-item">
+                            <h3 className="hero-stat-number">100K+</h3>
+                            <p className="hero-stat-label">Happy Students</p>
+                        </div>
+                        <div className="hero-stat-item">
+                            <h3 className="hero-stat-number">95%</h3>
+                            <p className="hero-stat-label">Success Rate</p>
+                        </div>
+                        <div className="hero-stat-item">
+                            <h3 className="hero-stat-number">50+</h3>
+                            <p className="hero-stat-label">Exams Covered</p>
+                        </div>
+                        <div className="hero-stat-item">
+                            <h3 className="hero-stat-number">24/7</h3>
+                            <p className="hero-stat-label">AI Tutoring</p>
+                        </div>
+                    </div>
                 </div>
-                <span className="footer-brand-name">IntelliLearn</span>
-              </div>
-              <p className="footer-description">
-                Your AI-powered learning partner for personalized education and exam preparation.
-              </p>
-            </div>
-            <div>
-              <h4 className="footer-heading">Product</h4>
-              <ul className="footer-links-list">
-                <li><a href="#" className="footer-link">Features</a></li>
-                <li><a href="#" className="footer-link">Pricing</a></li>
-                <li><a href="#" className="footer-link">API</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="footer-heading">Company</h4>
-              <ul className="footer-links-list">
-                <li><a href="#" className="footer-link">About</a></li>
-                <li><a href="#" className="footer-link">Careers</a></li>
-                <li><a href="#" className="footer-link">Contact</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="footer-heading">Support</h4>
-              <ul className="footer-links-list">
-                <li><a href="#" className="footer-link">Help Center</a></li>
-                <li><a href="#" className="footer-link">Community</a></li>
-                <li><a href="#" className="footer-link">Privacy Policy</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="footer-copyright">
-            <p>&copy; 2024 IntelliLearn. All rights reserved.</p>
-          </div>
+            </section>
+
+            {/* "As Featured In" Section */}
+            <section className="featured-in-section">
+                <div className="section-content-wrapper">
+                    <p className="featured-in-text">Trusted by leading educators and students worldwide:</p>
+                    <div className="featured-in-logos-grid">
+                        <img src="https://via.placeholder.com/120x40/E5E7EB/6B7280?text=UNIVERSITY+A" alt="University A Logo" className="featured-logo" />
+                        <img src="https://via.placeholder.com/120x40/E5E7EB/6B7280?text=EDU+MAG" alt="Education Magazine Logo" className="featured-logo" />
+                        <img src="https://via.placeholder.com/120x40/E5E7EB/6B7280?text=TECH+BLOG" alt="Tech Blog Logo" className="featured-logo" />
+                        <img src="https://via.placeholder.com/120x40/E5E7EB/6B7280?text=COACHING+C" alt="Coaching Center C Logo" className="featured-logo" />
+                        <img src="https://via.placeholder.com/120x40/E5E7EB/6B7280?text=ACADEMY+D" alt="Academy D Logo" className="featured-logo" />
+                    </div>
+                </div>
+            </section>
+
+            {/* Problem/Solution Section */}
+            <section className="problem-solution-section">
+                <div className="section-content-wrapper">
+                    <div className="section-header">
+                        <h2 className="section-title">
+                            Solving <span className="hero-title-gradient">Your Biggest Study Challenges</span>
+                        </h2>
+                        <p className="section-subtitle">
+                            Traditional learning methods often fall short. IntelliLearn fills the gaps, ensuring a
+                            smarter, more effective path to success.
+                        </p>
+                    </div>
+                    <div className="problem-solution-grid">
+                        <div className="problem-card">
+                            <MdLightbulb className="problem-icon" size={36} />
+                            <h3 className="problem-title">Feeling Overwhelmed by Vast Syllabi?</h3>
+                            <p className="problem-description">
+                                Textbooks are dense, and knowing where to start can be daunting. You waste precious time trying to
+                                figure out what's important.
+                            </p>
+                        </div>
+                        <div className="solution-card">
+                            <MdCheckCircle className="solution-icon" size={36} />
+                            <h3 className="solution-title">AI-Driven Personalized Learning Paths</h3>
+                            <p className="solution-description">
+                                IntelliLearn's AI intelligently analyzes your weaknesses and creates a tailored study plan,
+                                guiding you efficiently through complex topics.
+                            </p>
+                        </div>
+                        <div className="problem-card">
+                            <MdLightbulb className="problem-icon" size={36} />
+                            <h3 className="problem-title">Stuck on Concepts, No One to Ask?</h3>
+                            <p className="problem-description">
+                                When you hit a roadblock outside of class hours, getting immediate, clear explanations is
+                                almost impossible.
+                            </p>
+                        </div>
+                        <div className="solution-card">
+                            <MdCheckCircle className="solution-icon" size={36} />
+                            <h3 className="solution-title">Instant AI-Powered Tutoring</h3>
+                            <p className="solution-description">
+                                Get instant, step-by-step explanations for any question or concept, available 24/7.
+                                Never be stuck again.
+                            </p>
+                        </div>
+                        <div className="problem-card">
+                            <MdLightbulb className="problem-icon" size={36} />
+                            <h3 className="problem-title">Guessing Your Exam Readiness?</h3>
+                            <p className="problem-description">
+                                Mock tests help, but often lack deep insights into *why* you made errors or how to improve
+                                strategically.
+                            </p>
+                        </div>
+                        <div className="solution-card">
+                            <MdTrendingUp className="solution-icon" size={36} />
+                            <h3 className="solution-title">Predictive Performance Analytics</h3>
+                            <p className="solution-description">
+                                Our platform provides detailed reports, predicting your exam scores and highlighting
+                                exact areas for improvement, ensuring targeted practice.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Features Section */}
+            <section id="features" className="features-section">
+                <div className="section-content-wrapper">
+                    <div className="section-header">
+                        <h2 className="section-title">
+                            Discover Powerful <span className="hero-title-gradient">IntelliLearn Features</span>
+                        </h2>
+                        <p className="section-subtitle">
+                            Harness the power of AI to transform your learning experience and achieve your academic goals.
+                        </p>
+                    </div>
+                    <div className="features-grid">
+                        <div className="feature-card">
+                            <div className="feature-icon-wrapper">
+                                <MdBarChart className="feature-icon" />
+                            </div>
+                            <h3 className="feature-title">Adaptive AI Tutoring</h3>
+                            <p className="feature-description">
+                                Our intelligent AI tutor personalizes your learning path, adapting to your pace and
+                                understanding, ensuring efficient learning.
+                            </p>
+                        </div>
+                        <div className="feature-card">
+                            <div className="feature-icon-wrapper">
+                                <MdBook className="feature-icon" />
+                            </div>
+                            <h3 className="feature-title">Comprehensive Practice</h3>
+                            <p className="feature-description">
+                                Access a vast library of practice questions and mock tests, all curated to match your
+                                exam syllabus and difficulty.
+                            </p>
+                        </div>
+                        <div className="feature-card">
+                            <div className="feature-icon-wrapper">
+                                <MdPeople className="feature-icon" />
+                            </div>
+                            <h3 className="feature-title">Real-time Performance</h3>
+                            <p className="feature-description">
+                                Get instant feedback and detailed analytics on your progress, identifying strengths and
+                                areas needing more attention.
+                            </p>
+                        </div>
+                        <div className="feature-card">
+                            <div className="feature-icon-wrapper">
+                                <FaAward className="feature-icon" />
+                            </div>
+                            <h3 className="feature-title">Concept Clarity Boost</h3>
+                            <p className="feature-description">
+                                AI-powered explanations break down complex topics into easy-to-understand modules,
+                                ensuring fundamental understanding.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* How It Works Section */}
+            <section id="how-it-works" className="how-it-works-section">
+                <div className="section-content-wrapper">
+                    <div className="section-header">
+                        <h2 className="section-title">
+                            Your Path to Success in <span className="hero-title-gradient">3 Simple Steps</span>
+                        </h2>
+                        <p className="section-subtitle">
+                            Getting started with IntelliLearn is easy. Follow these steps to unlock your full academic potential.
+                        </p>
+                    </div>
+                    <div className="how-it-works-grid">
+                        <div className="how-it-works-item">
+                            <div className="how-it-works-icon-wrapper">
+                                <span className="how-it-works-number">1</span>
+                            </div>
+                            <h3 className="how-it-works-title">Sign Up & Set Goals</h3>
+                            <p className="how-it-works-description">
+                                Create your free account and tell us which exams or subjects you're preparing for.
+                            </p>
+                        </div>
+                        <div className="how-it-works-item">
+                            <div className="how-it-works-icon-wrapper">
+                                <span className="how-it-works-number">2</span>
+                            </div>
+                            <h3 className="how-it-works-title">Learn with AI Tutor</h3>
+                            <p className="how-it-works-description">
+                                Engage with personalized lessons, practice questions, and get instant doubt resolution.
+                            </p>
+                        </div>
+                        <div className="how-it-works-item">
+                            <div className="how-it-works-icon-wrapper">
+                                <span className="how-it-works-number">3</span>
+                            </div>
+                            <h3 className="how-it-works-title">Track & Achieve</h3>
+                            <p className="how-it-works-description">
+                                Monitor your progress with detailed analytics and achieve your target scores with confidence.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Testimonials Section */}
+            <section id="testimonials" className="testimonials-section">
+                <div className="section-content-wrapper">
+                    <div className="section-header">
+                        <h2 className="section-title">
+                            What Our Students <span className="hero-title-gradient">Are Saying</span>
+                        </h2>
+                        <p className="section-subtitle">
+                            Hear from thousands of students who achieved their academic dreams with IntelliLearn.
+                        </p>
+                    </div>
+                    <div className="testimonials-grid">
+                        <div className="testimonial-card">
+                            <div>
+                                <div className="testimonial-author-info">
+                                    <img src="https://via.placeholder.com/60/D1D5DB/4B5563?text=JS" alt="John Smith" className="testimonial-author-image" />
+                                    <div>
+                                        <p className="testimonial-author-name">John Smith</p>
+                                        <p className="testimonial-author-exam">JEE Aspirant</p>
+                                    </div>
+                                </div>
+                                <p className="testimonial-quote">
+                                    "IntelliLearn transformed my JEE preparation. The AI tutor explained complex physics concepts better than any textbook. I saw a significant jump in my scores!"
+                                </p>
+                            </div>
+                            <div className="testimonial-stars">
+                                <MdStar size={18} fill="currentColor" />
+                                <MdStar size={18} fill="currentColor" />
+                                <MdStar size={18} fill="currentColor" />
+                                <MdStar size={18} fill="currentColor" />
+                                <MdStar size={18} fill="currentColor" />
+                            </div>
+                        </div>
+                        <div className="testimonial-card">
+                            <div>
+                                <div className="testimonial-author-info">
+                                    <img src="https://via.placeholder.com/60/D1D5DB/4B5563?text=AS" alt="Ananya Sharma" className="testimonial-author-image" />
+                                    <div>
+                                        <p className="testimonial-author-name">Ananya Sharma</p>
+                                        <p className="testimonial-author-exam">NEET Student</p>
+                                    </div>
+                                </div>
+                                <p className="testimonial-quote">
+                                    "The adaptive practice questions are a game-changer. IntelliLearn identified my weak areas in Biology and helped me master them. Highly recommend!"
+                                </p>
+                            </div>
+                            <div className="testimonial-stars">
+                                <MdStar size={18} fill="currentColor" />
+                                <MdStar size={18} fill="currentColor" />
+                                <MdStar size={18} fill="currentColor" />
+                                <MdStar size={18} fill="currentColor" />
+                                <MdStar size={18} fill="currentColor" />
+                            </div>
+                        </div>
+                        <div className="testimonial-card">
+                            <div>
+                                <div className="testimonial-author-info">
+                                    <img src="https://via.placeholder.com/60/D1D5DB/4B5563?text=RK" alt="Rahul Kumar" className="testimonial-author-image" />
+                                    <div>
+                                        <p className="testimonial-author-name">Rahul Kumar</p>
+                                        <p className="testimonial-author-exam">CAT Aspirant</p>
+                                    </div>
+                                </div>
+                                <p className="testimonial-quote">
+                                    "The detailed performance analytics are incredible. I could see exactly where I was losing marks and the AI suggested the right modules to improve. My scores have skyrocketed!"
+                                </p>
+                            </div>
+                            <div className="testimonial-stars">
+                                <MdStar size={18} fill="currentColor" />
+                                <MdStar size={18} fill="currentColor" />
+                                <MdStar size={18} fill="currentColor" />
+                                <MdStar size={18} fill="currentColor" />
+                                <MdStar size={18} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Pricing Section */}
+            <section id="pricing" className="pricing-section">
+                <div className="section-content-wrapper">
+                    <div className="section-header">
+                        <h2 className="section-title">
+                            Flexible Plans for <span className="hero-title-gradient">Every Student</span>
+                        </h2>
+                        <p className="section-subtitle">
+                            Choose the plan that fits your study needs and unlock unlimited access to IntelliLearn's
+                            powerful AI tools.
+                        </p>
+                    </div>
+                    <div className="pricing-grid">
+                        {/* Basic Plan */}
+                        <div className="pricing-card">
+                            <h3 className="pricing-plan-title">Basic</h3>
+                            <p className="pricing-price">$99<span className="pricing-price-period">/year</span></p>
+                            <ul className="pricing-features-list">
+                                <li className="pricing-feature-item">
+                                    <MdCheckCircle className="feature-check-icon" /> Access to core AI tutor
+                                </li>
+                                <li className="pricing-feature-item">
+                                    <MdCheckCircle className="feature-check-icon" /> Limited practice questions
+                                </li>
+                                <li className="pricing-feature-item">
+                                    <MdCheckCircle className="feature-check-icon" /> Basic performance reports
+                                </li>
+                                <li className="pricing-feature-item">
+                                    <MdCheckCircle className="feature-check-icon" /> Email support
+                                </li>
+                            </ul>
+                            <button className="pricing-button-secondary">Get Started</button>
+                        </div>
+
+                        {/* Pro Plan (Popular) */}
+                        <div className="pricing-card pricing-card-popular">
+                            <span className="pricing-popular-tag">Most Popular</span>
+                            <h3 className="pricing-plan-title">Pro</h3>
+                            <p className="pricing-price">$199<span className="pricing-price-period">/year</span></p>
+                            <ul className="pricing-features-list">
+                                <li className="pricing-feature-item">
+                                    <MdCheckCircle className="feature-check-icon" /> Unlimited AI tutoring
+                                </li>
+                                <li className="pricing-feature-item">
+                                    <MdCheckCircle className="feature-check-icon" /> Full practice question library
+                                </li>
+                                <li className="pricing-feature-item">
+                                    <MdCheckCircle className="feature-check-icon" /> Advanced performance analytics
+                                </li>
+                                <li className="pricing-feature-item">
+                                    <MdCheckCircle className="feature-check-icon" /> Priority chat support
+                                </li>
+                                <li className="pricing-feature-item">
+                                    <MdCheckCircle className="feature-check-icon" /> Access to premium content
+                                </li>
+                            </ul>
+                            <button className="pricing-button-primary">Get Started</button>
+                        </div>
+
+                        {/* Premium Plan */}
+                        <div className="pricing-card">
+                            <h3 className="pricing-plan-title">Premium</h3>
+                            <p className="pricing-price">$299<span className="pricing-price-period">/year</span></p>
+                            <ul className="pricing-features-list">
+                                <li className="pricing-feature-item">
+                                    <MdCheckCircle className="feature-check-icon" /> All Pro features
+                                </li>
+                                <li className="pricing-feature-item">
+                                    <MdCheckCircle className="feature-check-icon" /> Dedicated personal learning coach
+                                </li>
+                                <li className="pricing-feature-item">
+                                    <MdCheckCircle className="feature-check-icon" /> Exclusive webinars & workshops
+                                </li>
+                                <li className="pricing-feature-item">
+                                    <MdCheckCircle className="feature-check-icon" /> Early access to new features
+                                </li>
+                            </ul>
+                            <button className="pricing-button-secondary">Get Started</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* FAQ Section */}
+            <section className="faq-section">
+                <div className="section-content-wrapper">
+                    <div className="section-header">
+                        <h2 className="section-title">
+                            Frequently Asked <span className="hero-title-gradient">Questions</span>
+                        </h2>
+                        <p className="section-subtitle">
+                            Find quick answers to the most common questions about IntelliLearn.
+                        </p>
+                    </div>
+                    <div className="faq-accordion-container">
+                        <details className="faq-item">
+                            <summary className="faq-question">How does IntelliLearn's AI tutor work?</summary>
+                            <p className="faq-answer">
+                                Our AI tutor uses advanced machine learning to analyze your learning patterns, identify
+                                knowledge gaps, and then provides personalized explanations, practice problems, and
+                                tailored study plans to help you master concepts efficiently.
+                            </p>
+                        </details>
+                        <details className="faq-item">
+                            <summary className="faq-question">What exams and subjects does IntelliLearn cover?</summary>
+                            <p className="faq-answer">
+                                IntelliLearn supports a wide range of competitive exams including JEE, NEET, UPSC, CAT,
+                                GMAT, and many more. We cover subjects like Physics, Chemistry, Mathematics, Biology,
+                                English, General Knowledge, and Reasoning. New exams and subjects are added regularly!
+                            </p>
+                        </details>
+                        <details className="faq-item">
+                            <summary className="faq-question">Can I use IntelliLearn on my mobile device?</summary>
+                            <p className="faq-answer">
+                                Yes! IntelliLearn is fully responsive and optimized for all devices. You can access
+                                our platform seamlessly on your desktop, laptop, tablet, or smartphone through your web browser.
+                                Dedicated mobile apps are also in development.
+                            </p>
+                        </details>
+                        <details className="faq-item">
+                            <summary className="faq-question">Is my data safe and private with IntelliLearn?</summary>
+                            <p className="faq-answer">
+                                Absolutely. We prioritize your privacy and data security. All your learning data is
+                                encrypted and stored securely. We adhere to strict data protection regulations and
+                                never share your personal information with third parties.
+                            </p>
+                        </details>
+                        <details className="faq-item">
+                            <summary className="faq-question">What kind of support can I expect?</summary>
+                            <p className="faq-answer">
+                                All users have access to email support. Pro and Premium plan subscribers receive
+                                priority chat support and dedicated personal learning coach (Premium only) for a more
+                                hands-on guidance.
+                            </p>
+                        </details>
+                    </div>
+                </div>
+            </section>
+
+            {/* CTA Section */}
+            <section className="cta-section">
+                <div className="section-content-wrapper cta-content-wrapper">
+                    <div className="cta-text-center">
+                        <h2 className="cta-title">
+                            Ready to Transform Your <br /> Learning Journey?
+                        </h2>
+                        <p className="cta-subtitle">
+                            Join thousands of successful students who are achieving their academic goals with
+                            IntelliLearn's cutting-edge AI platform.
+                        </p>
+                        <button className="cta-button">Get Started Now</button>
+                    </div>
+                </div>
+            </section>
+
+            {/* Footer */}
+            <footer className="footer-main">
+                <div className="section-content-wrapper">
+                    <div className="footer-grid">
+                        <div>
+                            <a href="#" className="footer-logo-group">
+                                <div className="footer-logo-icon-wrapper">
+                                    <FaRocket className="footer-logo-text" size={24} />
+                                </div>
+                                <span className="footer-brand-name">IntelliLearn</span>
+                            </a>
+                            <p className="footer-description">
+                                IntelliLearn is revolutionizing education with AI-powered personalized learning,
+                                making complex subjects easy and academic success attainable for everyone.
+                            </p>
+                        </div>
+                        <div>
+                            <h4 className="footer-heading">Company</h4>
+                            <ul className="footer-links-list">
+                                <li><a href="#" className="footer-link">About Us</a></li>
+                                <li><a href="#" className="footer-link">Careers</a></li>
+                                <li><a href="#" className="footer-link">Blog</a></li>
+                                <li><a href="#" className="footer-link">Contact</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 className="footer-heading">Product</h4>
+                            <ul className="footer-links-list">
+                                <li><a href="#features" className="footer-link">Features</a></li>
+                                <li><a href="#pricing" className="footer-link">Pricing</a></li>
+                                <li><a href="#" className="footer-link">Testimonials</a></li>
+                                <li><a href="#" className="footer-link">Demo</a></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 className="footer-heading">Legal</h4>
+                            <ul className="footer-links-list">
+                                <li><a href="#" className="footer-link">Privacy Policy</a></li>
+                                <li><a href="#" className="footer-link">Terms of Service</a></li>
+                                <li><a href="#" className="footer-link">Cookie Policy</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div className="footer-copyright">
+                        © {new Date().getFullYear()} IntelliLearn. All rights reserved.
+                    </div>
+                </div>
+            </footer>
         </div>
-      </footer>
-    </div>
-  );
+    );
 };
+
+export default LandingPage;

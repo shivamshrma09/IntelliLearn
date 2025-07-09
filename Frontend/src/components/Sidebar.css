@@ -1,10 +1,10 @@
 .sidebar-root {
   position: fixed;
-  top: 0;
+  top: 4rem;
   left: 0;
   z-index: 50;
   width: 256px;
-  height: 100vh;
+  height: calc(100vh - 4rem);
   background: #fff;
   box-shadow: 0 2px 12px rgba(30, 64, 175, 0.08);
   transform: translateX(-100%);
@@ -14,10 +14,10 @@
 }
 @media (min-width: 1024px) {
   .sidebar-root {
-    position: static;
-    transform: none;
-    box-shadow: none;
-    height: auto;
+    position: fixed;
+    transform: translateX(0);
+    box-shadow: 0 2px 12px rgba(30, 64, 175, 0.08);
+    height: calc(100vh - 4rem);
   }
 }
 .sidebar-root.open {

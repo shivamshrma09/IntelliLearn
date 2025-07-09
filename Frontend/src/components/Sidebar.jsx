@@ -18,8 +18,6 @@ export const Sidebar = ({ isOpen, activeTab, onTabChange }) => {
     { id: 'my-batch', label: 'My Batch', icon: BookOpen },
     { id: 'library', label: 'Library', icon: FileText },
     { id: 'tests', label: 'Tests', icon: BarChart3 },
-    { id: 'achievements', label: 'Achievements', icon: Trophy },
-    { id: 'store', label: 'Store', icon: ShoppingCart },
     { id: 'opportunities', label: 'Opportunities', icon: Gift },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { LandingPage } from './components/LandingPage.jsx';
+import './App.css';
+import LandingPage from './components/LandingPage.jsx';
 import { LoginPage } from './components/LoginPage.jsx';
 import { SignupPage } from './components/SignupPage.jsx';
 import { Header } from './components/Header.jsx';
@@ -10,8 +11,7 @@ import { TestInterface } from './components/TestInterface.jsx';
 import { MyBatch } from './components/MyBatch.jsx';
 import { Library } from './components/Library.jsx';
 import { Tests } from './components/Tests.jsx';
-import { Achievements } from './components/Achievements.jsx';
-import { Store } from './components/Store.jsx';
+
 import { Opportunities } from './components/Opportunities.jsx';
 import { Settings } from './components/Settings.jsx';
 import { TailwindTest } from './components/TailwindTest.jsx';
@@ -77,10 +77,7 @@ function App() {
         return <Library />;
       case 'tests':
         return <Tests />;
-      case 'achievements':
-        return <Achievements />;
-      case 'store':
-        return <Store />;
+
       case 'opportunities':
         return <Opportunities />;
       case 'settings':
@@ -110,7 +107,7 @@ function App() {
 
   // Dashboard layout
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="app-container">
       {!showTestInterface && (
         <>
           <Header 
@@ -118,14 +115,14 @@ function App() {
             currentUser={currentUser}
           />
           
-          <div className="flex">
+          <div className="dashboard-layout">
             <Sidebar 
               isOpen={sidebarOpen}
               activeTab={activeTab}
               onTabChange={handleTabChange}
             />
             
-            <main className="flex-1 lg:ml-64">
+            <main className="main-content">
               {renderContent()}
             </main>
           </div>
@@ -135,12 +132,10 @@ function App() {
       {showTestInterface && renderContent()}
 
       {/* Mobile overlay */}
-      {sidebarOpen && !showTestInterface && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-          onClick={toggleSidebar}
-        />
-      )}
+      <div 
+        className={`mobile-overlay ${sidebarOpen && !showTestInterface ? 'show' : ''}`}
+        onClick={toggleSidebar}
+      />
     </div>
   );
 }

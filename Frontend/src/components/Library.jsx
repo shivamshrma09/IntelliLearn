@@ -1,313 +1,379 @@
 import React, { useState } from 'react';
-import { Search, Filter, BookOpen, FileText, Headphones, Video, Download, Share2, Star, Clock, Tag, Folder } from 'lucide-react';
+import {
+  Search,
+  Filter,
+  BookOpen,
+  FileText,
+  Headphones,
+  Video,
+  Image,
+  Download,
+  Share2,
+  Star,
+  Clock,
+  Eye,
+  Bookmark,
+  Plus,
+  Grid,
+  List,
+  Tag,
+  Calendar
+} from 'lucide-react';
 import './Library.css';
 
 export const Library = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedType, setSelectedType] = useState('all');
-  const [selectedFolder, setSelectedFolder] = useState('all');
-
-  const folders = [
-    { id: 'all', name: 'All Items', count: 18 },
-    { id: 'physics', name: 'Physics', count: 6 },
-    { id: 'chemistry', name: 'Chemistry', count: 4 },
-    { id: 'mathematics', name: 'Mathematics', count: 5 },
-    { id: 'favorites', name: 'Favorites', count: 3 }
-  ];
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState('all');
+  const [viewMode, setViewMode] = useState('grid');
+  const [selectedTags, setSelectedTags] = useState([]);
 
   const libraryItems = [
     {
       id: 1,
-      title: 'Electromagnetic Induction Complete Guide',
+      title: 'Mechanics - Chapter 1',
       type: 'chapter',
-      category: 'physics',
-      format: 'text',
       subject: 'Physics',
-      dateAdded: '2024-01-15',
-      size: '2.4 MB',
-      duration: '45 min read',
-      isBookmarked: true,
-      tags: ['JEE', 'NEET', 'Advanced'],
-      thumbnail: 'https://images.pexels.com/photos/159866/books-book-pages-read-literature-159866.jpeg?auto=compress&cs=tinysrgb&w=300',
-      description: 'Comprehensive guide covering all aspects of electromagnetic induction including Faraday\'s law, Lenz\'s law, and applications.'
+      batch: 'JEE Main 2024 Physics',
+      icon: BookOpen,
+      color: 'bg-blue-500',
+      content: 'Comprehensive chapter on classical mechanics covering Newton\'s laws, motion, and forces.',
+      readTime: '45 min',
+      lastAccessed: '2 days ago',
+      bookmarked: true,
+      tags: ['JEE', 'Physics', 'Mechanics'],
+      rating: 4.8,
+      views: 1247
     },
     {
       id: 2,
-      title: 'Organic Chemistry Reactions Audio Summary',
-      type: 'audio',
-      category: 'chemistry',
-      format: 'audio',
-      subject: 'Chemistry',
-      dateAdded: '2024-01-14',
-      size: '15.2 MB',
-      duration: '25 min',
-      isBookmarked: false,
-      tags: ['NEET', 'Organic', 'Reactions'],
-      thumbnail: 'https://images.pexels.com/photos/3721941/pexels-photo-3721941.jpeg?auto=compress&cs=tinysrgb&w=300',
-      description: 'Audio summary of important organic chemistry reactions with mechanisms and examples.'
+      title: 'Thermodynamics Notes',
+      type: 'notes',
+      subject: 'Physics',
+      batch: 'JEE Main 2024 Physics',
+      icon: FileText,
+      color: 'bg-green-500',
+      content: 'Personal notes on thermodynamics with key formulas and problem-solving strategies.',
+      readTime: '30 min',
+      lastAccessed: '1 day ago',
+      bookmarked: false,
+      tags: ['JEE', 'Physics', 'Thermodynamics'],
+      rating: 4.6,
+      views: 892
     },
     {
       id: 3,
-      title: 'Calculus Integration Techniques Video',
-      type: 'video',
-      category: 'mathematics',
-      format: 'video',
-      subject: 'Mathematics',
-      dateAdded: '2024-01-13',
-      size: '85.6 MB',
-      duration: '18 min',
-      isBookmarked: true,
-      tags: ['JEE', 'Integration', 'Advanced'],
-      thumbnail: 'https://images.pexels.com/photos/6256065/pexels-photo-6256065.jpeg?auto=compress&cs=tinysrgb&w=300',
-      description: 'Video tutorial covering advanced integration techniques including substitution, parts, and partial fractions.'
+      title: 'Optics Audio Summary',
+      type: 'audio',
+      subject: 'Physics',
+      batch: 'JEE Main 2024 Physics',
+      icon: Headphones,
+      color: 'bg-purple-500',
+      content: 'Audio summary of optics chapter covering reflection, refraction, and interference.',
+      readTime: '25 min',
+      lastAccessed: '3 days ago',
+      bookmarked: true,
+      tags: ['JEE', 'Physics', 'Optics'],
+      rating: 4.7,
+      views: 634
     },
     {
       id: 4,
-      title: 'My Custom Notes - Modern History',
-      type: 'notes',
-      category: 'history',
-      format: 'text',
-      subject: 'History',
-      dateAdded: '2024-01-12',
-      size: '1.8 MB',
-      duration: '30 min read',
-      isBookmarked: false,
-      tags: ['UPSC', 'Modern', 'Custom'],
-      thumbnail: 'https://images.pexels.com/photos/1910225/pexels-photo-1910225.jpeg?auto=compress&cs=tinysrgb&w=300',
-      description: 'Personal notes on modern Indian history covering major events, movements, and personalities.'
+      title: 'Organic Chemistry Video',
+      type: 'video',
+      subject: 'Chemistry',
+      batch: 'NEET Chemistry',
+      icon: Video,
+      color: 'bg-red-500',
+      content: 'Video explanation of organic chemistry reactions and mechanisms.',
+      readTime: '60 min',
+      lastAccessed: '1 week ago',
+      bookmarked: false,
+      tags: ['NEET', 'Chemistry', 'Organic'],
+      rating: 4.9,
+      views: 2341
     },
     {
       id: 5,
-      title: 'Thermodynamics Problem Solving Guide',
-      type: 'chapter',
-      category: 'physics',
-      format: 'text',
-      subject: 'Physics',
-      dateAdded: '2024-01-11',
-      size: '3.2 MB',
-      duration: '55 min read',
-      isBookmarked: true,
-      tags: ['JEE', 'Thermodynamics', 'Problems'],
-      thumbnail: 'https://images.pexels.com/photos/256541/pexels-photo-256541.jpeg?auto=compress&cs=tinysrgb&w=300',
-      description: 'Step-by-step guide to solving thermodynamics problems with worked examples and practice questions.'
+      title: 'Cell Biology Diagrams',
+      type: 'image',
+      subject: 'Biology',
+      batch: 'NEET Biology',
+      icon: Image,
+      color: 'bg-yellow-500',
+      content: 'Collection of detailed cell biology diagrams and illustrations.',
+      readTime: '15 min',
+      lastAccessed: '5 days ago',
+      bookmarked: true,
+      tags: ['NEET', 'Biology', 'Cell'],
+      rating: 4.5,
+      views: 1523
     },
     {
       id: 6,
-      title: 'Biology Cell Structure Video Lecture',
-      type: 'video',
-      category: 'biology',
-      format: 'video',
-      subject: 'Biology',
-      dateAdded: '2024-01-10',
-      size: '120.4 MB',
-      duration: '32 min',
-      isBookmarked: false,
-      tags: ['NEET', 'Cell', 'Structure'],
-      thumbnail: 'https://images.pexels.com/photos/3585047/pexels-photo-3585047.jpeg?auto=compress&cs=tinysrgb&w=300',
-      description: 'Detailed video lecture on cell structure covering organelles, functions, and cellular processes.'
+      title: 'Calculus Problem Sets',
+      type: 'chapter',
+      subject: 'Mathematics',
+      batch: 'JEE Mathematics',
+      icon: BookOpen,
+      color: 'bg-indigo-500',
+      content: 'Advanced calculus problems with detailed solutions and explanations.',
+      readTime: '90 min',
+      lastAccessed: '2 weeks ago',
+      bookmarked: false,
+      tags: ['JEE', 'Mathematics', 'Calculus'],
+      rating: 4.8,
+      views: 987
     }
   ];
 
-  const categories = [
-    { id: 'all', name: 'All Categories' },
-    { id: 'physics', name: 'Physics' },
-    { id: 'chemistry', name: 'Chemistry' },
-    { id: 'mathematics', name: 'Mathematics' },
-    { id: 'biology', name: 'Biology' },
-    { id: 'history', name: 'History' }
-  ];
-
-  const types = [
-    { id: 'all', name: 'All Types' },
-    { id: 'chapter', name: 'Chapters' },
-    { id: 'notes', name: 'Notes' },
-    { id: 'audio', name: 'Audio' },
-    { id: 'video', name: 'Video' }
-  ];
+  const tags = ['JEE', 'NEET', 'Physics', 'Chemistry', 'Biology', 'Mathematics', 'Mechanics', 'Thermodynamics', 'Optics', 'Organic', 'Cell', 'Calculus'];
 
   const filteredItems = libraryItems.filter(item => {
-    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         item.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         item.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
-    const matchesType = selectedType === 'all' || item.type === selectedType;
-    const matchesFolder = selectedFolder === 'all' || 
-                         (selectedFolder === 'favorites' && item.isBookmarked) ||
-                         item.category === selectedFolder;
-    return matchesSearch && matchesCategory && matchesType && matchesFolder;
+    const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         item.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         item.content.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesFilter = filterType === 'all' || item.type === filterType;
+
+    const matchesTags = selectedTags.length === 0 || 
+                       selectedTags.every(tag => item.tags.includes(tag));
+
+    return matchesSearch && matchesFilter && matchesTags;
   });
 
-  const getFormatIcon = (format) => {
-    switch (format) {
-      case 'text': return <FileText size={16} className="icon-blue" />;
-      case 'audio': return <Headphones size={16} className="icon-green" />;
-      case 'video': return <Video size={16} className="icon-red" />;
-      default: return <BookOpen size={16} className="icon-gray" />;
+  const handleTagToggle = (tag) => {
+    setSelectedTags(prev => 
+      prev.includes(tag) 
+        ? prev.filter(t => t !== tag)
+        : [...prev, tag]
+    );
+  };
+
+  const getTypeIcon = (type) => {
+    switch (type) {
+      case 'chapter': return BookOpen;
+      case 'notes': return FileText;
+      case 'audio': return Headphones;
+      case 'video': return Video;
+      case 'image': return Image;
+      default: return BookOpen;
+    }
+  };
+
+  const getTypeColor = (type) => {
+    switch (type) {
+      case 'chapter': return 'bg-blue-500';
+      case 'notes': return 'bg-green-500';
+      case 'audio': return 'bg-purple-500';
+      case 'video': return 'bg-red-500';
+      case 'image': return 'bg-yellow-500';
+      default: return 'bg-gray-500';
     }
   };
 
   return (
-    <div className="library-root">
-      {/* Header */}
+    <div className="library-container">
       <div className="library-header">
-        <div>
-          <h1 className="library-title">My Library</h1>
-          <p className="library-desc">Organize and access all your learning materials</p>
+        <div className="library-header-content">
+          <h1 className="library-title">Library</h1>
+          <p className="library-subtitle">
+            Access all your saved content, notes, and learning materials
+          </p>
         </div>
-        <div className="library-header-actions">
-          <button className="library-filter-btn">
-            <Filter size={20} className="mr-2" />
-            Filter
-          </button>
-          <button className="library-newfolder-btn">
-            <Folder size={20} className="mr-2" />
-            New Folder
-          </button>
+        <button className="library-add-btn">
+          <Plus className="library-add-icon" />
+          <span>Add Content</span>
+        </button>
+      </div>
+
+      <div className="library-search-section">
+        <div className="library-search-container">
+          <div className="library-search-wrapper">
+            <Search className="library-search-icon" />
+            <input
+              type="text"
+              placeholder="Search library..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="library-search-input"
+            />
+          </div>
+          
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            className="library-filter-select"
+          >
+            <option value="all">All Types</option>
+            <option value="chapter">Chapters</option>
+            <option value="notes">Notes</option>
+            <option value="audio">Audio</option>
+            <option value="video">Videos</option>
+            <option value="image">Images</option>
+          </select>
+          
+          <div className="library-view-toggle">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`library-view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+            >
+              <Grid className="library-view-icon" />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`library-view-btn ${viewMode === 'list' ? 'active' : ''}`}
+            >
+              <List className="library-view-icon" />
+            </button>
+          </div>
+        </div>
+        
+        <div className="library-tags">
+          <div className="library-tags-container">
+            {tags.map(tag => (
+              <button
+                key={tag}
+                onClick={() => handleTagToggle(tag)}
+                className={`library-tag ${selectedTags.includes(tag) ? 'active' : ''}`}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="library-layout">
-        {/* Sidebar */}
-        <aside className="library-sidebar">
-          <div className="library-sidebar-content">
-            <h3 className="library-sidebar-title">Folders</h3>
-            <div className="library-folder-list">
-              {folders.map(folder => (
-                <button
-                  key={folder.id}
-                  onClick={() => setSelectedFolder(folder.id)}
-                  className={`library-folder-btn${selectedFolder === folder.id ? ' active' : ''}`}
-                >
-                  <div className="library-folder-btn-main">
-                    <Folder size={16} className="mr-2" />
-                    <span>{folder.name}</span>
-                  </div>
-                  <span className="library-folder-count">{folder.count}</span>
-                </button>
-              ))}
-            </div>
-            <div className="library-sidebar-quick">
-              <h4>Quick Filters</h4>
-              <div>
-                <button className="library-quick-btn">
-                  <Star size={14} className="icon-yellow mr-2" />
-                  Bookmarked
-                </button>
-                <button className="library-quick-btn">
-                  <Clock size={14} className="icon-blue mr-2" />
-                  Recently Added
-                </button>
-                <button className="library-quick-btn">
-                  <Download size={14} className="icon-green mr-2" />
-                  Downloaded
-                </button>
-              </div>
-            </div>
-          </div>
-        </aside>
-        {/* Main Content */}
-        <main className="library-main">
-          {/* Search and Filters */}
-          <div className="library-searchbar">
-            <div className="library-searchbar-row">
-              <div className="library-searchbar-search">
-                <Search className="library-searchbar-icon" size={20} />
-                <input
-                  type="text"
-                  placeholder="Search your library..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="library-searchbar-input"
-                />
-              </div>
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="library-searchbar-select"
-              >
-                {categories.map(category => (
-                  <option key={category.id} value={category.id}>{category.name}</option>
-                ))}
-              </select>
-              <select
-                value={selectedType}
-                onChange={(e) => setSelectedType(e.target.value)}
-                className="library-searchbar-select"
-              >
-                {types.map(type => (
-                  <option key={type.id} value={type.id}>{type.name}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-          {/* Library Items */}
-          <div className="library-items-grid">
-            {filteredItems.map(item => (
-              <div key={item.id} className="library-item-card">
-                <div className="library-item-img-wrap">
-                  <img 
-                    src={item.thumbnail} 
-                    alt={item.title}
-                    className="library-item-img"
-                  />
-                  <div className="library-item-format">
-                    {getFormatIcon(item.format)}
-                  </div>
-                  <div className="library-item-duration">
-                    {item.duration}
-                  </div>
-                </div>
-                <div className="library-item-body">
-                  <div className="library-item-title-row">
-                    <h3 className="library-item-title">{item.title}</h3>
-                    <button className="library-item-star">
-                      <Star size={16} fill={item.isBookmarked ? 'currentColor' : 'none'} />
+      {viewMode === 'grid' ? (
+        <div className="library-grid">
+          {filteredItems.map(item => {
+            const Icon = getTypeIcon(item.type);
+            return (
+              <div key={item.id} className="library-card">
+                <div className="library-card-content">
+                  <div className="library-card-header">
+                    <div className={`library-card-icon ${getTypeColor(item.type)}`}>
+                      <Icon className="library-icon" />
+                    </div>
+                    <button className="library-bookmark-btn">
+                      <Bookmark className={`library-bookmark-icon ${item.bookmarked ? 'bookmarked' : ''}`} />
                     </button>
                   </div>
-                  <p className="library-item-desc">{item.description}</p>
-                  <div className="library-item-tags">
-                    {item.tags.map(tag => (
-                      <span key={tag} className="library-item-tag">
-                        <Tag size={10} className="mr-1" />
+                  
+                  <h3 className="library-card-title">{item.title}</h3>
+                  <p className="library-card-description">{item.content}</p>
+                  
+                  <div className="library-card-meta">
+                    <div className="library-meta-item">
+                      <Clock className="library-meta-icon" />
+                      <span>{item.readTime}</span>
+                    </div>
+                    <div className="library-meta-item">
+                      <Eye className="library-meta-icon" />
+                      <span>{item.views}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="library-card-footer">
+                    <div className="library-rating">
+                      <Star className="library-rating-icon" />
+                      <span className="library-rating-text">{item.rating}</span>
+                    </div>
+                    <div className="library-actions">
+                      <button className="library-action-btn">
+                        <Share2 className="library-action-icon" />
+                      </button>
+                      <button className="library-action-btn">
+                        <Download className="library-action-icon" />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="library-card-tags">
+                    {item.tags.slice(0, 3).map(tag => (
+                      <span key={tag} className="library-card-tag">
                         {tag}
                       </span>
                     ))}
                   </div>
-                  <div className="library-item-meta">
-                    <span>{item.subject}</span>
-                    <span>{item.size}</span>
-                  </div>
-                  <div className="library-item-actions">
-                    <span>{item.dateAdded}</span>
-                    <div>
-                      <button className="library-item-action-btn">
-                        <Download size={16} />
-                      </button>
-                      <button className="library-item-action-btn">
-                        <Share2 size={16} />
-                      </button>
+                  
+                  <button className="library-open-btn">
+                    Open
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="library-list">
+          <div className="library-list-container">
+            {filteredItems.map(item => {
+              const Icon = getTypeIcon(item.type);
+              return (
+                <div key={item.id} className="library-list-item">
+                  <div className="library-list-content">
+                    <div className={`library-list-icon ${getTypeColor(item.type)}`}>
+                      <Icon className="library-icon" />
+                    </div>
+                    
+                    <div className="library-list-details">
+                      <div className="library-list-header">
+                        <h3 className="library-list-title">{item.title}</h3>
+                        <div className="library-list-actions">
+                          <button className="library-bookmark-btn">
+                            <Bookmark className={`library-bookmark-icon ${item.bookmarked ? 'bookmarked' : ''}`} />
+                          </button>
+                          <button className="library-action-btn">
+                            <Share2 className="library-action-icon" />
+                          </button>
+                          <button className="library-action-btn">
+                            <Download className="library-action-icon" />
+                          </button>
+                        </div>
+                      </div>
+                      
+                      <p className="library-list-description">{item.content}</p>
+                      
+                      <div className="library-list-footer">
+                        <div className="library-list-meta">
+                          <div className="library-meta-item">
+                            <Clock className="library-meta-icon" />
+                            <span>{item.readTime}</span>
+                          </div>
+                          <div className="library-meta-item">
+                            <Eye className="library-meta-icon" />
+                            <span>{item.views}</span>
+                          </div>
+                          <div className="library-meta-item">
+                            <Star className="library-rating-icon" />
+                            <span>{item.rating}</span>
+                          </div>
+                          <div className="library-meta-item">
+                            <Calendar className="library-meta-icon" />
+                            <span>{item.lastAccessed}</span>
+                          </div>
+                        </div>
+                        
+                        <button className="library-open-btn">
+                          Open
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
-          {/* Empty State */}
-          {filteredItems.length === 0 && (
-            <div className="library-empty">
-              <BookOpen size={48} className="icon-gray" />
-              <h3>No items found</h3>
-              <p>
-                {searchQuery ? 'Try adjusting your search terms or filters' : 'Your library is empty. Start creating content to see it here.'}
-              </p>
-              <button className="library-empty-btn">
-                Browse Courses
-              </button>
-            </div>
-          )}
-        </main>
-      </div>
+        </div>
+      )}
+
+      {filteredItems.length === 0 && (
+        <div className="library-empty-state">
+          <BookOpen className="library-empty-icon" />
+          <h3 className="library-empty-title">No content found</h3>
+          <p className="library-empty-text">Try adjusting your search or filter criteria</p>
+        </div>
+      )}
     </div>
   );
 };

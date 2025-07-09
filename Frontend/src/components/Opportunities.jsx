@@ -1,244 +1,553 @@
 import React, { useState } from 'react';
-import { Gift, Calendar, MapPin, Users, Clock, ExternalLink, Filter, Search, Star } from 'lucide-react';
+import {
+  Trophy,
+  Calendar,
+  MapPin,
+  Users,
+  ExternalLink,
+  Search,
+  Filter,
+  Star,
+  Clock,
+  Award,
+  GraduationCap,
+  BookOpen,
+  Target,
+  AlertCircle,
+  CheckCircle,
+  Bell,
+  Code,
+  Zap,
+  Globe,
+  Briefcase,
+  School
+} from 'lucide-react';
 import './Opportunities.css';
 
 export const Opportunities = () => {
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('scholarships');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterCategory, setFilterCategory] = useState('all');
 
-  const opportunities = [
+  const scholarships = [
     {
       id: 1,
-      title: 'National Science Scholarship 2024',
-      description: 'Merit-based scholarship for students pursuing science education',
-      type: 'scholarship',
-      amount: '₹50,000',
-      deadline: '2024-03-15',
-      eligibility: 'Class 12 Science students',
-      location: 'National',
+      title: 'National Science Talent Search Scholarship',
       provider: 'Government of India',
-      applicants: 2500,
-      image: 'https://images.pexels.com/photos/267669/pexels-photo-267669.jpeg?auto=compress&cs=tinysrgb&w=300',
-      featured: true
+      amount: '₹1,50,000',
+      deadline: '2024-01-15',
+      category: 'science',
+      eligibility: 'Class 12 students with 90%+ in Science',
+      description: 'Merit-based scholarship for students pursuing science education',
+      applicants: 12450,
+      selected: 500,
+      difficulty: 'High',
+      requirements: ['Academic transcripts', 'Research proposal', 'Recommendation letters'],
+      status: 'open',
+      image: 'https://images.pexels.com/photos/5428019/pexels-photo-5428019.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
     },
     {
       id: 2,
-      title: 'JEE Main 2024 Registration',
-      description: 'Register for JEE Main 2024 - India\'s premier engineering entrance exam',
-      type: 'exam',
-      amount: 'Free',
-      deadline: '2024-02-28',
-      eligibility: 'Class 12 passed/appearing',
-      location: 'National',
-      provider: 'NTA',
-      applicants: 1200000,
-      image: 'https://images.pexels.com/photos/3184357/pexels-photo-3184357.jpeg?auto=compress&cs=tinysrgb&w=300',
-      featured: true
+      title: 'JEE Advanced Merit Scholarship',
+      provider: 'IIT Foundation',
+      amount: '₹2,00,000',
+      deadline: '2024-02-20',
+      category: 'engineering',
+      eligibility: 'JEE Advanced rank under 1000',
+      description: 'Scholarship for top JEE Advanced performers',
+      applicants: 8930,
+      selected: 200,
+      difficulty: 'High',
+      requirements: ['JEE Advanced scorecard', 'Income certificate', 'Caste certificate (if applicable)'],
+      status: 'open',
+      image: 'https://images.pexels.com/photos/1181677/pexels-photo-1181677.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
     },
     {
       id: 3,
-      title: 'KVPY Research Fellowship',
-      description: 'Kishore Vaigyanik Protsahan Yojana for science research aptitude',
-      type: 'fellowship',
-      amount: '₹7,000/month',
-      deadline: '2024-02-20',
-      eligibility: 'Class 11, 12 & B.Sc students',
-      location: 'National',
-      provider: 'IISC Bangalore',
-      applicants: 85000,
-      image: 'https://images.pexels.com/photos/3862132/pexels-photo-3862132.jpeg?auto=compress&cs=tinysrgb&w=300',
-      featured: false
+      title: 'NEET Medical Excellence Award',
+      provider: 'Medical Council of India',
+      amount: '₹1,75,000',
+      deadline: '2024-01-30',
+      category: 'medical',
+      eligibility: 'NEET rank under 500',
+      description: 'Support for aspiring medical professionals',
+      applicants: 15670,
+      selected: 300,
+      difficulty: 'High',
+      requirements: ['NEET scorecard', 'Medical fitness certificate', 'Character certificate'],
+      status: 'open',
+      image: 'https://images.pexels.com/photos/4386465/pexels-photo-4386465.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
     },
     {
       id: 4,
-      title: 'NEET 2024 Registration',
-      description: 'National medical entrance exam registration now open',
-      type: 'exam',
-      amount: '₹1,700',
-      deadline: '2024-03-10',
-      eligibility: 'Class 12 with Biology',
-      location: 'National',
-      provider: 'NTA',
-      applicants: 1800000,
-      image: 'https://images.pexels.com/photos/3585047/pexels-photo-3585047.jpeg?auto=compress&cs=tinysrgb&w=300',
-      featured: true
-    },
-    {
-      id: 5,
-      title: 'State Merit Scholarship',
-      description: 'State government scholarship for academically excellent students',
-      type: 'scholarship',
-      amount: '₹25,000',
-      deadline: '2024-04-01',
-      eligibility: 'State board toppers',
-      location: 'State Level',
-      provider: 'State Government',
-      applicants: 15000,
-      image: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=300',
-      featured: false
-    },
-    {
-      id: 6,
-      title: 'UPSC CSE Notification',
-      description: 'Civil Services Examination notification released',
-      type: 'exam',
-      amount: '₹200',
-      deadline: '2024-03-25',
-      eligibility: 'Graduate degree',
-      location: 'National',
-      provider: 'UPSC',
-      applicants: 950000,
-      image: 'https://images.pexels.com/photos/1910225/pexels-photo-1910225.jpeg?auto=compress&cs=tinysrgb&w=300',
-      featured: false
+      title: 'Women in STEM Scholarship',
+      provider: 'Tech Foundation',
+      amount: '₹1,25,000',
+      deadline: '2024-03-15',
+      category: 'technology',
+      eligibility: 'Female students in STEM fields',
+      description: 'Encouraging women participation in science and technology',
+      applicants: 6789,
+      selected: 150,
+      difficulty: 'Medium',
+      requirements: ['Academic records', 'Project portfolio', 'Personal statement'],
+      status: 'open',
+      image: 'https://images.pexels.com/photos/3861958/pexels-photo-3861958.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
     }
   ];
-  const categories = [
-    { id: 'all', name: 'All Opportunities' },
-    { id: 'scholarship', name: 'Scholarships' },
-    { id: 'exam', name: 'Exams' },
-    { id: 'fellowship', name: 'Fellowships' },
-    { id: 'internship', name: 'Internships' }
+
+  const competitions = [
+    {
+      id: 1,
+      title: 'National Science Olympiad',
+      organizer: 'Science Foundation',
+      prize: '₹50,000',
+      deadline: '2024-01-20',
+      category: 'science',
+      level: 'National',
+      description: 'Test your scientific knowledge and problem-solving skills',
+      participants: 25000,
+      winners: 10,
+      difficulty: 'High',
+      subjects: ['Physics', 'Chemistry', 'Biology', 'Mathematics'],
+      status: 'open',
+      image: 'https://images.pexels.com/photos/159832/science-formula-physics-school-159832.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
+    },
+    {
+      id: 2,
+      title: 'Inter-School Mathematics Competition',
+      organizer: 'Math Society',
+      prize: '₹25,000',
+      deadline: '2024-02-10',
+      category: 'mathematics',
+      level: 'Regional',
+      description: 'Challenging mathematical problems for bright minds',
+      participants: 8500,
+      winners: 5,
+      difficulty: 'Medium',
+      subjects: ['Algebra', 'Geometry', 'Calculus', 'Statistics'],
+      status: 'open',
+      image: 'https://images.pexels.com/photos/1496154/pexels-photo-1496154.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
+    },
+    {
+      id: 3,
+      title: 'Young Innovators Challenge',
+      organizer: 'Innovation Hub',
+      prize: '₹1,00,000',
+      deadline: '2024-02-28',
+      category: 'innovation',
+      level: 'National',
+      description: 'Showcase your innovative ideas and win big',
+      participants: 12000,
+      winners: 3,
+      difficulty: 'High',
+      subjects: ['Technology', 'Science', 'Engineering', 'Design'],
+      status: 'open',
+      image: 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
+    }
   ];
 
-  const filteredOpportunities = opportunities.filter(opportunity => {
-    const matchesCategory = selectedCategory === 'all' || opportunity.type === selectedCategory;
-    const matchesSearch = opportunity.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         opportunity.description.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
+  const exams = [
+    {
+      id: 1,
+      title: 'JEE Main 2024',
+      organizer: 'NTA',
+      date: '2024-01-24',
+      category: 'engineering',
+      level: 'National',
+      description: 'Joint Entrance Examination for engineering admissions',
+      applicants: 1200000,
+      centers: 400,
+      difficulty: 'High',
+      subjects: ['Physics', 'Chemistry', 'Mathematics'],
+      status: 'upcoming',
+      registrationEnd: '2024-01-10',
+      image: 'https://images.pexels.com/photos/5428019/pexels-photo-5428019.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
+    },
+    {
+      id: 2,
+      title: 'NEET 2024',
+      organizer: 'NTA',
+      date: '2024-05-05',
+      category: 'medical',
+      level: 'National',
+      description: 'National medical entrance examination',
+      applicants: 1800000,
+      centers: 500,
+      difficulty: 'High',
+      subjects: ['Physics', 'Chemistry', 'Biology'],
+      status: 'upcoming',
+      registrationEnd: '2024-03-15',
+      image: 'https://images.pexels.com/photos/4386465/pexels-photo-4386465.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
+    },
+    {
+      id: 3,
+      title: 'KVPY 2024',
+      organizer: 'IISc',
+      date: '2024-03-10',
+      category: 'science',
+      level: 'National',
+      description: 'Kishore Vaigyanik Protsahan Yojana',
+      applicants: 150000,
+      centers: 200,
+      difficulty: 'Medium',
+      subjects: ['Physics', 'Chemistry', 'Biology', 'Mathematics'],
+      status: 'upcoming',
+      registrationEnd: '2024-02-20',
+      image: 'https://images.pexels.com/photos/1181677/pexels-photo-1181677.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
+    }
+  ];
+
+  const internships = [
+    {
+      id: 1,
+      title: 'Google Summer of Code 2024',
+      company: 'Google',
+      duration: '3 months',
+      stipend: '$3,000',
+      deadline: '2024-04-02',
+      category: 'technology',
+      level: 'International',
+      description: 'Work on open source projects with mentorship from Google engineers',
+      applicants: 50000,
+      selected: 1200,
+      difficulty: 'High',
+      skills: ['Programming', 'Open Source', 'Git', 'Documentation'],
+      status: 'open',
+      image: 'https://images.pexels.com/photos/270348/pexels-photo-270348.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
+    },
+    {
+      id: 2,
+      title: 'Microsoft Student Partner Program',
+      company: 'Microsoft',
+      duration: '1 year',
+      stipend: 'Varies',
+      deadline: '2024-03-15',
+      category: 'technology',
+      level: 'Global',
+      description: 'Lead technical communities and events at your university',
+      applicants: 25000,
+      selected: 500,
+      difficulty: 'Medium',
+      skills: ['Leadership', 'Public Speaking', 'Microsoft Technologies', 'Community Building'],
+      status: 'open',
+      image: 'https://images.pexels.com/photos/1181677/pexels-photo-1181677.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
+    },
+    {
+      id: 3,
+      title: 'Research Internship at ISRO',
+      company: 'ISRO',
+      duration: '6 months',
+      stipend: '₹25,000/month',
+      deadline: '2024-02-28',
+      category: 'research',
+      level: 'National',
+      description: 'Work on cutting-edge space research projects',
+      applicants: 15000,
+      selected: 100,
+      difficulty: 'High',
+      skills: ['Research', 'Space Technology', 'Data Analysis', 'Technical Writing'],
+      status: 'open',
+      image: 'https://images.pexels.com/photos/73873/rocket-launch-rocket-take-off-nasa-73873.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
+    }
+  ];
+
+  const hackathons = [
+    {
+      id: 1,
+      title: 'Smart India Hackathon 2024',
+      organizer: 'Government of India',
+      prize: '₹1,00,000',
+      deadline: '2024-02-15',
+      category: 'technology',
+      level: 'National',
+      description: '36-hour hackathon to solve real-world problems',
+      participants: 100000,
+      winners: 50,
+      difficulty: 'High',
+      themes: ['Healthcare', 'Education', 'Agriculture', 'Smart Cities'],
+      status: 'open',
+      image: 'https://images.pexels.com/photos/1181677/pexels-photo-1181677.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
+    },
+    {
+      id: 2,
+      title: 'HackMIT 2024',
+      organizer: 'MIT',
+      prize: '$10,000',
+      deadline: '2024-03-01',
+      category: 'technology',
+      level: 'International',
+      description: 'Premier student hackathon at MIT',
+      participants: 5000,
+      winners: 10,
+      difficulty: 'High',
+      themes: ['AI/ML', 'Blockchain', 'IoT', 'Web Development'],
+      status: 'open',
+      image: 'https://images.pexels.com/photos/1181677/pexels-photo-1181677.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
+    },
+    {
+      id: 3,
+      title: 'Code for Good Hackathon',
+      organizer: 'TechForGood',
+      prize: '₹50,000',
+      deadline: '2024-02-20',
+      category: 'social',
+      level: 'National',
+      description: 'Build solutions for social impact',
+      participants: 8000,
+      winners: 15,
+      difficulty: 'Medium',
+      themes: ['Social Impact', 'Environment', 'Education', 'Healthcare'],
+      status: 'open',
+      image: 'https://images.pexels.com/photos/1181677/pexels-photo-1181677.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
+    }
+  ];
+
+  const getCurrentData = () => {
+    switch (activeTab) {
+      case 'scholarships': return scholarships;
+      case 'competitions': return competitions;
+      case 'exams': return exams;
+      case 'internships': return internships;
+      case 'hackathons': return hackathons;
+      default: return [];
+    }
+  };
+
+  const filteredData = getCurrentData().filter(item => {
+    const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         item.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = filterCategory === 'all' || item.category === filterCategory;
+    return matchesSearch && matchesCategory;
   });
 
-  const getTypeColor = (type) => {
-    switch (type) {
-      case 'scholarship': return 'opportunity-scholarship';
-      case 'exam': return 'opportunity-exam';
-      case 'fellowship': return 'opportunity-fellowship';
-      case 'internship': return 'opportunity-internship';
-      default: return 'opportunity-default';
+  const getDifficultyColor = (difficulty) => {
+    switch (difficulty) {
+      case 'High': return 'text-red-600 bg-red-100';
+      case 'Medium': return 'text-yellow-600 bg-yellow-100';
+      case 'Low': return 'text-green-600 bg-green-100';
+      default: return 'text-gray-600 bg-gray-100';
     }
   };
 
-  const getTypeIcon = (type) => {
-    switch (type) {
-      case 'scholarship': return <Gift size={16} />;
-      case 'exam': return <Calendar size={16} />;
-      case 'fellowship': return <Star size={16} />;
-      case 'internship': return <Users size={16} />;
-      default: return <Gift size={16} />;
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'open': return 'text-green-600 bg-green-100';
+      case 'upcoming': return 'text-blue-600 bg-blue-100';
+      case 'closed': return 'text-red-600 bg-red-100';
+      default: return 'text-gray-600 bg-gray-100';
     }
   };
 
-  const getDaysRemaining = (deadline) => {
+  const isDeadlineNear = (deadline) => {
     const deadlineDate = new Date(deadline);
     const today = new Date();
     const diffTime = deadlineDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+    return diffDays <= 7;
+  };
+
+  const getTabIcon = (tabId) => {
+    switch (tabId) {
+      case 'scholarships': return GraduationCap;
+      case 'competitions': return Trophy;
+      case 'exams': return BookOpen;
+      case 'internships': return Briefcase;
+      case 'hackathons': return Code;
+      default: return BookOpen;
+    }
   };
 
   return (
-    <div className="opportunities-root">
-      {/* Header */}
+    <div className="opportunities-container">
       <div className="opportunities-header">
-        <div>
-          <h1 className="opportunities-title">Opportunities</h1>
-          <p className="opportunities-desc">Discover scholarships, exams, and career opportunities</p>
-        </div>
-        <div className="opportunities-header-actions">
-          <div className="opportunities-search-wrap">
-            <Search className="opportunities-search-icon" size={20} />
+        <h1 className="opportunities-title">Opportunities Hub</h1>
+        <p className="opportunities-subtitle">
+          Discover scholarships, competitions, internships, hackathons, and exam opportunities to advance your career
+        </p>
+      </div>
+
+      <div className="opportunities-tabs">
+        {[
+          { id: 'scholarships', label: 'Scholarships', count: scholarships.length },
+          { id: 'competitions', label: 'Competitions', count: competitions.length },
+          { id: 'exams', label: 'Entrance Exams', count: exams.length },
+          { id: 'internships', label: 'Internships', count: internships.length },
+          { id: 'hackathons', label: 'Hackathons', count: hackathons.length }
+        ].map((tab) => {
+          const Icon = getTabIcon(tab.id);
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`opportunities-tab ${activeTab === tab.id ? 'active' : ''}`}
+            >
+              <Icon className="opportunities-tab-icon" />
+              <span>{tab.label}</span>
+              <span className="opportunities-tab-count">
+                {tab.count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="opportunities-search-section">
+        <div className="opportunities-search-container">
+          <div className="opportunities-search-wrapper">
+            <Search className="opportunities-search-icon" />
             <input
               type="text"
-              placeholder="Search opportunities..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={`Search ${activeTab}...`}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="opportunities-search-input"
             />
           </div>
-          <button className="opportunities-filter-btn">
-            <Filter size={20} className="mr-2" />
-            Filter
-          </button>
-        </div>
-      </div>
-
-      {/* Categories */}
-      <div className="opportunities-categories">
-        {categories.map(category => (
-          <button
-            key={category.id}
-            onClick={() => setSelectedCategory(category.id)}
-            className={`opportunities-category-btn${selectedCategory === category.id ? ' active' : ''}`}
+          
+          <select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className="opportunities-filter-select"
           >
-            {category.name}
+            <option value="all">All Categories</option>
+            <option value="science">Science</option>
+            <option value="engineering">Engineering</option>
+            <option value="medical">Medical</option>
+            <option value="mathematics">Mathematics</option>
+            <option value="technology">Technology</option>
+            <option value="innovation">Innovation</option>
+            <option value="research">Research</option>
+            <option value="social">Social Impact</option>
+          </select>
+          
+          <button className="opportunities-alert-btn">
+            <Bell className="opportunities-alert-icon" />
+            <span>Set Alerts</span>
           </button>
-        ))}
-      </div>
-
-      {/* Featured Opportunities Banner */}
-      <div className="opportunities-featured-banner">
-        <h2>🎯 Featured Opportunities</h2>
-        <p>Don't miss out on these high-value opportunities with approaching deadlines</p>
-        <div className="opportunities-featured-grid">
-          {opportunities.filter(op => op.featured).slice(0, 2).map(opportunity => (
-            <div key={opportunity.id} className="opportunities-featured-card">
-              <h3>{opportunity.title}</h3>
-              <p>{opportunity.description}</p>
-              <div className="opportunities-featured-info">
-                <span>{opportunity.amount}</span>
-                <span>{getDaysRemaining(opportunity.deadline)} days left</span>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
 
-      {/* Opportunities Grid */}
       <div className="opportunities-grid">
-        {filteredOpportunities.map(opportunity => (
-          <div key={opportunity.id} className="opportunities-card">
-            <div className="opportunities-card-img-wrap">
+        {filteredData.map(item => (
+          <div key={item.id} className="opportunity-card">
+            <div className="opportunity-image-container">
               <img 
-                src={opportunity.image} 
-                alt={opportunity.title}
-                className="opportunities-card-img"
+                src={item.image} 
+                alt={item.title}
+                className="opportunity-image"
               />
-              {opportunity.featured && (
-                <div className="opportunities-card-featured-badge">
-                  Featured
+              <div className="opportunity-badges">
+                <span className={`opportunity-status-badge ${getStatusColor(item.status)}`}>
+                  {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                </span>
+                <span className={`opportunity-difficulty-badge ${getDifficultyColor(item.difficulty)}`}>
+                  {item.difficulty}
+                </span>
+              </div>
+              {(activeTab === 'scholarships' || activeTab === 'competitions' || activeTab === 'internships' || activeTab === 'hackathons') && 
+               isDeadlineNear(item.deadline) && (
+                <div className="opportunity-deadline-warning">
+                  <AlertCircle className="opportunity-warning-icon" />
+                  <span>Deadline Near</span>
                 </div>
               )}
-              <div className="opportunities-card-typeicon">
-                <div className={`opportunities-typeicon ${getTypeColor(opportunity.type)}`}>
-                  {getTypeIcon(opportunity.type)}
-                </div>
-              </div>
             </div>
-            <div className="opportunities-card-body">
-              <div className="opportunities-card-type-row">
-                <span className={`opportunities-typebadge ${getTypeColor(opportunity.type)}`}>
-                  {opportunity.type.charAt(0).toUpperCase() + opportunity.type.slice(1)}
-                </span>
-                <span className="opportunities-amount">{opportunity.amount}</span>
-              </div>
-              <h3 className="opportunities-card-title">{opportunity.title}</h3>
-              <p className="opportunities-card-desc">{opportunity.description}</p>
-              <div className="opportunities-card-meta">
-                <div><Calendar size={14} className="mr-2" />Deadline: {opportunity.deadline}</div>
-                <div><MapPin size={14} className="mr-2" />{opportunity.location}</div>
-                <div><Users size={14} className="mr-2" />{opportunity.applicants.toLocaleString()} applicants</div>
-              </div>
-              <div className="opportunities-card-eligibility">
-                <p><span>Eligibility:</span> {opportunity.eligibility}</p>
-                <p><span>Provider:</span> {opportunity.provider}</p>
-              </div>
-              <div className="opportunities-card-footer">
-                <div className="opportunities-card-daysleft">
-                  <Clock size={14} className="mr-1" />
-                  <span>{getDaysRemaining(opportunity.deadline)} days left</span>
+            
+            <div className="opportunity-content">
+              <h3 className="opportunity-title">{item.title}</h3>
+              <p className="opportunity-description">{item.description}</p>
+              
+              <div className="opportunity-details">
+                <div className="opportunity-detail-row">
+                  <span className="opportunity-detail-label">
+                    {activeTab === 'scholarships' ? 'Provider' : 
+                     activeTab === 'internships' ? 'Company' : 'Organizer'}:
+                  </span>
+                  <span className="opportunity-detail-value">
+                    {activeTab === 'scholarships' ? item.provider : 
+                     activeTab === 'internships' ? item.company : item.organizer}
+                  </span>
                 </div>
-                <button className="opportunities-apply-btn">
-                  <span>Apply Now</span>
-                  <ExternalLink size={14} />
+                
+                <div className="opportunity-detail-row">
+                  <span className="opportunity-detail-label">
+                    {activeTab === 'scholarships' ? 'Amount' : 
+                     activeTab === 'competitions' || activeTab === 'hackathons' ? 'Prize' : 
+                     activeTab === 'internships' ? 'Stipend' : 'Date'}:
+                  </span>
+                  <span className="opportunity-detail-value green">
+                    {activeTab === 'scholarships' ? item.amount : 
+                     activeTab === 'competitions' || activeTab === 'hackathons' ? item.prize : 
+                     activeTab === 'internships' ? item.stipend : item.date}
+                  </span>
+                </div>
+                
+                <div className="opportunity-detail-row">
+                  <span className="opportunity-detail-label">
+                    {activeTab === 'exams' ? 'Registration End' : 
+                     activeTab === 'internships' ? 'Duration' : 'Deadline'}:
+                  </span>
+                  <span className="opportunity-detail-value red">
+                    {activeTab === 'exams' ? item.registrationEnd : 
+                     activeTab === 'internships' ? item.duration : item.deadline}
+                  </span>
+                </div>
+                
+                <div className="opportunity-detail-row">
+                  <span className="opportunity-detail-label">
+                    {activeTab === 'scholarships' ? 'Applicants' : 
+                     activeTab === 'competitions' || activeTab === 'hackathons' ? 'Participants' : 
+                     activeTab === 'internships' ? 'Applicants' : 'Applicants'}:
+                  </span>
+                  <span className="opportunity-detail-value blue">
+                    {activeTab === 'scholarships' ? item.applicants : 
+                     activeTab === 'competitions' || activeTab === 'hackathons' ? item.participants : 
+                     activeTab === 'internships' ? item.applicants : item.applicants}
+                  </span>
+                </div>
+              </div>
+              
+              {(activeTab === 'scholarships' || activeTab === 'internships') && (
+                <div className="opportunity-eligibility">
+                  <p className="opportunity-eligibility-label">
+                    {activeTab === 'scholarships' ? 'Eligibility:' : 'Skills Required:'}
+                  </p>
+                  <p className="opportunity-eligibility-text">
+                    {activeTab === 'scholarships' ? item.eligibility : item.skills?.join(', ')}
+                  </p>
+                </div>
+              )}
+              
+              <div className="opportunity-requirements">
+                <p className="opportunity-requirements-label">
+                  {activeTab === 'scholarships' || activeTab === 'internships' ? 'Requirements' : 
+                   activeTab === 'hackathons' ? 'Themes' : 'Subjects'}:
+                </p>
+                <div className="opportunity-tags">
+                  {(activeTab === 'scholarships' ? item.requirements : 
+                    activeTab === 'internships' ? item.skills : 
+                    activeTab === 'hackathons' ? item.themes : item.subjects)
+                    ?.slice(0, 3).map((req, index) => (
+                    <span key={index} className="opportunity-tag">
+                      {req}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="opportunity-actions">
+                <button className="opportunity-apply-btn">
+                  <ExternalLink className="opportunity-apply-icon" />
+                  <span>
+                    {activeTab === 'scholarships' ? 'Apply Now' : 
+                     activeTab === 'competitions' || activeTab === 'hackathons' ? 'Register' : 
+                     activeTab === 'internships' ? 'Apply' : 'Apply'}
+                  </span>
+                </button>
+                
+                <button className="opportunity-bookmark-btn">
+                  <Star className="opportunity-bookmark-icon" />
                 </button>
               </div>
             </div>
@@ -246,43 +555,13 @@ export const Opportunities = () => {
         ))}
       </div>
 
-      {/* Empty State */}
-      {filteredOpportunities.length === 0 && (
-        <div className="opportunities-empty">
-          <Gift size={48} className="opportunities-empty-icon" />
-          <h3>No opportunities found</h3>
-          <p>
-            {searchQuery ? 'Try adjusting your search terms' : 'No opportunities available in this category'}
-          </p>
-          <button 
-            onClick={() => {
-              setSelectedCategory('all');
-              setSearchQuery('');
-            }}
-            className="opportunities-viewall-btn"
-          >
-            View All Opportunities
-          </button>
+      {filteredData.length === 0 && (
+        <div className="opportunities-empty-state">
+          <Trophy className="opportunities-empty-icon" />
+          <h3 className="opportunities-empty-title">No opportunities found</h3>
+          <p className="opportunities-empty-text">Try adjusting your search or filter criteria</p>
         </div>
       )}
-
-      {/* Newsletter Signup */}
-      <div className="opportunities-newsletter">
-        <div className="opportunities-newsletter-inner">
-          <h3>Never Miss an Opportunity</h3>
-          <p>Get notified about new scholarships, exams, and career opportunities</p>
-          <div className="opportunities-newsletter-row">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="opportunities-newsletter-input"
-            />
-            <button className="opportunities-newsletter-btn">
-              Subscribe
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
