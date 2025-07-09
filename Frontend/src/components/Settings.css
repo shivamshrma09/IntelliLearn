@@ -1,0 +1,263 @@
+.settings-root {
+  padding: 32px 16px;
+  background: #f9fafb;
+  min-height: 100vh;
+  font-family: 'Inter', Arial, sans-serif;
+}
+.settings-header {
+  margin-bottom: 32px;
+}
+.settings-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #111827;
+}
+.settings-desc {
+  color: #6b7280;
+}
+.settings-layout {
+  display: flex;
+  gap: 24px;
+}
+@media (max-width: 1023px) {
+  .settings-layout {
+    flex-direction: column;
+  }
+}
+.settings-sidebar {
+  flex: 0 0 260px;
+}
+.settings-tabs {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+  border: 1px solid #e5e7eb;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.settings-tab-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: none;
+  border: none;
+  color: #374151;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.settings-tab-btn.active {
+  background: #eff6ff;
+  color: #2563eb;
+}
+.settings-tab-btn:hover:not(.active) {
+  background: #f3f4f6;
+  color: #111827;
+}
+.settings-signout-wrap {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+.settings-signout-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: none;
+  border: none;
+  color: #dc2626;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.settings-signout-btn:hover {
+  background: #fee2e2;
+}
+.settings-main {
+  flex: 1;
+  min-width: 0;
+}
+.settings-main-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+  border: 1px solid #e5e7eb;
+  padding: 32px;
+}
+.settings-section-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #111827;
+  margin-bottom: 24px;
+}
+.settings-profile-avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+.settings-avatar-wrap {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+.settings-avatar-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 9999px;
+  object-fit: cover;
+}
+.settings-avatar-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #3b82f6;
+  color: #fff;
+  padding: 8px;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.settings-avatar-btn:hover {
+  background: #2563eb;
+}
+.settings-profile-name {
+  font-weight: 600;
+  color: #111827;
+  font-size: 1.15rem;
+}
+.settings-profile-exam {
+  color: #6b7280;
+  font-size: 0.97rem;
+}
+.settings-profile-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+@media (min-width: 768px) {
+  .settings-profile-form {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.settings-label {
+  display: block;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 8px;
+}
+.settings-input {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 1rem;
+  color: #374151;
+  outline: none;
+  transition: border 0.2s, box-shadow 0.2s;
+  background: #f9fafb;
+}
+.settings-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px #3b82f6;
+}
+.settings-input-icon-wrap {
+  position: relative;
+}
+.settings-input-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+}
+.settings-input-iconed {
+  padding-left: 40px;
+}
+.settings-profile-bio-wrap {
+  margin-top: 24px;
+}
+.settings-textarea {
+  resize: none;
+  min-height: 80px;
+}
+.settings-save-row {
+  margin-top: 32px;
+  display: flex;
+  justify-content: flex-end;
+}
+.settings-save-btn {
+  background: linear-gradient(to right, #3b82f6, #a21caf);
+  color: #fff;
+  padding: 10px 32px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 500;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.settings-save-btn:hover {
+  background: linear-gradient(to right, #2563eb, #7c3aed);
+}
+.settings-notification-section {
+  margin-bottom: 32px;
+}
+.settings-notification-section h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 12px;
+}
+.settings-switch-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.settings-switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: #f9fafb;
+  padding: 12px 16px;
+  border-radius: 8px;
+}
+.settings-switch-row span {
+  font-weight: 500;
+  color: #374151;
+}
+.settings-switch-row p {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin-top: 2px;
+}
+.settings-switch-row input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: #3b82f6;
+}
+.settings-privacy-section {
+  margin-bottom: 24px;
+}
+.settings-comingsoon {
+  color: #6b7280;
+  font-size: 1rem;
+  margin-top: 16px;
+}
