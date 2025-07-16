@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 import './BatchOverview.css'; // Import CSS
 
-export const BatchOverview = ({ onBack }) => {
+ export const BatchOverview = ({ onBack }) => {
   const [activeTab, setActiveTab] = useState('overview');
 
   const batchData = {
@@ -320,3 +320,4 @@ export const BatchOverview = ({ onBack }) => {
     </div>
   );
 };
+

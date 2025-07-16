@@ -1002,4 +1002,3 @@ export const Dashboard = ({ onContinueLearning, onStartTest }) => {
   );
 };
 
-

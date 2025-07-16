@@ -17,9 +17,11 @@ import {
     MdQuestionMark         // For FAQ
 } from 'react-icons/md';
 import { AiOutlineMenu, AiOutlineClose } from 'react-icons/ai';
+import { Link } from 'react-router-dom';
+
 // --- END: Icon Imports ---
 
-const LandingPage = () => {
+ const LandingPage = ({onNavigate}) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const toggleMobileMenu = () => {
@@ -46,8 +48,9 @@ const LandingPage = () => {
                     </nav>
 
                     <div className="header-actions-desktop">
-                        <button className="header-login-button">Login</button>
-                        <button className="header-get-started-button">Get Started Free</button>
+      <button onClick={() => onNavigate("login") } className="header-login-button" >Login</button>
+      <button onClick={() => onNavigate("signup") } className="header-login-button" >Get Started</button>
+
                     </div>
 
                     <button className="header-menu-toggle-button" onClick={toggleMobileMenu}>
@@ -582,5 +585,7 @@ const LandingPage = () => {
         </div>
     );
 };
+
+
 
 export default LandingPage;

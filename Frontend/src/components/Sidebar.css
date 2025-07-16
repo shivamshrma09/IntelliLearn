@@ -1,6 +1,14 @@
+/* 1. Parent Layout */
+.dashboard-layout {
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+}
+
+/* 2. Sidebar Styles */
 .sidebar-root {
   position: fixed;
-  top: 4rem;
+  top: 4rem; /* Adjust if your header height is different */
   left: 0;
   z-index: 50;
   width: 256px;
@@ -12,22 +20,37 @@
   display: flex;
   flex-direction: column;
 }
+
 @media (min-width: 1024px) {
   .sidebar-root {
-    position: fixed;
     transform: translateX(0);
-    box-shadow: 0 2px 12px rgba(30, 64, 175, 0.08);
-    height: calc(100vh - 4rem);
   }
 }
+
 .sidebar-root.open {
   transform: translateX(0);
 }
+
+/* 3. Main Content Styles */
+.main-content {
+  flex: 1;
+  margin-left: 0;
+  transition: margin-left 0.3s;
+}
+
+@media (min-width: 1024px) {
+  .main-content {
+    margin-left: 256px; /* Same as sidebar width */
+  }
+}
+
+/* 4. Sidebar Inner Elements */
 .sidebar-inner {
   display: flex;
   flex-direction: column;
   height: 100%;
 }
+
 .sidebar-menu-wrap {
   flex: 1 1 0%;
   display: flex;
@@ -36,6 +59,7 @@
   padding-bottom: 16px;
   overflow-y: auto;
 }
+
 .sidebar-menu {
   margin-top: 16px;
   display: flex;
@@ -43,6 +67,7 @@
   gap: 4px;
   padding: 0 12px;
 }
+
 .sidebar-menu-btn {
   display: flex;
   align-items: center;
@@ -58,26 +83,33 @@
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
+
 .sidebar-menu-btn.active {
   background: #dbeafe;
   color: #2563eb;
 }
+
 .sidebar-menu-btn:hover:not(.active) {
   background: #f3f4f6;
   color: #111827;
 }
+
 .sidebar-menu-icon {
   width: 24px;
   height: 24px;
   color: #9ca3af;
   transition: color 0.2s;
 }
+
 .sidebar-menu-icon.active {
   color: #2563eb;
 }
+
+/* 5. Premium Section (Optional) */
 .sidebar-premium-wrap {
   padding: 16px;
 }
+
 .sidebar-premium-card {
   background: linear-gradient(to right, #3b82f6, #a21caf);
   border-radius: 12px;
@@ -87,6 +119,7 @@
   flex-direction: column;
   align-items: flex-start;
 }
+
 .sidebar-premium-header {
   display: flex;
   align-items: center;
@@ -95,14 +128,17 @@
   font-weight: 500;
   margin-bottom: 8px;
 }
+
 .sidebar-premium-star {
   color: #facc15;
 }
+
 .sidebar-premium-desc {
   font-size: 0.9rem;
   opacity: 0.95;
   margin-bottom: 14px;
 }
+
 .sidebar-premium-btn {
   background: #fff;
   color: #2563eb;
@@ -114,6 +150,32 @@
   cursor: pointer;
   transition: background 0.2s;
 }
+
 .sidebar-premium-btn:hover {
   background: #f3f4f6;
+}
+
+/* 6. Mobile Overlay (Optional) */
+.mobile-overlay {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .mobile-overlay {
+    display: block;
+    position: fixed;
+    top: 4rem;
+    left: 0;
+    width: 100vw;
+    height: calc(100vh - 4rem);
+    background: rgba(0,0,0,0.2);
+    z-index: 49;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .mobile-overlay.show {
+    opacity: 1;
+    pointer-events: all;
+  }
 }

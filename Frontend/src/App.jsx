@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import './App.css';
 import LandingPage from './components/LandingPage.jsx';
-import { LoginPage } from './components/LoginPage.jsx';
-import { SignupPage } from './components/SignupPage.jsx';
+import LoginPage from './components/LoginPage.jsx';
+import  SignupPage  from './components/SignupPage.jsx';
 import { Header } from './components/Header.jsx';
 import { Sidebar } from './components/Sidebar.jsx';
 import { Dashboard } from './components/Dashboard.jsx';
