@@ -28,7 +28,7 @@ import {
 } from 'lucide-react';
 import './Tests.css';
 
-export const Tests = () => {
+const Tests = ({ onNavigate }) => {
   const [activeTab, setActiveTab] = useState('available');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterSubject, setFilterSubject] = useState('all');
@@ -661,3 +661,5 @@ export const Tests = () => {
     </div>
   );
 };
+
+export default Tests; 

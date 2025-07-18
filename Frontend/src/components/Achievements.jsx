@@ -2,7 +2,7 @@ import React from 'react';
 import { Trophy, Star, Award, Target, Zap, BookOpen, Clock, Medal } from 'lucide-react';
 import './Achievements.css';
 
-export const Achievements = () => {
+export const Achievements = ({ onNavigate }) => {
    const achievements = [
     {
       id: 1,
@@ -302,3 +302,5 @@ export const Achievements = () => {
     </div>
   );
 };
+
+export default Achievements;

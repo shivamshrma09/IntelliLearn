@@ -45,6 +45,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  color:#6d28d9;
 }
 .header-logo-icon {
   width: 32px;
@@ -63,7 +64,7 @@
 .header-logo-text {
   font-size: 1.25rem;
   font-weight: bold;
-  color: #111827;
+  color: #2ada2a;
 }
 
 /* Search */

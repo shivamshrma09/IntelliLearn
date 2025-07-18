@@ -1,7 +1,7 @@
 import React from 'react';
 import './TailwindTest.css';
 
-export const TailwindTest = () => {
+ const TailwindTest = ({ onNavigate }) => {
   return (
     <div className="tailwind-test-container">
       <div className="tailwind-test-card">
@@ -28,3 +28,5 @@ export const TailwindTest = () => {
     </div>
   );
 };
+
+export default TailwindTest; 

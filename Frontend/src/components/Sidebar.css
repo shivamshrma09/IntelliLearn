@@ -179,3 +179,16 @@
     pointer-events: all;
   }
 }
+
+
+
+.sidebar-root {
+  width: 250px;
+  transition: all 0.3s;
+  overflow: hidden;
+}
+
+.sidebar-root:not(.open) {
+  width: 0;
+  /* या display: none; */
+}

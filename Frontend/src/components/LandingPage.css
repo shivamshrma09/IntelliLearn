@@ -157,7 +157,7 @@ button {
 .header-brand-name {
     font-size: 1.4rem; /* text-2xl */
     font-weight: 800; /* Extra bold */
-    color: var(--color-gray-900);
+    color: #6d28d9;
     letter-spacing: -0.025em; /* Tighten tracking */
 }
 

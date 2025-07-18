@@ -20,12 +20,73 @@ import {
   Calendar
 } from 'lucide-react';
 import './Library.css';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-export const Library = () => {
+
+ const Library = ({ onNavigate ,  currentUser = {}  }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [viewMode, setViewMode] = useState('grid');
   const [selectedTags, setSelectedTags] = useState([]);
+  const { streak = 0, points = 0, avatar = '', name = 'User' ,cource = 'Electric engineering' } = currentUser;
+
+
+
+
+
+
+  //librery links 
+  const GOOGLE_API_KEY = "AIzaSyB2G1eKOy_4iwK8oiBVzsvkS9kjT20L0-U"; // <-- **IMPORTANT: REPLACE THIS WITH YOUR ACTUAL API KEY**
+  const getGeminiModel = (modelName = "gemini-1.5-flash") => { // Using 1.5-flash for faster responses
+    const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
+    return genAI.getGenerativeModel({ model: modelName });
+  };
+  
+
+
+  const prompt = `
+I am a student currently pursuing a course in "${cource}". I have study batches or topics related to the following subjects and topics: ${libraryItems
+  .map(item => `${item.subject}: ${item.tags.join(', ')}`)
+  .join('; ')}.
+
+Can you recommend me a list of the top 10 high-quality, free online resources (like articles, videos, PDFs, lectures, tutorials etc.) for these subjects and topics?
+
+Make sure the resources are:
+- Educational and trustworthy (published by universities, educators, or learning websites)
+- Free to access
+- Include a variety of formats (videos, PDFs, articles etc.)
+- Include the title and the full URL of each item 
+
+Return the recommendations in markdown format, like this:
+1. **[Title of Resource](https://link.to/resource)** - A brief 1-line description.
+
+Please retrieve and give me only free, publicly available resources.
+`;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   const libraryItems = [
     {
@@ -377,3 +438,6 @@ export const Library = () => {
     </div>
   );
 };
+
+
+export default Library;

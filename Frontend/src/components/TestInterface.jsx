@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Clock, Flag, ChevronLeft, ChevronRight, CheckCircle, AlertCircle } from 'lucide-react';
 import './TestInterface.css';
 
-export const TestInterface = ({ onBack, testData }) => {
+ const TestInterface = ({ onBack, testData , onNavigate } }) => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState({});
   const [timeLeft, setTimeLeft] = useState(testData.duration * 60); // in seconds
@@ -327,3 +327,5 @@ export const TestInterface = ({ onBack, testData }) => {
     </div>
   );
 };
+
+export default TestInterface; 

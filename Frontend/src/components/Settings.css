@@ -2,6 +2,8 @@
   padding: 32px 16px;
   background: #f9fafb;
   min-height: 100vh;
+    margin-left: 250px;
+
   font-family: 'Inter', Arial, sans-serif;
 }
 .settings-header {

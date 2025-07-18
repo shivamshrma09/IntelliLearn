@@ -10,7 +10,7 @@ exports.RegisterStudent = async (req, res) => {
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, email, password } = req.body;
+    const { name, email, password , cource } = req.body;
     console.log("Name:", name);
 
     console.log("Checking for existing user with email:", email);
@@ -26,6 +26,7 @@ exports.RegisterStudent = async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      cource,
     });
     const token = student.generateAuthToken();
 
@@ -35,6 +36,7 @@ exports.RegisterStudent = async (req, res) => {
         id: student._id,
         name: student.name,
         email: student.email,
+        cource: student.cource,
       },
     });
   } catch (err) {

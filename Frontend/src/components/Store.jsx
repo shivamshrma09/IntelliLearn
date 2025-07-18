@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import './Store.css';
 
-export const Store = () => {
+ const Store = ({ onNavigate }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterType, setFilterType] = useState('all');
@@ -341,3 +341,5 @@ export const Store = () => {
     </div>
   );
 };
+
+export default Store; 

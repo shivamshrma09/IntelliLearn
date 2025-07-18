@@ -21,7 +21,7 @@ import { Link } from 'react-router-dom';
 
 // --- END: Icon Imports ---
 
- const LandingPage = ({onNavigate}) => {
+  const LandingPage = ({onNavigate}) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const toggleMobileMenu = () => {
@@ -587,5 +587,6 @@ import { Link } from 'react-router-dom';
 };
 
 
-
 export default LandingPage;
+
+// export default LandingPage;

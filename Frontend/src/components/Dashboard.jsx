@@ -1,19 +1,33 @@
 import React from 'react';
 import {
-  TrendingUp, Clock, Target, Award, BookOpen, Users, Calendar,
-  ArrowRight, Play, CheckCircle, Brain, Zap, Trophy, Star
+  TrendingUp,
+  Clock,
+  Target,
+  Award,
+  Brain,
+  CheckCircle,
+  Play,
+  Trophy,
+  Calendar,
+  Users,
+  ArrowRight,
+  Zap,
+  BookOpen, // जरूरी है, क्योंकि आपका कोड इसे यूज करता है
 } from 'lucide-react';
 import './Dashboard.css';
 
-export const Dashboard = ({ currentUser, onContinueLearning, onStartTest, onNavigate }) => {
-  // User data props से लें, fallback वैल्यू के साथ
-  const user = currentUser || { name: "User", points: 0, streak: 0 };
+const Dashboard = ({ currentUser = {}, onNavigate }) => {
+  const {
+    name = "User",
+    streak = 0,
+    totalPoints = 0,
+    numberOfBatchesCompleted = 0
+  } = currentUser;
 
-  // Stats array, डाइनामिक यूजर डेटा के साथ
   const stats = [
     {
       label: 'Total Points',
-      value: user.points,
+      value: totalPoints,
       icon: Target,
       color: 'dashboard-stat-blue',
       change: '+12%',
@@ -21,7 +35,7 @@ export const Dashboard = ({ currentUser, onContinueLearning, onStartTest, onNavi
     },
     {
       label: 'Current Streak',
-      value: `${user.streak} days`,
+      value: `${streak} days`,
       icon: TrendingUp,
       color: 'dashboard-stat-orange',
       change: '+2 days',
@@ -29,7 +43,7 @@ export const Dashboard = ({ currentUser, onContinueLearning, onStartTest, onNavi
     },
     {
       label: 'Batches Completed',
-      value: '12',
+      value: numberOfBatchesCompleted,
       icon: Award,
       color: 'dashboard-stat-green',
       change: '+3 this week',
@@ -45,7 +59,7 @@ export const Dashboard = ({ currentUser, onContinueLearning, onStartTest, onNavi
     },
   ];
 
-  // Example Recent Activities (static for demo)
+  // Sample Data
   const recentActivities = [
     {
       type: 'completed',
@@ -81,7 +95,6 @@ export const Dashboard = ({ currentUser, onContinueLearning, onStartTest, onNavi
     },
   ];
 
-  // Example Upcoming Tests
   const upcomingTests = [
     {
       title: 'JEE Main Mock Test #4',
@@ -109,7 +122,6 @@ export const Dashboard = ({ currentUser, onContinueLearning, onStartTest, onNavi
     },
   ];
 
-  // Weekly Progress sample
   const weeklyProgress = [
     { day: 'Mon', hours: 4 },
     { day: 'Tue', hours: 6 },
@@ -120,7 +132,6 @@ export const Dashboard = ({ currentUser, onContinueLearning, onStartTest, onNavi
     { day: 'Sun', hours: 4 },
   ];
 
-  // Subject Progress sample
   const subjectProgress = [
     { subject: 'Physics', progress: 85, color: 'dashboard-subject-blue' },
     { subject: 'Chemistry', progress: 72, color: 'dashboard-subject-green' },
@@ -129,56 +140,52 @@ export const Dashboard = ({ currentUser, onContinueLearning, onStartTest, onNavi
   ];
 
   return (
-    <div className="dashboard-root">
-      {/* Header */}
+     
+   
+<div className="dashboard-root">
       <div className="dashboard-header">
-        <div className="dashboard-header-overlay"></div>
-        <div className="dashboard-header-content">
-          <div className="dashboard-header-row">
-            <div>
-              <h1 className="dashboard-header-title">
-                Welcome back, {currentUser.name}! 🚀
-              </h1>
-              <p className="dashboard-header-desc">
-                You're on a {user.streak}-day streak! Keep up the amazing work.
-              </p>
-            </div>
-            <div className="dashboard-header-points">
-              <div className="dashboard-header-points-row">
-                <Brain className="dashboard-header-points-icon" />
-                <span className="dashboard-header-points-value">{user.points}</span>
-              </div>
-              <p className="dashboard-header-points-label">Total Points Earned</p>
-            </div>
-          </div>
-        </div>
-        <div className="dashboard-header-bg1"></div>
-        <div className="dashboard-header-bg2"></div>
+        <h1>Welcome back, {name}! 🚀</h1>
+        <p>You're on a {streak}-day streak! Keep up the amazing work.</p>
+        <p>Total Points: {totalPoints}</p>
       </div>
 
-      {/* Stats Grid */}
       <div className="dashboard-stats-grid">
-        {stats.map((stat, index) => {
+        {stats.map((stat, idx) => {
           const Icon = stat.icon;
           return (
-            <div key={index} className="dashboard-stat-card">
-              <div className="dashboard-stat-card-top">
-                <div className={`dashboard-stat-icon ${stat.color}`}>
-                  <Icon className="dashboard-stat-icon-svg" />
-                </div>
-                <div className="dashboard-stat-trend">
-                  <TrendingUp className="dashboard-stat-trend-icon" />
-                  <span className="dashboard-stat-trend-value">{stat.change}</span>
-                </div>
-              </div>
+            <div key={idx} className={`dashboard-stat-card ${stat.color}`}>
+              <div className="dashboard-stat-icon"><Icon size={32} /></div>
               <div>
-                <p className="dashboard-stat-label">{stat.label}</p>
-                <p className="dashboard-stat-value">{stat.value}</p>
+                <p>{stat.label}</p>
+                <p>{stat.value}</p>
+                <small>{stat.change}</small>
               </div>
             </div>
           );
         })}
       </div>
+
+
+
+
+
+      {/* Recent Activities */}
+      <div className="dashboard-section">
+        <h2>Recent Activity</h2>
+        {recentActivities.map((activity, idx) => {
+          const Icon = activity.icon;
+          return (
+            <div key={idx} className={`dashboard-activity-row ${activity.bgColor}`}>
+              <Icon size={20} className={activity.color} />
+              <div>
+                <p>{activity.title}</p>
+                <small>{activity.time}</small>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
 
       {/* Main Content Grid */}
       <div className="dashboard-main-grid">
@@ -196,7 +203,6 @@ export const Dashboard = ({ currentUser, onContinueLearning, onStartTest, onNavi
               </button>
             </div>
             <div className="dashboard-continue-list">
-              {/* Example batch cards */}
               <div className="dashboard-continue-card dashboard-continue-blue">
                 <div className="dashboard-continue-row">
                   <div className="dashboard-continue-main">
@@ -396,3 +402,4 @@ export const Dashboard = ({ currentUser, onContinueLearning, onStartTest, onNavi
   );
 };
 
+export default Dashboard;

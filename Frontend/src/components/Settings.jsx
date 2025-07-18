@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { User, Bell, Shield, Palette, Globe, HelpCircle, LogOut, Camera, Mail, Phone, MapPin, Save, Trophy, Star, Award } from 'lucide-react';
 import './Settings.css';
 import './LanguageStyles.css';
-
-export const Settings = () => {
+const Settings = ({ onNavigate }) => {
   const [activeTab, setActiveTab] = useState('profile');
   const [selectedLanguage, setSelectedLanguage] = useState('en');
   
@@ -492,3 +491,6 @@ export const Settings = () => {
     </div>
   );
 };
+
+
+export default Settings; 

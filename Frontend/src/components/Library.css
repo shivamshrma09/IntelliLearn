@@ -2,7 +2,9 @@
 .library-container {
   padding: 1.5rem;
   max-width: 90rem;
-  margin: 0 auto;
+   margin-left: 250px;
+
+
 }
 
 .library-header {

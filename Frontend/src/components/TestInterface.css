@@ -1,6 +1,8 @@
 .test-root {
   min-height: 100vh;
   background: #f9fafb;
+    margin-left: 250px;
+
 }
 .test-header {
   background: #fff;

@@ -24,7 +24,8 @@ import {
 } from 'lucide-react';
 import './Opportunities.css';
 
-export const Opportunities = () => {
+
+ const Opportunities = ({ onNavigate }) => {
   const [activeTab, setActiveTab] = useState('scholarships');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
@@ -565,3 +566,6 @@ export const Opportunities = () => {
     </div>
   );
 };
+
+
+export default Opportunities;

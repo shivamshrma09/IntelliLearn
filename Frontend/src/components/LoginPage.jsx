@@ -31,7 +31,7 @@ const LoginPage = ({ onNavigate }) => {
       if (response.status === 200) {
         const data = response.data;
         setUserData(data.user);
-        localStorage.setItem("token", data.token);
+localStorage.setItem("token", data.token);
         onNavigate("dashboard");
       }
     } catch (error) {
@@ -126,3 +126,4 @@ const LoginPage = ({ onNavigate }) => {
 };
 
 export default LoginPage;
+  
