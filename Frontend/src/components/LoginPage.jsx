@@ -1,18 +1,16 @@
-// src/pages/LoginPage.js
-
-import React, { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import axios from "axios";
-import { UserDataContext } from "../context/UserContext";
+import { useNavigate } from "react-router-dom";
+import { useUserData } from "../context/UserContext";
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import './LoginPage.css';
 
-const LoginPage = ({onNavigate }) => {
+const LoginPage = ({ onNavigate }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
-  const { setUserData } = useContext(UserDataContext);
+  const { setUserData } = useUserData();
   const navigate = useNavigate();
 
   const validateForm = () => {
@@ -29,12 +27,12 @@ const LoginPage = ({onNavigate }) => {
     e.preventDefault();
     if (!validateForm()) return;
     try {
-      const response = await axios.post("http://localhost:2000/students/login", { email, password });
+      const response = await axios.post("http://localhost:9000/students/login", { email, password });
       if (response.status === 200) {
         const data = response.data;
         setUserData(data.user);
         localStorage.setItem("token", data.token);
-        onNavigate('dashboard');
+        onNavigate("dashboard");
       }
     } catch (error) {
       setErrors({ general: "Invalid email or password" });
@@ -87,6 +85,7 @@ const LoginPage = ({onNavigate }) => {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="login-password-toggle"
+                  tabIndex={-1}
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>

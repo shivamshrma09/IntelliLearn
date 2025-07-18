@@ -41,7 +41,7 @@ const SignupPage = ({onNavigate}) => {
     }
     setErrors({});
     try {
-      const response = await axios.post("http://localhost:2000/students/register", { name, email, password });
+      const response = await axios.post("http://localhost:9000/students/register", { name, email, password });
       if (response.status === 201) {
         const data = response.data;
         setUserData(data.user);

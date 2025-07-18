@@ -1,0 +1,50 @@
+import React, { useEffect, useState } from 'react';
+
+const Dashboard = () => {
+    const [userData, setUserData] = useState(null);
+    const [error, setError] = useState(null);
+
+    const fetchUserData = async () => {
+        const token = localStorage.getItem('token');
+        const response = await fetch('/api/user', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (!response.ok) {
+            throw new Error('Failed to fetch user data');
+        }
+        return await response.json();
+    };
+
+    useEffect(() => {
+        const getUserData = async () => {
+            try {
+                const data = await fetchUserData();
+                setUserData(data); // Store the fetched user data in state
+            } catch (err) {
+                setError(err.message); // Handle any errors
+            }
+        };
+        getUserData();
+    }, []); // Empty dependency array means this runs once on mount
+
+    if (error) {
+        return <div>Error: {error}</div>;
+    }
+
+    if (!userData) {
+        return <div>Loading...</div>;
+    }
+
+    return (
+        <div>
+            <h1>Welcome, {userData.username}</h1>
+            <p>Email: {userData.email}</p>
+            {/* Display other user data as needed */}
+        </div>
+    );
+};
+
+export default Dashboard;
