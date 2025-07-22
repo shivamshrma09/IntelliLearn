@@ -79,8 +79,18 @@ const Dashboard = ({ currentUser = {}, onNavigate }) => {
           }
         });
         
+        // Save progress to localStorage as backup
+        const saveProgress = (batches) => {
+          if (batches && batches.length > 0) {
+            localStorage.setItem('userBatches', JSON.stringify(batches));
+          }
+        };
+        
         if (batchesResponse.ok) {
           const batchesData = await batchesResponse.json();
+          
+          // Save progress to localStorage
+          saveProgress(batchesData);
           
           // Set continue learning data
           setContinueLearning(batchesData.slice(0, 2).map(batch => ({
@@ -199,6 +209,46 @@ const Dashboard = ({ currentUser = {}, onNavigate }) => {
         }
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
+        
+        // Try to load batches from localStorage if API fails
+        const savedBatches = localStorage.getItem('userBatches');
+        if (savedBatches) {
+          try {
+            const batchesData = JSON.parse(savedBatches);
+            
+            // Set continue learning data from localStorage
+            setContinueLearning(batchesData.slice(0, 2).map(batch => ({
+              id: batch.id,
+              title: batch.title,
+              chapter: batch.chapters?.[0]?.title || 'Chapter 1',
+              progress: batch.progress || 0,
+              color: Math.random() > 0.5 ? 'blue' : 'green'
+            })));
+            
+            // Set subject progress from localStorage
+            const subjects = {};
+            batchesData.forEach(batch => {
+              if (!subjects[batch.subject]) {
+                subjects[batch.subject] = {
+                  subject: batch.subject,
+                  progress: 0,
+                  count: 0
+                };
+              }
+              subjects[batch.subject].progress += batch.progress || 0;
+              subjects[batch.subject].count += 1;
+            });
+            
+            const colors = ['dashboard-subject-blue', 'dashboard-subject-green', 'dashboard-subject-purple', 'dashboard-subject-red'];
+            setSubjectProgress(Object.values(subjects).map((subject, index) => ({
+              subject: subject.subject,
+              progress: Math.round(subject.progress / subject.count) || 0,
+              color: colors[index % colors.length]
+            })));
+          } catch (e) {
+            console.error('Error parsing saved batches:', e);
+          }
+        }
       } finally {
         setIsLoading(false);
       }

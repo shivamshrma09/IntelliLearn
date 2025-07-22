@@ -25,7 +25,7 @@ const LoginPage = ({ onNavigate }) => {
     e.preventDefault();
     if (!validateForm()) return;
     try {
-      const response = await axios.post("http://localhost:3000/students/login", { email, password });
+      const response = await axios.post("/students/login", { email, password });
       if (response.status === 200) {
         const data = response.data;
         setUserData(data.user);

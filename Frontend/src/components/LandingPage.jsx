@@ -67,8 +67,8 @@ import { Link } from 'react-router-dom';
                         <a href="#how-it-works" className="mobile-menu-link" onClick={toggleMobileMenu}>How It Works</a>
                         <a href="#testimonials" className="mobile-menu-link" onClick={toggleMobileMenu}>Testimonials</a>
                         <a href="#pricing" className="mobile-menu-link" onClick={toggleMobileMenu}>Pricing</a>
-                        <button className="mobile-menu-login-button" onClick={toggleMobileMenu}>Login</button>
-                        <button className="mobile-menu-get-started-button" onClick={toggleMobileMenu}>Get Started Free</button>
+                        <button className="mobile-menu-login-button" onClick={() => { toggleMobileMenu(); onNavigate("login"); }}>Login</button>
+                        <button className="mobile-menu-get-started-button" onClick={() => { toggleMobileMenu(); onNavigate("signup"); }}>Get Started Free</button>
                     </div>
                 </div>
             )}
@@ -95,8 +95,8 @@ import { Link } from 'react-router-dom';
                             in-depth analytics to help you excel in any competitive exam.
                         </p>
                         <div className="hero-buttons-group">
-                            <button className="hero-primary-button">Start Free Trial</button>
-                            <button className="hero-secondary-button">Watch Demo</button>
+                            <button className="hero-primary-button" onClick={() => onNavigate("signup")}>Start Free Trial</button>
+                            <button className="hero-secondary-button" onClick={() => onNavigate("login")}>Login Now</button>
                         </div>
                     </div>
                 </div>
@@ -127,11 +127,11 @@ import { Link } from 'react-router-dom';
                 <div className="section-content-wrapper">
                     <p className="featured-in-text">Trusted by leading educators and students worldwide:</p>
                     <div className="featured-in-logos-grid">
-                        <img src="https://via.placeholder.com/120x40/E5E7EB/6B7280?text=UNIVERSITY+A" alt="University A Logo" className="featured-logo" />
-                        <img src="https://via.placeholder.com/120x40/E5E7EB/6B7280?text=EDU+MAG" alt="Education Magazine Logo" className="featured-logo" />
-                        <img src="https://via.placeholder.com/120x40/E5E7EB/6B7280?text=TECH+BLOG" alt="Tech Blog Logo" className="featured-logo" />
-                        <img src="https://via.placeholder.com/120x40/E5E7EB/6B7280?text=COACHING+C" alt="Coaching Center C Logo" className="featured-logo" />
-                        <img src="https://via.placeholder.com/120x40/E5E7EB/6B7280?text=ACADEMY+D" alt="Academy D Logo" className="featured-logo" />
+                        <div style={{ width: '120px', height: '40px', backgroundColor: '#E5E7EB', color: '#6B7280', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}>UNIVERSITY A</div>
+                        <div style={{ width: '120px', height: '40px', backgroundColor: '#E5E7EB', color: '#6B7280', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}>EDU MAG</div>
+                        <div style={{ width: '120px', height: '40px', backgroundColor: '#E5E7EB', color: '#6B7280', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}>TECH BLOG</div>
+                        <div style={{ width: '120px', height: '40px', backgroundColor: '#E5E7EB', color: '#6B7280', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}>COACHING C</div>
+                        <div style={{ width: '120px', height: '40px', backgroundColor: '#E5E7EB', color: '#6B7280', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}>ACADEMY D</div>
                     </div>
                 </div>
             </section>
@@ -315,7 +315,7 @@ import { Link } from 'react-router-dom';
                         <div className="testimonial-card">
                             <div>
                                 <div className="testimonial-author-info">
-                                    <img src="https://via.placeholder.com/60/D1D5DB/4B5563?text=JS" alt="John Smith" className="testimonial-author-image" />
+                                    <div style={{ width: '60px', height: '60px', borderRadius: '50%', backgroundColor: '#D1D5DB', color: '#4B5563', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>JS</div>
                                     <div>
                                         <p className="testimonial-author-name">John Smith</p>
                                         <p className="testimonial-author-exam">JEE Aspirant</p>
@@ -336,7 +336,7 @@ import { Link } from 'react-router-dom';
                         <div className="testimonial-card">
                             <div>
                                 <div className="testimonial-author-info">
-                                    <img src="https://via.placeholder.com/60/D1D5DB/4B5563?text=AS" alt="Ananya Sharma" className="testimonial-author-image" />
+                                    <div style={{ width: '60px', height: '60px', borderRadius: '50%', backgroundColor: '#D1D5DB', color: '#4B5563', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>AS</div>
                                     <div>
                                         <p className="testimonial-author-name">Ananya Sharma</p>
                                         <p className="testimonial-author-exam">NEET Student</p>
@@ -357,7 +357,7 @@ import { Link } from 'react-router-dom';
                         <div className="testimonial-card">
                             <div>
                                 <div className="testimonial-author-info">
-                                    <img src="https://via.placeholder.com/60/D1D5DB/4B5563?text=RK" alt="Rahul Kumar" className="testimonial-author-image" />
+                                    <div style={{ width: '60px', height: '60px', borderRadius: '50%', backgroundColor: '#D1D5DB', color: '#4B5563', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>RK</div>
                                     <div>
                                         <p className="testimonial-author-name">Rahul Kumar</p>
                                         <p className="testimonial-author-exam">CAT Aspirant</p>
@@ -410,7 +410,7 @@ import { Link } from 'react-router-dom';
                                     <MdCheckCircle className="feature-check-icon" /> Email support
                                 </li>
                             </ul>
-                            <button className="pricing-button-secondary">Get Started</button>
+                            <button className="pricing-button-secondary" onClick={() => onNavigate("signup")}>Get Started</button>
                         </div>
 
                         {/* Pro Plan (Popular) */}
@@ -435,7 +435,7 @@ import { Link } from 'react-router-dom';
                                     <MdCheckCircle className="feature-check-icon" /> Access to premium content
                                 </li>
                             </ul>
-                            <button className="pricing-button-primary">Get Started</button>
+                            <button className="pricing-button-primary" onClick={() => onNavigate("signup")}>Get Started</button>
                         </div>
 
                         {/* Premium Plan */}
@@ -456,7 +456,7 @@ import { Link } from 'react-router-dom';
                                     <MdCheckCircle className="feature-check-icon" /> Early access to new features
                                 </li>
                             </ul>
-                            <button className="pricing-button-secondary">Get Started</button>
+                            <button className="pricing-button-secondary" onClick={() => onNavigate("signup")}>Get Started</button>
                         </div>
                     </div>
                 </div>
@@ -529,7 +529,7 @@ import { Link } from 'react-router-dom';
                             Join thousands of successful students who are achieving their academic goals with
                             IntelliLearn's cutting-edge AI platform.
                         </p>
-                        <button className="cta-button">Get Started Now</button>
+                        <button className="cta-button" onClick={() => onNavigate("signup")}>Get Started Now</button>
                     </div>
                 </div>
             </section>
@@ -588,5 +588,3 @@ import { Link } from 'react-router-dom';
 
 
 export default LandingPage;
-
-// export default LandingPage;

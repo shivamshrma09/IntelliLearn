@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Search,
   Filter,
@@ -17,136 +17,187 @@ import {
   Grid,
   List,
   Tag,
-  Calendar,
-  ThumbsUp
+  Calendar
 } from 'lucide-react';
 import './Library.css';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const Library = ({ onNavigate, currentUser = {} }) => {
+
+ const Library = ({ onNavigate ,  currentUser = {}  }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [viewMode, setViewMode] = useState('grid');
   const [selectedTags, setSelectedTags] = useState([]);
-  const [libraryItems, setLibraryItems] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [error, setError] = useState(null);
-  const { streak = 0, points = 0, avatar = '', name = 'User', course = 'Computer Science' } = currentUser;
+  const { streak = 0, points = 0, avatar = '', name = 'User' ,cource = 'Electric engineering' } = currentUser;
 
-  // Fetch library items from API
-  useEffect(() => {
-    const fetchLibraryItems = async () => {
-      try {
-        setIsLoading(true);
-        
-        // Fetch from API
-        const response = await fetch('/api/library/items', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch library items');
-        }
-        
-        const data = await response.json();
-        
-        if (data.success) {
-          setLibraryItems(data.items);
-        } else {
-          throw new Error(data.message || 'Failed to fetch library items');
-        }
-      } catch (error) {
-        console.error('Error fetching library items:', error);
-        setError(error.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchLibraryItems();
-  }, []);
-  
-  // Handle loading more items
-  const handleLoadMore = async () => {
-    try {
-      setIsLoadingMore(true);
-      
-      // Call API to generate more items
-      const response = await fetch('/api/library/items/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({ count: 10 })
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to load more items');
-      }
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        // Add new items to existing ones
-        setLibraryItems(prevItems => [...prevItems, ...data.items]);
-      } else {
-        throw new Error(data.message || 'Failed to load more items');
-      }
-    } catch (error) {
-      console.error('Error loading more items:', error);
-      setError(error.message);
-    } finally {
-      setIsLoadingMore(false);
-    }
+
+
+
+
+
+  //librery links 
+  const GOOGLE_API_KEY = "AIzaSyB2G1eKOy_4iwK8oiBVzsvkS9kjT20L0-U"; // <-- **IMPORTANT: REPLACE THIS WITH YOUR ACTUAL API KEY**
+  const getGeminiModel = (modelName = "gemini-1.5-flash") => { // Using 1.5-flash for faster responses
+    const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
+    return genAI.getGenerativeModel({ model: modelName });
   };
   
-  // Handle like functionality
-  const handleLikeItem = async (itemId) => {
-    try {
-      // Call API to like/unlike item
-      const response = await fetch(`/api/library/items/${itemId}/like`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to like item');
-      }
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        // Update local state
-        setLibraryItems(prevItems => 
-          prevItems.map(item => 
-            item._id === itemId 
-              ? { ...item, likes: data.likes, likedBy: data.likedBy }
-              : item
-          )
-        );
-      }
-    } catch (error) {
-      console.error('Error liking item:', error);
-    }
-  };
 
-  // Extract all unique tags from library items
-  const tags = [...new Set(libraryItems.flatMap(item => item.tags || []))];
+
+  const prompt = `
+I am a student currently pursuing a course in "${cource}". I have study batches or topics related to the following subjects and topics: ${libraryItems
+  .map(item => `${item.subject}: ${item.tags.join(', ')}`)
+  .join('; ')}.
+
+Can you recommend me a list of the top 10 high-quality, free online resources (like articles, videos, PDFs, lectures, tutorials etc.) for these subjects and topics?
+
+Make sure the resources are:
+- Educational and trustworthy (published by universities, educators, or learning websites)
+- Free to access
+- Include a variety of formats (videos, PDFs, articles etc.)
+- Include the title and the full URL of each item 
+
+Return the recommendations in markdown format, like this:
+1. **[Title of Resource](https://link.to/resource)** - A brief 1-line description.
+
+Please retrieve and give me only free, publicly available resources.
+`;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  const libraryItems = [
+    {
+      id: 1,
+      title: 'Mechanics - Chapter 1',
+      type: 'chapter',
+      subject: 'Physics',
+      batch: 'JEE Main 2024 Physics',
+      icon: BookOpen,
+      color: 'bg-blue-500',
+      content: 'Comprehensive chapter on classical mechanics covering Newton\'s laws, motion, and forces.',
+      readTime: '45 min',
+      lastAccessed: '2 days ago',
+      bookmarked: true,
+      tags: ['JEE', 'Physics', 'Mechanics'],
+      rating: 4.8,
+      views: 1247
+    },
+    {
+      id: 2,
+      title: 'Thermodynamics Notes',
+      type: 'notes',
+      subject: 'Physics',
+      batch: 'JEE Main 2024 Physics',
+      icon: FileText,
+      color: 'bg-green-500',
+      content: 'Personal notes on thermodynamics with key formulas and problem-solving strategies.',
+      readTime: '30 min',
+      lastAccessed: '1 day ago',
+      bookmarked: false,
+      tags: ['JEE', 'Physics', 'Thermodynamics'],
+      rating: 4.6,
+      views: 892
+    },
+    {
+      id: 3,
+      title: 'Optics Audio Summary',
+      type: 'audio',
+      subject: 'Physics',
+      batch: 'JEE Main 2024 Physics',
+      icon: Headphones,
+      color: 'bg-purple-500',
+      content: 'Audio summary of optics chapter covering reflection, refraction, and interference.',
+      readTime: '25 min',
+      lastAccessed: '3 days ago',
+      bookmarked: true,
+      tags: ['JEE', 'Physics', 'Optics'],
+      rating: 4.7,
+      views: 634
+    },
+    {
+      id: 4,
+      title: 'Organic Chemistry Video',
+      type: 'video',
+      subject: 'Chemistry',
+      batch: 'NEET Chemistry',
+      icon: Video,
+      color: 'bg-red-500',
+      content: 'Video explanation of organic chemistry reactions and mechanisms.',
+      readTime: '60 min',
+      lastAccessed: '1 week ago',
+      bookmarked: false,
+      tags: ['NEET', 'Chemistry', 'Organic'],
+      rating: 4.9,
+      views: 2341
+    },
+    {
+      id: 5,
+      title: 'Cell Biology Diagrams',
+      type: 'image',
+      subject: 'Biology',
+      batch: 'NEET Biology',
+      icon: Image,
+      color: 'bg-yellow-500',
+      content: 'Collection of detailed cell biology diagrams and illustrations.',
+      readTime: '15 min',
+      lastAccessed: '5 days ago',
+      bookmarked: true,
+      tags: ['NEET', 'Biology', 'Cell'],
+      rating: 4.5,
+      views: 1523
+    },
+    {
+      id: 6,
+      title: 'Calculus Problem Sets',
+      type: 'chapter',
+      subject: 'Mathematics',
+      batch: 'JEE Mathematics',
+      icon: BookOpen,
+      color: 'bg-indigo-500',
+      content: 'Advanced calculus problems with detailed solutions and explanations.',
+      readTime: '90 min',
+      lastAccessed: '2 weeks ago',
+      bookmarked: false,
+      tags: ['JEE', 'Mathematics', 'Calculus'],
+      rating: 4.8,
+      views: 987
+    }
+  ];
+
+  const tags = ['JEE', 'NEET', 'Physics', 'Chemistry', 'Biology', 'Mathematics', 'Mechanics', 'Thermodynamics', 'Optics', 'Organic', 'Cell', 'Calculus'];
 
   const filteredItems = libraryItems.filter(item => {
     const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.subject?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.content?.toLowerCase().includes(searchTerm.toLowerCase());
+                         item.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         item.content.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesFilter = filterType === 'all' || item.type === filterType;
 
     const matchesTags = selectedTags.length === 0 || 
-                       selectedTags.every(tag => item.tags?.includes(tag));
+                       selectedTags.every(tag => item.tags.includes(tag));
 
     return matchesSearch && matchesFilter && matchesTags;
   });
@@ -190,29 +241,11 @@ const Library = ({ onNavigate, currentUser = {} }) => {
             Access all your saved content, notes, and learning materials
           </p>
         </div>
-        <button 
-          className="library-add-btn"
-          onClick={handleLoadMore}
-          disabled={isLoadingMore}
-        >
+        <button className="library-add-btn">
           <Plus className="library-add-icon" />
-          <span>{isLoadingMore ? 'Loading...' : 'Load More Content'}</span>
+          <span>Add Content</span>
         </button>
       </div>
-      
-      {isLoading && (
-        <div className="library-loading">
-          <div className="library-loading-spinner"></div>
-          <p>Loading library items...</p>
-        </div>
-      )}
-      
-      {error && (
-        <div className="library-error">
-          <p>Error loading library items: {error}</p>
-          <button onClick={() => window.location.reload()}>Retry</button>
-        </div>
-      )}
 
       <div className="library-search-section">
         <div className="library-search-container">
@@ -276,7 +309,7 @@ const Library = ({ onNavigate, currentUser = {} }) => {
           {filteredItems.map(item => {
             const Icon = getTypeIcon(item.type);
             return (
-              <div key={item._id} className="library-card">
+              <div key={item.id} className="library-card">
                 <div className="library-card-content">
                   <div className="library-card-header">
                     <div className={`library-card-icon ${getTypeColor(item.type)}`}>
@@ -307,13 +340,6 @@ const Library = ({ onNavigate, currentUser = {} }) => {
                       <span className="library-rating-text">{item.rating}</span>
                     </div>
                     <div className="library-actions">
-                      <button 
-                        className={`library-action-btn ${item.likedBy?.includes(currentUser?._id) ? 'active' : ''}`}
-                        onClick={() => handleLikeItem(item._id)}
-                      >
-                        <ThumbsUp className="library-action-icon" />
-                        <span className="library-like-count">{item.likes || 0}</span>
-                      </button>
                       <button className="library-action-btn">
                         <Share2 className="library-action-icon" />
                       </button>
@@ -324,21 +350,16 @@ const Library = ({ onNavigate, currentUser = {} }) => {
                   </div>
                   
                   <div className="library-card-tags">
-                    {item.tags?.slice(0, 3).map(tag => (
+                    {item.tags.slice(0, 3).map(tag => (
                       <span key={tag} className="library-card-tag">
                         {tag}
                       </span>
                     ))}
                   </div>
                   
-                  <a 
-                    href={item.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="library-open-btn"
-                  >
+                  <button className="library-open-btn">
                     Open
-                  </a>
+                  </button>
                 </div>
               </div>
             );
@@ -350,7 +371,7 @@ const Library = ({ onNavigate, currentUser = {} }) => {
             {filteredItems.map(item => {
               const Icon = getTypeIcon(item.type);
               return (
-                <div key={item._id} className="library-list-item">
+                <div key={item.id} className="library-list-item">
                   <div className="library-list-content">
                     <div className={`library-list-icon ${getTypeColor(item.type)}`}>
                       <Icon className="library-icon" />
@@ -362,13 +383,6 @@ const Library = ({ onNavigate, currentUser = {} }) => {
                         <div className="library-list-actions">
                           <button className="library-bookmark-btn">
                             <Bookmark className={`library-bookmark-icon ${item.bookmarked ? 'bookmarked' : ''}`} />
-                          </button>
-                          <button 
-                            className={`library-action-btn ${item.likedBy?.includes(currentUser?._id) ? 'active' : ''}`}
-                            onClick={() => handleLikeItem(item._id)}
-                          >
-                            <ThumbsUp className="library-action-icon" />
-                            <span className="library-like-count">{item.likes || 0}</span>
                           </button>
                           <button className="library-action-btn">
                             <Share2 className="library-action-icon" />
@@ -401,14 +415,9 @@ const Library = ({ onNavigate, currentUser = {} }) => {
                           </div>
                         </div>
                         
-                        <a 
-                          href={item.url} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="library-open-btn"
-                        >
+                        <button className="library-open-btn">
                           Open
-                        </a>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -419,23 +428,11 @@ const Library = ({ onNavigate, currentUser = {} }) => {
         </div>
       )}
 
-      {filteredItems.length === 0 && !isLoading && (
+      {filteredItems.length === 0 && (
         <div className="library-empty-state">
           <BookOpen className="library-empty-icon" />
           <h3 className="library-empty-title">No content found</h3>
           <p className="library-empty-text">Try adjusting your search or filter criteria</p>
-        </div>
-      )}
-      
-      {filteredItems.length > 0 && !isLoading && (
-        <div className="library-load-more">
-          <button 
-            className="library-load-more-btn"
-            onClick={handleLoadMore}
-            disabled={isLoadingMore}
-          >
-            {isLoadingMore ? 'Loading more content...' : 'Load More Content'}
-          </button>
         </div>
       )}
     </div>

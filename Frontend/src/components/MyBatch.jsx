@@ -10,18 +10,140 @@ import {
 import "./MyBatch.css";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const GOOGLE_API_KEY = "AIzaSyAWH9w6iJJhCAVYIsNIhLjChgbmqVy5stQ";
+// API key directly used in component for Gemini integration
+const GOOGLE_API_KEY = "AIzaSyCtJSHH4G2RtPsB1yXKfLXFkzIKt6XxG2M";
 
 const getGeminiModel = (modelName = "gemini-1.5-flash") => {
   const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
   return genAI.getGenerativeModel({ model: modelName });
 };
 
-const MyBatch = () => {
+// Generate flashcards directly in component
+const generateFlashcards = async (subject, topic, count = 5) => {
+  try {
+    const model = getGeminiModel();
+    const prompt = `Generate ${count} educational flashcards for the subject "${subject}" and topic "${topic}". 
+    For each flashcard, provide a title and content in this format: 
+    TITLE: [title], 
+    CONTENT: [content]. 
+    Each flashcard should be separated by ---`;
+    
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const generatedText = response.text();
+    
+    // Parse the generated flashcards
+    return generatedText.split('---').map(card => {
+      const titleMatch = card.match(/TITLE:\s*(.+)/i);
+      const contentMatch = card.match(/CONTENT:\s*([\s\S]+)/i);
+      
+      return {
+        id: Math.random().toString(36).substring(2, 9),
+        title: titleMatch ? titleMatch[1].trim() : 'Generated Flashcard',
+        content: contentMatch ? contentMatch[1].trim() : card.trim(),
+        subject,
+        topic,
+        likes: 0,
+        generated: true
+      };
+    }).filter(card => card.title && card.content);
+  } catch (error) {
+    console.error('Error generating flashcards:', error);
+    return [];
+  }
+};
+
+// Generate test questions directly in component
+const generateTestQuestions = async (subject, topic, count = 5) => {
+  try {
+    const model = getGeminiModel();
+    const prompt = `Generate ${count} multiple-choice questions for the subject "${subject}" and topic "${topic}". 
+    For each question, provide the question, 4 options, the correct option index (0-3), and a brief explanation.
+    Format each question as:
+    QUESTION: [question text]
+    OPTIONS: [option1], [option2], [option3], [option4]
+    CORRECT: [index]
+    EXPLANATION: [explanation]
+    ---`;
+    
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const generatedText = response.text();
+    
+    // Parse the generated questions
+    return generatedText.split('---').map(item => {
+      const questionMatch = item.match(/QUESTION:\s*(.+)/i);
+      const optionsMatch = item.match(/OPTIONS:\s*(.+)/i);
+      const correctMatch = item.match(/CORRECT:\s*(.+)/i);
+      const explanationMatch = item.match(/EXPLANATION:\s*([\s\S]+)/i);
+      
+      if (!questionMatch || !optionsMatch || !correctMatch) return null;
+      
+      const options = optionsMatch[1].split(',').map(opt => opt.trim());
+      
+      return {
+        id: Math.random().toString(36).substring(2, 9),
+        question: questionMatch[1].trim(),
+        options: options.length >= 4 ? options.slice(0, 4) : ['Option A', 'Option B', 'Option C', 'Option D'],
+        correct: parseInt(correctMatch[1].trim()) || 0,
+        explanation: explanationMatch ? explanationMatch[1].trim() : 'No explanation provided',
+        subject,
+        topic
+      };
+    }).filter(q => q !== null);
+  } catch (error) {
+    console.error('Error generating test questions:', error);
+    return [];
+  }
+};
+
+// Generate learning resources directly in component
+const generateResources = async (subject, topic) => {
+  try {
+    const model = getGeminiModel();
+    const prompt = `Generate a list of 5 learning resources for the subject "${subject}" and topic "${topic}".
+    Include a mix of articles, videos, and interactive resources.
+    For each resource, provide a title, type (article, video, interactive), and a brief description.
+    Format as:
+    TITLE: [title]
+    TYPE: [type]
+    DESCRIPTION: [description]
+    URL: [placeholder_url]
+    ---`;
+    
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const generatedText = response.text();
+    
+    // Parse the generated resources
+    return generatedText.split('---').map(item => {
+      const titleMatch = item.match(/TITLE:\s*(.+)/i);
+      const typeMatch = item.match(/TYPE:\s*(.+)/i);
+      const descriptionMatch = item.match(/DESCRIPTION:\s*([\s\S]+?)(?=URL:|$)/i);
+      
+      if (!titleMatch) return null;
+      
+      return {
+        id: Math.random().toString(36).substring(2, 9),
+        title: titleMatch[1].trim(),
+        type: typeMatch ? typeMatch[1].trim().toLowerCase() : 'article',
+        description: descriptionMatch ? descriptionMatch[1].trim() : 'No description provided',
+        url: '#',
+        subject,
+        topic
+      };
+    }).filter(r => r !== null);
+  } catch (error) {
+    console.error('Error generating resources:', error);
+    return [];
+  }
+};
+
+const MyBatch = ({ initialTab = 'my-batches', currentUser = {} }) => {
   const [batches, setBatches] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
-  const [activeTab, setActiveTab] = useState("my-batches");
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   const [showBatchCreation, setShowBatchCreation] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -52,6 +174,8 @@ const MyBatch = () => {
   const [detailedTopics, setDetailedTopics] = useState({});
   const [activeDetailTab, setActiveDetailTab] = useState("content");
   const [importantQuestions, setImportantQuestions] = useState({});
+  const [loadingFlashcards, setLoadingFlashcards] = useState(false);
+  const [loadingResources, setLoadingResources] = useState(false);
 
   const [newTitle, setNewTitle] = useState("");
   const [newSubject, setNewSubject] = useState("");
@@ -64,10 +188,134 @@ const MyBatch = () => {
   const [syllabusInputType, setSyllabusInputType] = useState("text");
   const [newSyllabusText, setNewSyllabusText] = useState("");
 
+  // Handler for opening flashcards modal with generated content
+  const handleOpenFlashcards = async (chapter, topic) => {
+    setCurrentChapter(chapter);
+    setShowFlashcardsModal(true);
+    
+    // Check if we already have flashcards for this chapter
+    const key = `${chapter.title}-${topic?.title || 'general'}`;
+    if (!flashcards[key]) {
+      setLoadingFlashcards(true);
+      try {
+        // Generate flashcards directly in component
+        const generatedFlashcards = await generateFlashcards(
+          selectedBatch?.subject || 'General',
+          topic?.title || chapter.title,
+          5
+        );
+        
+        setFlashcards(prev => ({
+          ...prev,
+          [key]: generatedFlashcards
+        }));
+      } catch (error) {
+        console.error('Error generating flashcards:', error);
+      } finally {
+        setLoadingFlashcards(false);
+      }
+    }
+  };
+
+  // Handler for opening test modal with generated questions
+  const handleOpenTest = async (chapter) => {
+    setCurrentChapter(chapter);
+    setShowTestModal(true);
+    setTestLoading(true);
+    setTestAnswers({});
+    setTestResults(null);
+    
+    try {
+      // Generate test questions directly in component
+      const questions = await generateTestQuestions(
+        selectedBatch?.subject || 'General',
+        chapter.title,
+        5
+      );
+      
+      setTestQuestions(questions);
+    } catch (error) {
+      console.error('Error generating test questions:', error);
+      setTestQuestions([]);
+    } finally {
+      setTestLoading(false);
+    }
+  };
+
+  // Handler for opening resources modal with generated content
+  const handleOpenResources = async (chapter, topic) => {
+    setCurrentChapter(chapter);
+    setShowResourcesModal(true);
+    
+    // Check if we already have resources for this chapter
+    const key = `${chapter.title}-${topic?.title || 'general'}`;
+    if (!resources[key]) {
+      setLoadingResources(true);
+      try {
+        // Generate resources directly in component
+        const generatedResources = await generateResources(
+          selectedBatch?.subject || 'General',
+          topic?.title || chapter.title
+        );
+        
+        setResources(prev => ({
+          ...prev,
+          [key]: generatedResources
+        }));
+      } catch (error) {
+        console.error('Error generating resources:', error);
+      } finally {
+        setLoadingResources(false);
+      }
+    }
+  };
+
+  // Handler for submitting test answers
+  const handleSubmitTest = () => {
+    // Calculate results
+    let correctCount = 0;
+    const questionResults = {};
+    
+    testQuestions.forEach(question => {
+      const userAnswer = testAnswers[question.id];
+      const isCorrect = userAnswer === question.correct;
+      if (isCorrect) correctCount++;
+      
+      questionResults[question.id] = {
+        userAnswer,
+        isCorrect,
+        correctAnswer: question.correct,
+        explanation: question.explanation
+      };
+    });
+    
+    const score = Math.round((correctCount / testQuestions.length) * 100);
+    
+    setTestResults({
+      score,
+      correctCount,
+      totalQuestions: testQuestions.length,
+      questionResults,
+      strengths: score > 70 ? ['Good understanding of concepts', 'Quick response time'] : ['Effort to attempt all questions'],
+      weaknesses: score < 70 ? ['Need to review core concepts', 'Practice more examples'] : ['Minor details need attention'],
+      recommendations: [
+        'Review the explanations for incorrect answers',
+        'Practice with more examples',
+        'Focus on understanding the concepts rather than memorizing'
+      ]
+    });
+  };
+
   useEffect(() => {
     const fetchBatches = async () => {
       try {
-        const res = await fetch('http://localhost:9000/api/batches');
+        // Try to fetch from API
+        const res = await fetch('/api/batches', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
         if (!res.ok) throw new Error("Failed to load batches");
         const data = await res.json();
         setBatches(data);
@@ -296,14 +544,25 @@ Only return strict JSON, no text outside JSON.
       };
       
       try {
-        const response = await fetch("http://localhost:9000/api/batches", {
+        const response = await fetch("/api/batches", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem('token')}`
+          },
           body: JSON.stringify(newBatch)
         });
         if (!response.ok) throw new Error("Failed to save batch to backend.");
         const saved = await response.json();
         setBatches(prev => [saved.batch, ...prev]);
+        
+        // Generate resources based on the batch
+        await fetch(`/api/batches/${newBatch.id}/generate-resources`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
       } catch (err) {
         console.error("Backend error:", err.message);
         // Add batch locally for demo

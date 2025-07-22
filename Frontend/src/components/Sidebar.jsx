@@ -8,9 +8,9 @@ const Sidebar = ({ isOpen, activeTab, onTabChange }) => {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Home },
     { id: 'my-batch', label: 'My Batch', icon: BookOpen },
-    { id: 'library', label: 'Library', icon: FileText },
-    { id: 'tests', label: 'Tests', icon: BarChart3 },
-    { id: 'opportunities', label: 'Opportunities', icon: Gift },
+    { id: 'library', label: 'Library', icon: FileText, description: 'Access learning materials' },
+    { id: 'tests', label: 'Tests', icon: BarChart3, description: 'Practice with quizzes and tests' },
+    { id: 'opportunities', label: 'Opportunities', icon: Gift, description: 'Discover learning opportunities' },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
