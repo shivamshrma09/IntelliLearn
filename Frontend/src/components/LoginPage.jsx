@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { useUserData } from "../context/UserContext";
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import './LoginPage.css';
@@ -11,7 +10,6 @@ const LoginPage = ({ onNavigate }) => {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const { setUserData } = useUserData();
-  const navigate = useNavigate();
 
   const validateForm = () => {
     const newErrors = {};
@@ -27,7 +25,7 @@ const LoginPage = ({ onNavigate }) => {
     e.preventDefault();
     if (!validateForm()) return;
     try {
-      const response = await axios.post("http://localhost:9000/students/login", { email, password });
+      const response = await axios.post("http://localhost:3000/students/login", { email, password });
       if (response.status === 200) {
         const data = response.data;
         setUserData(data.user);
@@ -42,7 +40,7 @@ localStorage.setItem("token", data.token);
   return (
     <div className="login-bg">
       <div className="login-container">
-        <button onClick={() => navigate('/')} className="login-backbtn">
+        <button onClick={() => onNavigate('landing')} className="login-backbtn">
           <ArrowLeft size={20} style={{ marginRight: 8 }} />
           Back to Home
         </button>
@@ -115,7 +113,7 @@ localStorage.setItem("token", data.token);
           </div>
           <p className="login-signup-row">
             Don't have an account?{' '}
-            <button onClick={() => navigate('/signup')} className="login-signup-link">
+            <button onClick={() => onNavigate('signup')} className="login-signup-link">
               Sign up here
             </button>
           </p>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Clock, 
   Target, 
@@ -23,169 +23,178 @@ import {
   LineChart,
   Medal,
   Flame,
+  Loader,
   ChevronUp,
   ChevronDown
 } from 'lucide-react';
 import './Tests.css';
+import TestInterface from './TestInterface';
 
-const Tests = ({ onNavigate }) => {
+const Tests = ({ onNavigate, currentUser = {} }) => {
   const [activeTab, setActiveTab] = useState('available');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterSubject, setFilterSubject] = useState('all');
+  const [tests, setTests] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isGeneratingTest, setIsGeneratingTest] = useState(false);
+  const [error, setError] = useState(null);
+  const [selectedTestId, setSelectedTestId] = useState(null);
+  const [testAttempts, setTestAttempts] = useState([]);
+  
+  // Fetch tests from API
+  useEffect(() => {
+    const fetchTests = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Fetch from API
+        const response = await fetch('/api/tests', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch tests');
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          setTests(data.tests);
+        } else {
+          throw new Error(data.message || 'Failed to fetch tests');
+        }
+      } catch (error) {
+        console.error('Error fetching tests:', error);
+        setError(error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    const fetchTestAttempts = async () => {
+      try {
+        const response = await fetch('/api/tests/attempts/student', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch test attempts');
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          setTestAttempts(data.testAttempts);
+        }
+      } catch (error) {
+        console.error('Error fetching test attempts:', error);
+      }
+    };
+    
+    fetchTests();
+    fetchTestAttempts();
+  }, []);
 
-  const availableTests = [
-    {
-      id: 1,
-      title: 'JEE Main Physics Mock Test #3',
-      type: 'mock',
-      subject: 'Physics',
-      duration: '3 hours',
-      questions: 75,
-      maxMarks: 300,
-      difficulty: 'Advanced',
-      participants: 12847,
-      rating: 4.8,
-      topics: ['Mechanics', 'Thermodynamics', 'Optics', 'Modern Physics'],
-      scheduledDate: 'Tomorrow, 10:00 AM',
-      isScheduled: true,
-      description: 'Comprehensive physics mock test covering all JEE Main topics',
-      image: 'https://images.pexels.com/photos/159832/science-formula-physics-school-159832.jpeg?auto=compress&cs=tinysrgb&w=400&h=200'
-    },
-    {
-      id: 2,
-      title: 'NEET Biology Chapter Test - Genetics',
-      type: 'chapter',
-      subject: 'Biology',
-      duration: '1 hour',
-      questions: 45,
-      maxMarks: 180,
-      difficulty: 'Intermediate',
-      participants: 8934,
-      rating: 4.7,
-      topics: ['Heredity', 'Molecular Genetics', 'Evolution'],
-      scheduledDate: null,
-      isScheduled: false,
-      description: 'Chapter-wise test focusing on genetics and heredity',
-      image: 'https://images.pexels.com/photos/1242348/pexels-photo-1242348.jpeg?auto=compress&cs=tinysrgb&w=400&h=200'
-    },
-    {
-      id: 3,
-      title: 'Chemistry Organic Reactions Quiz',
-      type: 'quiz',
-      subject: 'Chemistry',
-      duration: '30 minutes',
-      questions: 25,
-      maxMarks: 100,
-      difficulty: 'Beginner',
-      participants: 5621,
-      rating: 4.5,
-      topics: ['Organic Reactions', 'Mechanisms', 'Functional Groups'],
-      scheduledDate: null,
-      isScheduled: false,
-      description: 'Quick quiz on organic chemistry reactions and mechanisms',
-      image: 'https://images.pexels.com/photos/1366909/pexels-photo-1366909.jpeg?auto=compress&cs=tinysrgb&w=400&h=200'
-    },
-    {
-      id: 4,
-      title: 'Mathematics Calculus Full Length Test',
-      type: 'subject',
-      subject: 'Mathematics',
-      duration: '2.5 hours',
-      questions: 60,
-      maxMarks: 240,
-      difficulty: 'Advanced',
-      participants: 9876,
-      rating: 4.9,
-      topics: ['Limits', 'Derivatives', 'Integration', 'Applications'],
-      scheduledDate: 'Dec 30, 2:00 PM',
-      isScheduled: true,
-      description: 'Complete calculus test with application problems',
-      image: 'https://images.pexels.com/photos/1496154/pexels-photo-1496154.jpeg?auto=compress&cs=tinysrgb&w=400&h=200'
+  // Calculate performance stats based on test attempts
+  const [performanceStats, setPerformanceStats] = useState({
+    totalTests: 0,
+    averageScore: 0,
+    bestScore: 0,
+    totalStudyTime: '0h',
+    strongSubjects: [],
+    weakSubjects: [],
+    streak: 0,
+    rank: 0,
+    improvement: '0%',
+    accuracy: 0,
+    speed: 0
+  });
+  
+  const [subjectAnalytics, setSubjectAnalytics] = useState([]);
+  const [recentPerformance, setRecentPerformance] = useState([]);
+  
+  // Calculate performance stats when test attempts change
+  useEffect(() => {
+    if (testAttempts.length > 0) {
+      // Calculate average score
+      const scores = testAttempts.map(attempt => (attempt.score / attempt.totalQuestions) * 100);
+      const averageScore = Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length);
+      const bestScore = Math.round(Math.max(...scores));
+      
+      // Calculate total study time (in minutes)
+      const totalMinutes = testAttempts.reduce((sum, attempt) => sum + (attempt.timeTaken || 0), 0);
+      const totalHours = Math.floor(totalMinutes / 60);
+      
+      // Calculate accuracy and speed
+      const accuracy = testAttempts.reduce((sum, attempt) => sum + (attempt.analysis?.accuracy || 0), 0) / testAttempts.length;
+      const speed = testAttempts.reduce((sum, attempt) => sum + (attempt.analysis?.speed || 0), 0) / testAttempts.length;
+      
+      // Group by subject
+      const subjectMap = {};
+      testAttempts.forEach(attempt => {
+        const subject = attempt.testId?.subject || 'General';
+        if (!subjectMap[subject]) {
+          subjectMap[subject] = {
+            subject,
+            tests: 0,
+            totalScore: 0,
+            bestScore: 0
+          };
+        }
+        
+        const score = (attempt.score / attempt.totalQuestions) * 100;
+        subjectMap[subject].tests += 1;
+        subjectMap[subject].totalScore += score;
+        subjectMap[subject].bestScore = Math.max(subjectMap[subject].bestScore, score);
+      });
+      
+      // Convert to array and calculate averages
+      const subjectAnalyticsData = Object.values(subjectMap).map(subject => ({
+        subject: subject.subject,
+        tests: subject.tests,
+        average: Math.round(subject.totalScore / subject.tests),
+        best: Math.round(subject.bestScore),
+        trend: Math.random() > 0.5 ? 'up' : 'down',
+        color: `bg-${['blue', 'green', 'purple'][Math.floor(Math.random() * 3)]}-500`
+      }));
+      
+      // Sort subjects by average score
+      const sortedSubjects = [...subjectAnalyticsData].sort((a, b) => b.average - a.average);
+      const strongSubjects = sortedSubjects.slice(0, 2).map(s => s.subject);
+      const weakSubjects = sortedSubjects.slice(-2).map(s => s.subject);
+      
+      // Recent performance
+      const recentPerformanceData = testAttempts.slice(0, 4).map(attempt => ({
+        test: attempt.testId?.title || 'Test',
+        score: Math.round((attempt.score / attempt.totalQuestions) * 100),
+        date: new Date(attempt.createdAt).toLocaleDateString(),
+        trend: Math.random() > 0.5 ? 'up' : 'down'
+      }));
+      
+      setPerformanceStats({
+        totalTests: testAttempts.length,
+        averageScore,
+        bestScore,
+        totalStudyTime: `${totalHours}h`,
+        strongSubjects,
+        weakSubjects,
+        streak: currentUser.streak || 0,
+        rank: Math.floor(Math.random() * 1000) + 1,
+        improvement: `+${Math.floor(Math.random() * 20)}%`,
+        accuracy: Math.round(accuracy),
+        speed: Math.round(speed)
+      });
+      
+      setSubjectAnalytics(subjectAnalyticsData);
+      setRecentPerformance(recentPerformanceData);
     }
-  ];
+  }, [testAttempts, currentUser]);
 
-  const completedTests = [
-    {
-      id: 5,
-      title: 'JEE Main Physics Mock Test #2',
-      type: 'mock',
-      subject: 'Physics',
-      score: 245,
-      maxMarks: 300,
-      percentage: 82,
-      rank: 1247,
-      totalParticipants: 15432,
-      timeTaken: '2h 45m',
-      completedDate: '2 days ago',
-      strengths: ['Mechanics', 'Waves'],
-      weaknesses: ['Modern Physics', 'Thermodynamics'],
-      accuracy: 85,
-      speed: 78
-    },
-    {
-      id: 6,
-      title: 'NEET Chemistry Chapter Test - Coordination',
-      type: 'chapter',
-      subject: 'Chemistry',
-      score: 156,
-      maxMarks: 180,
-      percentage: 87,
-      rank: 234,
-      totalParticipants: 8934,
-      timeTaken: '55m',
-      completedDate: '5 days ago',
-      strengths: ['Coordination Compounds', 'Isomerism'],
-      weaknesses: ['Crystal Field Theory'],
-      accuracy: 90,
-      speed: 82
-    },
-    {
-      id: 7,
-      title: 'Mathematics Algebra Test',
-      type: 'subject',
-      subject: 'Mathematics',
-      score: 168,
-      maxMarks: 200,
-      percentage: 84,
-      rank: 567,
-      totalParticipants: 12000,
-      timeTaken: '1h 30m',
-      completedDate: '1 week ago',
-      strengths: ['Quadratic Equations', 'Sequences'],
-      weaknesses: ['Complex Numbers'],
-      accuracy: 88,
-      speed: 85
-    }
-  ];
-
-  const performanceStats = {
-    totalTests: 23,
-    averageScore: 78,
-    bestScore: 95,
-    totalStudyTime: '145h',
-    strongSubjects: ['Physics', 'Mathematics'],
-    weakSubjects: ['Chemistry'],
-    streak: 7,
-    rank: 342,
-    improvement: '+12%',
-    accuracy: 82,
-    speed: 76
-  };
-
-  const subjectAnalytics = [
-    { subject: 'Physics', tests: 8, average: 85, best: 95, trend: 'up', color: 'bg-blue-500' },
-    { subject: 'Chemistry', tests: 6, average: 72, best: 84, trend: 'up', color: 'bg-green-500' },
-    { subject: 'Mathematics', tests: 9, average: 78, best: 92, trend: 'down', color: 'bg-purple-500' }
-  ];
-
-  const recentPerformance = [
-    { test: 'Physics Mock #3', score: 92, date: '2 days ago', trend: 'up' },
-    { test: 'Chemistry Quiz', score: 78, date: '4 days ago', trend: 'up' },
-    { test: 'Math Test', score: 85, date: '1 week ago', trend: 'down' },
-    { test: 'Biology Chapter', score: 88, date: '1 week ago', trend: 'up' }
-  ];
-
-  const filteredTests = availableTests.filter(test => {
+  const filteredTests = tests.filter(test => {
     const matchesSearch = test.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          test.subject.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesSubject = filterSubject === 'all' || test.subject === filterSubject;
@@ -209,6 +218,187 @@ const Tests = ({ onNavigate }) => {
       case 'subject': return 'type-subject';
       default: return 'type-default';
     }
+  };
+
+  // Handle generating more tests
+  const handleGenerateMoreTests = async () => {
+    try {
+      setIsGeneratingTest(true);
+      
+      // Call API to generate more tests
+      const response = await fetch('/api/tests/generate-more', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ count: 2 })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate more tests');
+      }
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Refresh tests list
+        const testsResponse = await fetch('/api/tests', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (testsResponse.ok) {
+          const testsData = await testsResponse.json();
+          if (testsData.success) {
+            setTests(testsData.tests);
+          }
+        }
+      } else {
+        throw new Error(data.message || 'Failed to generate more tests');
+      }
+    } catch (error) {
+      console.error('Error generating more tests:', error);
+      setError(error.message);
+    } finally {
+      setIsGeneratingTest(false);
+    }
+  };
+
+  const handleTestClose = () => {
+    setSelectedTestId(null);
+    // Refresh test attempts after completing a test
+    const fetchTestAttempts = async () => {
+      try {
+        const response = await fetch('/api/tests/attempts/student', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch test attempts');
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          setTestAttempts(data.testAttempts);
+        }
+      } catch (error) {
+        console.error('Error fetching test attempts:', error);
+      }
+    };
+    
+    fetchTestAttempts();
+  };
+
+  // If a test is selected, show the test interface
+  if (selectedTestId) {
+    return <TestInterface testId={selectedTestId} onClose={handleTestClose} />;
+  }
+
+  // Render completed test card
+  const renderCompletedTestCard = (attempt) => {
+    const test = attempt.testId;
+    return (
+      <div key={attempt._id} className="completed-test-card">
+        <div className="completed-test-header">
+          <div className="completed-test-info">
+            <h3 className="completed-test-title">{test.title}</h3>
+            <p className="completed-test-date">Completed {new Date(attempt.createdAt).toLocaleDateString()}</p>
+          </div>
+          <div className="completed-test-score">
+            <div className="completed-test-percentage">{Math.round((attempt.score / attempt.totalQuestions) * 100)}%</div>
+            <div className="completed-test-marks">{attempt.score}/{attempt.totalQuestions} marks</div>
+          </div>
+        </div>
+
+        <div className="completed-test-metrics">
+          <div className="test-metric time-metric">
+            <Clock className="test-metric-icon" />
+            <span className="test-metric-label">Time</span>
+            <div className="test-metric-value">{Math.floor(attempt.timeTaken / 60)}m {attempt.timeTaken % 60}s</div>
+          </div>
+
+          <div className="test-metric accuracy-metric">
+            <Target className="test-metric-icon" />
+            <span className="test-metric-label">Accuracy</span>
+            <div className="test-metric-value">{attempt.analysis?.accuracy || 0}%</div>
+          </div>
+
+          <div className="test-metric speed-metric">
+            <Zap className="test-metric-icon" />
+            <span className="test-metric-label">Speed</span>
+            <div className="test-metric-value">{attempt.analysis?.speed || 0}%</div>
+          </div>
+
+          <div className="test-metric improve-metric">
+            <AlertCircle className="test-metric-icon" />
+            <span className="test-metric-label">Areas to Improve</span>
+            <div className="test-metric-text">
+              {attempt.analysis?.weaknesses?.[0] || 'Not available'}
+            </div>
+          </div>
+        </div>
+
+        <div className="completed-test-analysis">
+          <div className="test-strengths">
+            <h4 className="test-analysis-title strengths-title">
+              <CheckCircle className="test-analysis-icon" />
+              <span>Strengths</span>
+            </h4>
+            <div className="test-analysis-items">
+              {attempt.analysis?.strengths ? (
+                attempt.analysis.strengths.map((strength, index) => (
+                  <div key={index} className="test-analysis-item strength-item">
+                    <span className="test-analysis-text">{strength}</span>
+                  </div>
+                ))
+              ) : (
+                <div className="test-analysis-item strength-item">
+                  <span className="test-analysis-text">Not available</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="test-weaknesses">
+            <h4 className="test-analysis-title weaknesses-title">
+              <AlertCircle className="test-analysis-icon" />
+              <span>Areas to Improve</span>
+            </h4>
+            <div className="test-analysis-items">
+              {attempt.analysis?.weaknesses ? (
+                attempt.analysis.weaknesses.map((weakness, index) => (
+                  <div key={index} className="test-analysis-item weakness-item">
+                    <span className="test-analysis-text">{weakness}</span>
+                  </div>
+                ))
+              ) : (
+                <div className="test-analysis-item weakness-item">
+                  <span className="test-analysis-text">Not available</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="completed-test-actions">
+          <button className="test-report-btn">
+            <BarChart3 className="test-action-icon" />
+            <span>View Detailed Report</span>
+          </button>
+          <button 
+            className="test-retake-btn"
+            onClick={() => setSelectedTestId(test._id)}
+          >
+            Retake Test
+          </button>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -249,8 +439,8 @@ const Tests = ({ onNavigate }) => {
 
       <div className="tests-tabs">
         {[
-          { id: 'available', label: 'Available Tests', icon: Play, count: availableTests.length },
-          { id: 'completed', label: 'Completed Tests', icon: CheckCircle, count: completedTests.length },
+          { id: 'available', label: 'Available Tests', icon: Play, count: tests.length || availableTests.length },
+          { id: 'completed', label: 'Completed Tests', icon: CheckCircle, count: testAttempts.length },
           { id: 'analytics', label: 'Performance Analytics', icon: BarChart3, count: null }
         ].map((tab) => {
           const Icon = tab.icon;
@@ -274,8 +464,29 @@ const Tests = ({ onNavigate }) => {
 
       {activeTab === 'available' && (
         <div className="tests-available">
+          {isLoading && (
+            <div className="tests-loading">
+              <Loader className="tests-loading-spinner" />
+              <p>Loading tests...</p>
+            </div>
+          )}
+          
+          {error && (
+            <div className="tests-error">
+              <p>Error loading tests: {error}</p>
+              <button onClick={() => window.location.reload()}>Retry</button>
+            </div>
+          )}
+
           <div className="tests-search-section">
             <div className="tests-search-container">
+              <button 
+                className="tests-generate-btn"
+                onClick={handleGenerateMoreTests}
+                disabled={isGeneratingTest}
+              >
+                {isGeneratingTest ? 'Generating...' : 'Generate New Tests'}
+              </button>
               <div className="tests-search-wrapper">
                 <Search className="tests-search-icon" />
                 <input
@@ -369,7 +580,10 @@ const Tests = ({ onNavigate }) => {
                     </div>
                   </div>
 
-                  <button className="test-start-btn">
+                  <button 
+                    className="test-start-btn"
+                    onClick={() => setSelectedTestId(test._id)}
+                  >
                     <Play className="test-start-icon" />
                     <span>Start Test</span>
                   </button>
@@ -382,95 +596,20 @@ const Tests = ({ onNavigate }) => {
 
       {activeTab === 'completed' && (
         <div className="tests-completed">
-          {completedTests.map(test => (
-            <div key={test.id} className="completed-test-card">
-              <div className="completed-test-header">
-                <div className="completed-test-info">
-                  <h3 className="completed-test-title">{test.title}</h3>
-                  <p className="completed-test-date">Completed {test.completedDate}</p>
-                </div>
-                <div className="completed-test-score">
-                  <div className="completed-test-percentage">{test.percentage}%</div>
-                  <div className="completed-test-marks">{test.score}/{test.maxMarks} marks</div>
-                </div>
-              </div>
-
-              <div className="completed-test-metrics">
-                <div className="test-metric rank-metric">
-                  <Trophy className="test-metric-icon" />
-                  <span className="test-metric-label">Rank</span>
-                  <div className="test-metric-value">#{test.rank}</div>
-                  <div className="test-metric-sub">of {test.totalParticipants}</div>
-                </div>
-
-                <div className="test-metric time-metric">
-                  <Clock className="test-metric-icon" />
-                  <span className="test-metric-label">Time</span>
-                  <div className="test-metric-value">{test.timeTaken}</div>
-                </div>
-
-                <div className="test-metric accuracy-metric">
-                  <Target className="test-metric-icon" />
-                  <span className="test-metric-label">Accuracy</span>
-                  <div className="test-metric-value">{test.accuracy}%</div>
-                </div>
-
-                <div className="test-metric speed-metric">
-                  <Zap className="test-metric-icon" />
-                  <span className="test-metric-label">Speed</span>
-                  <div className="test-metric-value">{test.speed}%</div>
-                </div>
-
-                <div className="test-metric improve-metric">
-                  <AlertCircle className="test-metric-icon" />
-                  <span className="test-metric-label">Areas to Improve</span>
-                  <div className="test-metric-text">
-                    {test.weaknesses.slice(0, 1).join(', ')}
-                  </div>
-                </div>
-              </div>
-
-              <div className="completed-test-analysis">
-                <div className="test-strengths">
-                  <h4 className="test-analysis-title strengths-title">
-                    <CheckCircle className="test-analysis-icon" />
-                    <span>Strengths</span>
-                  </h4>
-                  <div className="test-analysis-items">
-                    {test.strengths.map((strength, index) => (
-                      <div key={index} className="test-analysis-item strength-item">
-                        <span className="test-analysis-text">{strength}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="test-weaknesses">
-                  <h4 className="test-analysis-title weaknesses-title">
-                    <AlertCircle className="test-analysis-icon" />
-                    <span>Areas to Improve</span>
-                  </h4>
-                  <div className="test-analysis-items">
-                    {test.weaknesses.map((weakness, index) => (
-                      <div key={index} className="test-analysis-item weakness-item">
-                        <span className="test-analysis-text">{weakness}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="completed-test-actions">
-                <button className="test-report-btn">
-                  <BarChart3 className="test-action-icon" />
-                  <span>View Detailed Report</span>
-                </button>
-                <button className="test-retake-btn">
-                  Retake Test
-                </button>
-              </div>
+          {testAttempts.length > 0 ? (
+            testAttempts.map(attempt => renderCompletedTestCard(attempt))
+          ) : isLoading ? (
+            <div className="tests-loading">
+              <Loader className="tests-loading-spinner" />
+              <p>Loading test attempts...</p>
             </div>
-          ))}
+          ) : (
+            <div className="tests-empty-state">
+              <Trophy className="tests-empty-icon" />
+              <h3 className="tests-empty-title">No completed tests yet</h3>
+              <p className="tests-empty-text">Take a test to see your results here</p>
+            </div>
+          )}
         </div>
       )}
 
@@ -662,4 +801,4 @@ const Tests = ({ onNavigate }) => {
   );
 };
 
-export default Tests; 
+export default Tests;

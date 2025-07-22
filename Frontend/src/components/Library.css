@@ -179,11 +179,13 @@
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
   border: 1px solid #e5e7eb;
   overflow: hidden;
-  transition: box-shadow 0.2s;
+  transition: all 0.3s ease;
+  transform: translateY(0);
 }
 
 .library-card:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transform: translateY(-5px);
 }
 
 .library-card-content {
@@ -314,11 +316,25 @@
   border: none;
   cursor: pointer;
   color: #9ca3af;
-  transition: color 0.2s;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 0.375rem;
 }
 
 .library-action-btn:hover {
   color: #6b7280;
+  background-color: #f3f4f6;
+}
+
+.library-action-btn.active {
+  color: #3b82f6;
+}
+
+.library-like-count {
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
 .library-action-icon {
@@ -468,4 +484,73 @@
   .library-grid {
     grid-template-columns: 1fr;
   }
+}
+.library-loading {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.library-loading-spinner {
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  border: 3px solid rgba(59, 130, 246, 0.2);
+  border-radius: 50%;
+  border-top-color: #3b82f6;
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.library-error {
+  text-align: center;
+  padding: 2rem;
+  background-color: #fee2e2;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+}
+
+.library-error button {
+  background-color: #ef4444;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  border: none;
+  margin-top: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.library-error button:hover {
+  background-color: #dc2626;
+}
+.library-load-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.library-load-more-btn {
+  background: #3b82f6;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.library-load-more-btn:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.library-load-more-btn:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
 }

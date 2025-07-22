@@ -12,6 +12,7 @@ const SignupPage = ({onNavigate}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [course, setCourse] = useState("Computer Science");
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -28,6 +29,7 @@ const SignupPage = ({onNavigate}) => {
     else if (password.length < 6) newErrors.password = "Password must be at least 6 characters";
     if (!confirmPassword) newErrors.confirmPassword = "Confirm your password";
     else if (password !== confirmPassword) newErrors.confirmPassword = "Passwords do not match";
+    if (!course) newErrors.course = "Please select a course";
     if (!agreeTerms) newErrors.agreeTerms = "You must agree to the terms";
     return newErrors;
   };
@@ -41,13 +43,12 @@ const SignupPage = ({onNavigate}) => {
     }
     setErrors({});
     try {
-      const response = await axios.post("http://localhost:9000/students/register", { name, email, password });
+      const response = await axios.post("http://localhost:3000/students/register", { name, email, password, course });
       if (response.status === 201) {
         const data = response.data;
         setUserData(data.user);
         localStorage.setItem("token", data.token);
-                onNavigate('dashboard');
-
+        onNavigate('dashboard');
       }
     } catch (err) {
       setErrors({ email: "Registration failed. Try another email." });
@@ -140,6 +141,26 @@ const SignupPage = ({onNavigate}) => {
                 </button>
               </div>
               {errors.confirmPassword && <p className="signup-error">{errors.confirmPassword}</p>}
+            </div>
+            <div>
+              <label htmlFor="course" className="signup-label">Course</label>
+              <select
+                id="course"
+                name="course"
+                value={course}
+                onChange={(e) => setCourse(e.target.value)}
+                className={`signup-input${errors.course ? ' signup-input-error' : ''}`}
+              >
+                <option value="Computer Science">Computer Science</option>
+                <option value="Electrical Engineering">Electrical Engineering</option>
+                <option value="Mechanical Engineering">Mechanical Engineering</option>
+                <option value="Civil Engineering">Civil Engineering</option>
+                <option value="Physics">Physics</option>
+                <option value="Mathematics">Mathematics</option>
+                <option value="Chemistry">Chemistry</option>
+                <option value="Biology">Biology</option>
+              </select>
+              {errors.course && <p className="signup-error">{errors.course}</p>}
             </div>
             <div>
               <label htmlFor="agreeTerms" className="signup-terms-label">

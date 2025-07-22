@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { UserProvider, useUserData } from './context/UserContext';
+import React, { useState, useEffect } from 'react';
+import { useUserData } from './context/UserContext';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
@@ -12,12 +12,21 @@ import LandingPage from './components/LandingPage';
 import LoginPage from './components/LoginPage';
 import SignupPage from './components/SignupPage';
 import BatchCreation from './components/BatchCreation';
+import UserDataLoader from './components/UserDataLoader';
 function App() {
   const [currentPage, setCurrentPage] = useState('landing');
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const { userData } = useUserData();
+  
+  useEffect(() => {
+    // Check if user is logged in on initial load
+    const token = localStorage.getItem('token');
+    if (token) {
+      setCurrentPage('dashboard');
+    }
+  }, []);
 
   const toggleSidebar = () => setSidebarOpen(prev => !prev);
 
@@ -47,22 +56,23 @@ function App() {
 
   const showLayout = ['dashboard', 'my-batch', 'library', 'tests', 'opportunities', 'settings'].includes(currentPage);
 
-  if (currentPage === 'landing') return <LandingPage onNavigate={setCurrentPage} />;
-  if (currentPage === 'login') return <LoginPage onNavigate={setCurrentPage} />;
-  if (currentPage === 'signup') return <SignupPage onNavigate={setCurrentPage} />;
-
   return (
-    <UserProvider>
-      <div className="app" style={{ height: '100vh' }}>
-        {showLayout && <Header onMenuToggle={toggleSidebar} currentUser={userData} />}
-        <div className="app-body" style={{ display: 'flex', height: showLayout ? 'calc(100vh - 60px)' : '100vh' }}>
-          {showLayout && <Sidebar isOpen={sidebarOpen} activeTab={activeTab} onTabChange={handleTabChange} />}
-          <main style={{ flex: 1, padding: '1rem', overflowY: 'auto', background: '#f9fafb' }}>
-            {renderContent()}
-          </main>
+    <UserDataLoader onNavigate={setCurrentPage}>
+      {currentPage === 'landing' && <LandingPage onNavigate={setCurrentPage} />}
+      {currentPage === 'login' && <LoginPage onNavigate={setCurrentPage} />}
+      {currentPage === 'signup' && <SignupPage onNavigate={setCurrentPage} />}
+      {showLayout && (
+        <div className="app" style={{ height: '100vh' }}>
+          <Header onMenuToggle={toggleSidebar} currentUser={userData} />
+          <div className="app-body" style={{ display: 'flex', height: 'calc(100vh - 60px)' }}>
+            <Sidebar isOpen={sidebarOpen} activeTab={activeTab} onTabChange={handleTabChange} />
+            <main style={{ flex: 1, padding: '1rem', overflowY: 'auto', background: '#f9fafb' }}>
+              {renderContent()}
+            </main>
+          </div>
         </div>
-      </div>
-    </UserProvider>
+      )}
+    </UserDataLoader>
   );
 }
 

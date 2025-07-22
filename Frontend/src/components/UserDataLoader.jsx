@@ -35,8 +35,6 @@ const UserDataLoader = ({ children, onNavigate }) => {
 
   if (loading) return <div style={{ padding: "2rem" }}>Loading...</div>;
 
-  if (!userData) return null;
-
   return children;
 };
 

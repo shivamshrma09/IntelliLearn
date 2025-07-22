@@ -13,17 +13,17 @@ router.post(
     body("email").isEmail(),
     body("name").notEmpty(),
     body("password").isLength({ min: 6 }),
-    body("cource").notEmpty(),
+    body("course").notEmpty(),
   ],
   async (req, res) => {
     try {
-      const { name, email, password, cource } = req.body;
+      const { name, email, password, course } = req.body;
 
       const existing = await Student.findOne({ email });
       if (existing) return res.status(400).json({ message: "Email already exists" });
 
       const hashedPassword = await bcrypt.hash(password, 10);
-      const newStudent = new Student({ name, email, password: hashedPassword, cource });
+      const newStudent = new Student({ name, email, password: hashedPassword, course });
 
       await newStudent.save();
 

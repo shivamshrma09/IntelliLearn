@@ -8,6 +8,13 @@ const cookieParser = require("cookie-parser");
 
 const connectToDb = require("./db/db");
 const studentRoutes = require("./routes/student.route");
+const batchRoutes = require("./routes/batch.route");
+const flashcardRoutes = require("./routes/flashcard.route");
+const certificateRoutes = require("./routes/certificate.route");
+const libraryRoutes = require("./routes/library.route");
+// const resourcesRoutes = require("./routes/resources.route");
+const opportunitiesRoutes = require("./routes/opportunities.route");
+const testsRoutes = require("./routes/tests.route");
 const Student = require("./models/student.models");
 const Batch = require("./models/batch.models"); // ✅ [IMPORTANT] Corrected import
 
@@ -42,8 +49,15 @@ app.get("/", (req, res) => {
   res.send("Hello World from backend");
 });
 
-// Student authentication routes
+// Routes
 app.use("/students", studentRoutes);
+app.use("/api/batches", batchRoutes);
+app.use("/api/flashcards", flashcardRoutes);
+app.use("/api/certificates", certificateRoutes);
+app.use("/api/library", libraryRoutes);
+// app.use("/api/resources", resourcesRoutes);
+app.use("/api/opportunities", opportunitiesRoutes);
+app.use("/api/tests", testsRoutes);
 
 // 🛡️ Get logged-in student (with token)
 app.get("/api/user", verifyToken, async (req, res) => {
@@ -58,31 +72,35 @@ app.get("/api/user", verifyToken, async (req, res) => {
   }
 });
 
-// ✅ POST /api/batches — Create a new batch
-app.post("/api/batches", async (req, res) => {
-  try {
-    const batch = new Batch(req.body);
-    await batch.save();
-    res.status(201).json({ message: "Batch saved successfully", batch });
-  } catch (error) {
-    console.error("Error saving batch:", error.message);
-    res.status(500).json({ message: "Error saving batch", error: error.message });
-  }
-});
 
-// ✅ GET /api/batches — Get all batches
-app.get("/api/batches", async (req, res) => {
+app.get('/api/batchesdetails', async (req, res) => {
   try {
-    const batches = await Batch.find({});
+    const batches = await Batch.find();
     res.json(batches);
   } catch (error) {
-    console.error("Error fetching batches:", error.message);
-    res.status(500).json({ message: "Error fetching batches", error: error.message });
+    res.status(500).json({ message: 'Error fetching batches' });
   }
 });
 
-// Start the server
-const PORT = process.env.PORT || 9000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+// These routes are now handled by the batch.route.js file
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err.stack);
+  res.status(500).json({
+    success: false,
+    message: 'Internal Server Error',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
 });
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'Route not found'
+  });
+});
+
+// Export the app for use in server.js
+module.exports = app;

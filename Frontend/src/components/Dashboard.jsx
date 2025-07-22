@@ -59,85 +59,153 @@ const Dashboard = ({ currentUser = {}, onNavigate }) => {
     },
   ];
 
-  // Sample Data
-  const recentActivities = [
-    {
-      type: 'completed',
-      title: 'Completed JEE Physics Chapter 12: Optics',
-      time: '2 hours ago',
-      icon: CheckCircle,
-      color: 'dashboard-activity-green',
-      bgColor: 'dashboard-activity-bg-green',
-    },
-    {
-      type: 'started',
-      title: 'Started NEET Chemistry Batch',
-      time: '1 day ago',
-      icon: Play,
-      color: 'dashboard-activity-blue',
-      bgColor: 'dashboard-activity-bg-blue',
-    },
-    {
-      type: 'test',
-      title: 'Scored 92% in Math Mock Test',
-      time: '2 days ago',
-      icon: Target,
-      color: 'dashboard-activity-purple',
-      bgColor: 'dashboard-activity-bg-purple',
-    },
-    {
-      type: 'achievement',
-      title: 'Earned "Physics Master" Badge',
-      time: '3 days ago',
-      icon: Trophy,
-      color: 'dashboard-activity-yellow',
-      bgColor: 'dashboard-activity-bg-yellow',
-    },
-  ];
+  const [recentActivities, setRecentActivities] = React.useState([]);
+  const [upcomingTests, setUpcomingTests] = React.useState([]);
+  const [weeklyProgress, setWeeklyProgress] = React.useState([]);
+  const [subjectProgress, setSubjectProgress] = React.useState([]);
+  const [continueLearning, setContinueLearning] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(true);
 
-  const upcomingTests = [
-    {
-      title: 'JEE Main Mock Test #4',
-      date: 'Tomorrow, 10:00 AM',
-      duration: '3 hours',
-      subjects: ['Physics', 'Chemistry', 'Math'],
-      difficulty: 'Advanced',
-      participants: 15420,
-    },
-    {
-      title: 'NEET Biology Chapter Test',
-      date: 'Dec 28, 2:00 PM',
-      duration: '1 hour',
-      subjects: ['Biology'],
-      difficulty: 'Intermediate',
-      participants: 8934,
-    },
-    {
-      title: 'Chemistry Organic Reactions Quiz',
-      date: 'Dec 30, 4:00 PM',
-      duration: '30 minutes',
-      subjects: ['Chemistry'],
-      difficulty: 'Beginner',
-      participants: 5621,
-    },
-  ];
-
-  const weeklyProgress = [
-    { day: 'Mon', hours: 4 },
-    { day: 'Tue', hours: 6 },
-    { day: 'Wed', hours: 3 },
-    { day: 'Thu', hours: 8 },
-    { day: 'Fri', hours: 5 },
-    { day: 'Sat', hours: 7 },
-    { day: 'Sun', hours: 4 },
-  ];
-
-  const subjectProgress = [
-    { subject: 'Physics', progress: 85, color: 'dashboard-subject-blue' },
-    { subject: 'Chemistry', progress: 72, color: 'dashboard-subject-green' },
-    { subject: 'Mathematics', progress: 90, color: 'dashboard-subject-purple' },
-    { subject: 'Biology', progress: 68, color: 'dashboard-subject-red' },
-  ];
+  // Fetch real data
+  React.useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Fetch user's batches
+        const batchesResponse = await fetch('/api/batches', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (batchesResponse.ok) {
+          const batchesData = await batchesResponse.json();
+          
+          // Set continue learning data
+          setContinueLearning(batchesData.slice(0, 2).map(batch => ({
+            id: batch.id,
+            title: batch.title,
+            chapter: batch.chapters?.[0]?.title || 'Chapter 1',
+            progress: batch.progress || 0,
+            color: Math.random() > 0.5 ? 'blue' : 'green'
+          })));
+          
+          // Set subject progress
+          const subjects = {};
+          batchesData.forEach(batch => {
+            if (!subjects[batch.subject]) {
+              subjects[batch.subject] = {
+                subject: batch.subject,
+                progress: 0,
+                count: 0
+              };
+            }
+            subjects[batch.subject].progress += batch.progress || 0;
+            subjects[batch.subject].count += 1;
+          });
+          
+          const colors = ['dashboard-subject-blue', 'dashboard-subject-green', 'dashboard-subject-purple', 'dashboard-subject-red'];
+          setSubjectProgress(Object.values(subjects).map((subject, index) => ({
+            subject: subject.subject,
+            progress: Math.round(subject.progress / subject.count) || 0,
+            color: colors[index % colors.length]
+          })));
+        }
+        
+        // Fetch test attempts
+        const testAttemptsResponse = await fetch('/api/tests/attempts/student', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (testAttemptsResponse.ok) {
+          const testAttemptsData = await testAttemptsResponse.json();
+          
+          if (testAttemptsData.success && testAttemptsData.testAttempts.length > 0) {
+            // Add test activities
+            const testActivities = testAttemptsData.testAttempts.slice(0, 2).map(attempt => ({
+              type: 'test',
+              title: `Scored ${Math.round((attempt.score / attempt.totalQuestions) * 100)}% in ${attempt.testId?.title || 'Test'}`,
+              time: new Date(attempt.createdAt).toLocaleDateString(),
+              icon: Target,
+              color: 'dashboard-activity-purple',
+              bgColor: 'dashboard-activity-bg-purple',
+            }));
+            
+            setRecentActivities(prev => [...testActivities, ...prev]);
+          }
+        }
+        
+        // Fetch upcoming tests
+        const testsResponse = await fetch('/api/tests', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (testsResponse.ok) {
+          const testsData = await testsResponse.json();
+          
+          if (testsData.success && testsData.tests.length > 0) {
+            setUpcomingTests(testsData.tests.slice(0, 3).map(test => ({
+              id: test._id,
+              title: test.title,
+              date: new Date().toLocaleDateString() + ', ' + new Date().toLocaleTimeString(),
+              duration: test.duration + ' minutes',
+              subjects: [test.subject],
+              difficulty: test.difficulty,
+              participants: Math.floor(Math.random() * 10000) + 1000
+            })));
+          }
+        }
+        
+        // Generate weekly progress data
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const today = new Date().getDay();
+        const weekData = [];
+        
+        for (let i = 0; i < 7; i++) {
+          const dayIndex = (today - 6 + i + 7) % 7;
+          weekData.push({
+            day: days[dayIndex],
+            hours: Math.floor(Math.random() * 8) + 1
+          });
+        }
+        
+        setWeeklyProgress(weekData);
+        
+        // Add default activities if none exist
+        if (recentActivities.length === 0) {
+          setRecentActivities([
+            {
+              type: 'started',
+              title: `Started ${currentUser.course || 'Learning'} Course`,
+              time: 'Today',
+              icon: Play,
+              color: 'dashboard-activity-blue',
+              bgColor: 'dashboard-activity-bg-blue',
+            },
+            {
+              type: 'achievement',
+              title: 'Joined IntelliLearn Platform',
+              time: 'Today',
+              icon: Trophy,
+              color: 'dashboard-activity-yellow',
+              bgColor: 'dashboard-activity-bg-yellow',
+            },
+          ]);
+        }
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchDashboardData();
+  }, [currentUser]);
 
   return (
      
@@ -203,68 +271,54 @@ const Dashboard = ({ currentUser = {}, onNavigate }) => {
               </button>
             </div>
             <div className="dashboard-continue-list">
-              <div className="dashboard-continue-card dashboard-continue-blue">
-                <div className="dashboard-continue-row">
-                  <div className="dashboard-continue-main">
-                    <div className="dashboard-continue-main-row">
-                      <div className="dashboard-continue-icon dashboard-subject-blue">
-                        <BookOpen className="dashboard-continue-icon-svg" />
+              {isLoading ? (
+                <div className="dashboard-loading">Loading your courses...</div>
+              ) : continueLearning.length > 0 ? (
+                continueLearning.map((course, index) => (
+                  <div key={index} className={`dashboard-continue-card dashboard-continue-${course.color}`}>
+                    <div className="dashboard-continue-row">
+                      <div className="dashboard-continue-main">
+                        <div className="dashboard-continue-main-row">
+                          <div className={`dashboard-continue-icon dashboard-subject-${course.color}`}>
+                            <BookOpen className="dashboard-continue-icon-svg" />
+                          </div>
+                          <div>
+                            <h3>{course.title}</h3>
+                            <p>{course.chapter}</p>
+                          </div>
+                        </div>
+                        <div className="dashboard-continue-progress">
+                          <div className="dashboard-continue-progress-row">
+                            <span>Progress</span>
+                            <span className={`dashboard-continue-progress-value-${course.color}`}>{course.progress}%</span>
+                          </div>
+                          <div className={`dashboard-continue-progress-bar-bg dashboard-subject-${course.color}-bg`}>
+                            <div className={`dashboard-continue-progress-bar-fill dashboard-subject-${course.color}`} style={{ width: `${course.progress}%` }}></div>
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <h3>JEE Main 2024 Physics</h3>
-                        <p>Chapter 12: Optics</p>
-                      </div>
-                    </div>
-                    <div className="dashboard-continue-progress">
-                      <div className="dashboard-continue-progress-row">
-                        <span>Progress</span>
-                        <span className="dashboard-continue-progress-value-blue">75%</span>
-                      </div>
-                      <div className="dashboard-continue-progress-bar-bg dashboard-subject-blue-bg">
-                        <div className="dashboard-continue-progress-bar-fill dashboard-subject-blue" style={{ width: '75%' }}></div>
-                      </div>
+                      <button 
+                        onClick={() => onNavigate('my-batch')}
+                        className={`dashboard-continue-btn dashboard-continue-btn-${course.color}`}
+                      >
+                        <Play className="dashboard-continue-btn-icon" />
+                        <span>Continue</span>
+                      </button>
                     </div>
                   </div>
+                ))
+              ) : (
+                <div className="dashboard-empty-state">
+                  <p>No courses in progress. Start a new course!</p>
                   <button 
-                    onClick={() => onNavigate('my-batch')}
+                    onClick={() => onNavigate('batch-creation')}
                     className="dashboard-continue-btn dashboard-continue-btn-blue"
                   >
-                    <Play className="dashboard-continue-btn-icon" />
-                    <span>Continue</span>
+                    <Zap className="dashboard-continue-btn-icon" />
+                    <span>Create New Course</span>
                   </button>
                 </div>
-              </div>
-              <div className="dashboard-continue-card dashboard-continue-green">
-                <div className="dashboard-continue-row">
-                  <div className="dashboard-continue-main">
-                    <div className="dashboard-continue-main-row">
-                      <div className="dashboard-continue-icon dashboard-subject-green">
-                        <BookOpen className="dashboard-continue-icon-svg" />
-                      </div>
-                      <div>
-                        <h3>NEET Biology Complete</h3>
-                        <p>Chapter 8: Genetics</p>
-                      </div>
-                    </div>
-                    <div className="dashboard-continue-progress">
-                      <div className="dashboard-continue-progress-row">
-                        <span>Progress</span>
-                        <span className="dashboard-continue-progress-value-green">45%</span>
-                      </div>
-                      <div className="dashboard-continue-progress-bar-bg dashboard-subject-green-bg">
-                        <div className="dashboard-continue-progress-bar-fill dashboard-subject-green" style={{ width: '45%' }}></div>
-                      </div>
-                    </div>
-                  </div>
-                  <button 
-                    onClick={() => onNavigate('my-batch')}
-                    className="dashboard-continue-btn dashboard-continue-btn-green"
-                  >
-                    <Play className="dashboard-continue-btn-icon" />
-                    <span>Continue</span>
-                  </button>
-                </div>
-              </div>
+              )}
             </div>
           </div>
 

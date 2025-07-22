@@ -25,13 +25,19 @@ const studentSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  cource: { type: String, required: true },
+  course: { type: String, required: true },
   totalPoints: { type: Number, default: 0 },
   rank: { type: Number, default: 0 },
   streak: { type: Number, default: 0 },
   numberOfBatchesCompleted: { type: Number, default: 0 },
   batches: [BatchSchema],
 });
+
+// Static method to hash password
+studentSchema.statics.hashPassword = async function(password) {
+  const salt = await bcrypt.genSalt(10);
+  return await bcrypt.hash(password, salt);
+};
 
 studentSchema.methods.generateAuthToken = function () {
   return jwt.sign({ id: this._id }, process.env.JWT_SECRET, { expiresIn: "1d" });

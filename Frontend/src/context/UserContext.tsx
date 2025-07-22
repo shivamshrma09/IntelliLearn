@@ -1,9 +1,28 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-export const UserDataContext = createContext();
+type UserData = {
+  _id: string;
+  name: string;
+  email: string;
+  totalPoints?: number;
+  rank?: number;
+  streak?: number;
+  numberOfBatchesCompleted?: number;
+} | null;
 
-export const UserProvider = ({ children }) => {
-  const [userData, setUserData] = useState(null);
+type UserContextType = {
+  userData: UserData;
+  setUserData: React.Dispatch<React.SetStateAction<UserData>>;
+};
+
+export const UserDataContext = createContext<UserContextType | undefined>(undefined);
+
+type UserProviderProps = {
+  children: ReactNode;
+};
+
+export const UserProvider = ({ children }: UserProviderProps) => {
+  const [userData, setUserData] = useState<UserData>(null);
   return (
     <UserDataContext.Provider value={{ userData, setUserData }}>
       {children}
@@ -11,7 +30,7 @@ export const UserProvider = ({ children }) => {
   );
 };
 
-export const useUserData = () => {
+export const useUserData = (): UserContextType => {
   const ctx = useContext(UserDataContext);
   if (!ctx) throw new Error("useUserData must be used within a UserProvider");
   return ctx;

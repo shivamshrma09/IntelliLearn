@@ -1,170 +1,271 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Clock, Flag, ChevronLeft, ChevronRight, CheckCircle, AlertCircle } from 'lucide-react';
+import { 
+  Clock, 
+  ChevronLeft, 
+  ChevronRight, 
+  Flag,
+  CheckCircle,
+  AlertCircle,
+  Save,
+  ArrowLeft,
+  Send
+} from 'lucide-react';
 import './TestInterface.css';
 
- const TestInterface = ({ onBack, testData , onNavigate } }) => {
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState({});
-  const [timeLeft, setTimeLeft] = useState(testData.duration * 60); // in seconds
-  const [flaggedQuestions, setFlaggedQuestions] = useState(new Set());
-  const [showSubmitModal, setShowSubmitModal] = useState(false);
-  const [testSubmitted, setTestSubmitted] = useState(false);
+const TestInterface = ({ testId, onClose }) => {
+  const [test, setTest] = useState(null);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [answers, setAnswers] = useState([]);
+  const [timeRemaining, setTimeRemaining] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [testResult, setTestResult] = useState(null);
+  const [startTime, setStartTime] = useState(null);
+  const [questionStartTime, setQuestionStartTime] = useState(null);
 
-  // Sample questions data
-  const questions = [
-    {
-      id: 1,
-      question: "A particle moves in a straight line with constant acceleration. If it covers 100m in the first 10 seconds and 150m in the next 10 seconds, what is its acceleration?",
-      options: [
-        "2.5 m/s²",
-        "5.0 m/s²",
-        "7.5 m/s²",
-        "10.0 m/s²"
-      ],
-      correct: 0,
-      subject: "Physics",
-      topic: "Kinematics"
-    },
-    {
-      id: 2,
-      question: "Which of the following is the correct expression for the work done by a variable force?",
-      options: [
-        "W = F × d",
-        "W = ∫ F⃗ · dr⃗",
-        "W = F × d × cos θ",
-        "W = ½mv²"
-      ],
-      correct: 1,
-      subject: "Physics",
-      topic: "Work and Energy"
-    },
-    {
-      id: 3,
-      question: "The efficiency of a Carnot engine operating between temperatures T₁ and T₂ (T₁ > T₂) is:",
-      options: [
-        "1 - T₂/T₁",
-        "1 - T₁/T₂",
-        "T₁/T₂",
-        "T₂/T₁"
-      ],
-      correct: 0,
-      subject: "Physics",
-      topic: "Thermodynamics"
-    },
-    {
-      id: 4,
-      question: "In Young's double slit experiment, the fringe width is given by:",
-      options: [
-        "λD/d",
-        "λd/D",
-        "Dd/λ",
-        "D/(λd)"
-      ],
-      correct: 0,
-      subject: "Physics",
-      topic: "Wave Optics"
-    },
-    {
-      id: 5,
-      question: "The de Broglie wavelength of a particle is inversely proportional to:",
-      options: [
-        "Its mass",
-        "Its velocity",
-        "Its momentum",
-        "Its energy"
-      ],
-      correct: 2,
-      subject: "Physics",
-      topic: "Modern Physics"
-    }
-  ];
-
+  // Fetch test data
   useEffect(() => {
-    if (timeLeft > 0 && !testSubmitted) {
-      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
-      return () => clearTimeout(timer);
-    } else if (timeLeft === 0) {
-      handleSubmitTest();
-    }
-  }, [timeLeft, testSubmitted]);
+    const fetchTest = async () => {
+      try {
+        setIsLoading(true);
+        
+        const response = await fetch(`/api/tests/${testId}`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch test');
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          setTest(data.test);
+          // Initialize answers array
+          setAnswers(data.test.questions.map(() => ({ 
+            questionIndex: 0,
+            selectedOption: -1,
+            timeTaken: 0
+          })));
+          // Set timer based on test duration
+          setTimeRemaining(data.test.duration * 60); // convert minutes to seconds
+          setStartTime(Date.now());
+          setQuestionStartTime(Date.now());
+        } else {
+          throw new Error(data.message || 'Failed to fetch test');
+        }
+      } catch (error) {
+        console.error('Error fetching test:', error);
+        setError(error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchTest();
+  }, [testId]);
 
+  // Timer effect
+  useEffect(() => {
+    if (!test || timeRemaining <= 0) return;
+    
+    const timer = setInterval(() => {
+      setTimeRemaining(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          handleSubmitTest();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    
+    return () => clearInterval(timer);
+  }, [test, timeRemaining]);
+
+  // Format time as mm:ss
   const formatTime = (seconds) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
+    const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const handleAnswerSelect = (optionIndex) => {
-    setAnswers({
-      ...answers,
-      [currentQuestion]: optionIndex.toString()
+  const handleOptionSelect = (optionIndex) => {
+    const now = Date.now();
+    const timeTaken = Math.round((now - questionStartTime) / 1000);
+    
+    setAnswers(prev => {
+      const newAnswers = [...prev];
+      newAnswers[currentQuestionIndex] = {
+        questionIndex: currentQuestionIndex,
+        selectedOption: optionIndex,
+        timeTaken
+      };
+      return newAnswers;
     });
+    
+    // Reset question timer for next question
+    setQuestionStartTime(now);
   };
 
-  const handleFlagQuestion = () => {
-    const newFlagged = new Set(flaggedQuestions);
-    if (newFlagged.has(currentQuestion)) {
-      newFlagged.delete(currentQuestion);
-    } else {
-      newFlagged.add(currentQuestion);
-    }
-    setFlaggedQuestions(newFlagged);
-  };
-
-  const handleSubmitTest = () => {
-    setTestSubmitted(true);
-    setShowSubmitModal(false);
-  };
-
-  const getQuestionStatus = (index) => {
-    if (answers[index] !== undefined) return 'answered';
-    if (flaggedQuestions.has(index)) return 'flagged';
-    return 'not-attempted';
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'answered': return 'testnav-answered';
-      case 'flagged': return 'testnav-flagged';
-      case 'current': return 'testnav-current';
-      default: return 'testnav-notattempted';
+  const handleNextQuestion = () => {
+    if (currentQuestionIndex < test.questions.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
+      setQuestionStartTime(Date.now());
     }
   };
 
-  if (testSubmitted) {
-    const score = questions.reduce((acc, question, index) => {
-      return acc + (answers[index] === question.correct.toString() ? 1 : 0);
-    }, 0);
-    const percentage = Math.round((score / questions.length) * 100);
+  const handlePrevQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(prev => prev - 1);
+      setQuestionStartTime(Date.now());
+    }
+  };
 
+  const handleSubmitTest = async () => {
+    try {
+      setIsSubmitting(true);
+      
+      // Calculate total time taken
+      const totalTimeTaken = Math.round((Date.now() - startTime) / 1000);
+      
+      // Filter out unanswered questions
+      const answeredQuestions = answers.filter(answer => answer.selectedOption !== -1);
+      
+      const response = await fetch(`/api/tests/${testId}/submit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          answers: answeredQuestions,
+          timeTaken: totalTimeTaken
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to submit test');
+      }
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setTestResult(data.testAttempt);
+      } else {
+        throw new Error(data.message || 'Failed to submit test');
+      }
+    } catch (error) {
+      console.error('Error submitting test:', error);
+      setError(error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (isLoading) {
     return (
-      <div className="test-bg-center">
-        <div className="test-result-card">
-          <div className="test-result-icon">
-            <CheckCircle size={64} />
-          </div>
-          <h1>Test Submitted Successfully!</h1>
-          <p>Your responses have been recorded and evaluated.</p>
-          <div className="test-result-score-row">
-            <div>
-              <div className="test-result-score">{score}/{questions.length}</div>
-              <div className="test-result-label">Questions Correct</div>
+      <div className="test-interface-container">
+        <div className="test-interface-loading">
+          <div className="test-interface-loading-spinner"></div>
+          <p>Loading test...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="test-interface-container">
+        <div className="test-interface-error">
+          <AlertCircle className="test-interface-error-icon" />
+          <p>Error: {error}</p>
+          <button onClick={onClose} className="test-interface-back-btn">
+            <ArrowLeft className="test-interface-back-icon" />
+            <span>Back to Tests</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (testResult) {
+    return (
+      <div className="test-interface-container">
+        <div className="test-result-container">
+          <div className="test-result-header">
+            <h2 className="test-result-title">Test Completed</h2>
+            <div className="test-result-score">
+              <span className="test-result-score-value">{testResult.score}/{testResult.totalQuestions}</span>
+              <span className="test-result-score-percent">
+                ({Math.round((testResult.score / testResult.totalQuestions) * 100)}%)
+              </span>
             </div>
-            <div>
-              <div className="test-result-percent">{percentage}%</div>
-              <div className="test-result-label">Score</div>
+          </div>
+          
+          <div className="test-result-metrics">
+            <div className="test-result-metric">
+              <Clock className="test-result-metric-icon" />
+              <span className="test-result-metric-label">Time Taken</span>
+              <span className="test-result-metric-value">{formatTime(testResult.timeTaken)}</span>
+            </div>
+            
+            <div className="test-result-metric">
+              <CheckCircle className="test-result-metric-icon" />
+              <span className="test-result-metric-label">Accuracy</span>
+              <span className="test-result-metric-value">{testResult.analysis.accuracy}%</span>
+            </div>
+            
+            <div className="test-result-metric">
+              <Flag className="test-result-metric-icon" />
+              <span className="test-result-metric-label">Speed</span>
+              <span className="test-result-metric-value">{testResult.analysis.speed}%</span>
             </div>
           </div>
+          
+          <div className="test-result-analysis">
+            <div className="test-result-strengths">
+              <h3 className="test-result-section-title">Strengths</h3>
+              <ul className="test-result-list">
+                {testResult.analysis.strengths.map((strength, index) => (
+                  <li key={index} className="test-result-list-item strength">
+                    <CheckCircle className="test-result-list-icon" />
+                    <span>{strength}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            
+            <div className="test-result-weaknesses">
+              <h3 className="test-result-section-title">Areas to Improve</h3>
+              <ul className="test-result-list">
+                {testResult.analysis.weaknesses.map((weakness, index) => (
+                  <li key={index} className="test-result-list-item weakness">
+                    <AlertCircle className="test-result-list-icon" />
+                    <span>{weakness}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+          
+          <div className="test-result-recommendations">
+            <h3 className="test-result-section-title">Recommendations</h3>
+            <ul className="test-result-list">
+              {testResult.analysis.recommendations.map((recommendation, index) => (
+                <li key={index} className="test-result-list-item recommendation">
+                  <span>{recommendation}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          
           <div className="test-result-actions">
-            <button className="test-btn-primary">
-              View Detailed Analysis
-            </button>
-            <button 
-              onClick={onBack}
-              className="test-btn-secondary"
-            >
-              Back to Dashboard
+            <button onClick={onClose} className="test-result-close-btn">
+              Return to Tests
             </button>
           </div>
         </div>
@@ -172,160 +273,104 @@ import './TestInterface.css';
     );
   }
 
+  if (!test) return null;
+
+  const currentQuestion = test.questions[currentQuestionIndex];
+  const isLastQuestion = currentQuestionIndex === test.questions.length - 1;
+  const isFirstQuestion = currentQuestionIndex === 0;
+  const currentAnswer = answers[currentQuestionIndex];
+  const answeredCount = answers.filter(a => a.selectedOption !== -1).length;
+
   return (
-    <div className="test-root">
-      {/* Header */}
-      <div className="test-header">
-        <div className="test-header-inner">
-          <div className="test-header-left">
-            <button 
-              onClick={onBack}
-              className="test-header-backbtn"
-            >
-              <ArrowLeft size={20} />
-            </button>
-            <h1>{testData.title}</h1>
-          </div>
-          <div className="test-header-right">
-            <div className="test-header-timer">
-              <Clock size={20} />
-              <span>{formatTime(timeLeft)}</span>
-            </div>
-            <button 
-              onClick={() => setShowSubmitModal(true)}
-              className="test-btn-green"
-            >
-              Submit Test
-            </button>
+    <div className="test-interface-container">
+      <div className="test-interface-header">
+        <div className="test-interface-title">
+          <h2>{test.title}</h2>
+          <p>{test.subject} - {test.topic}</p>
+        </div>
+        
+        <div className="test-interface-timer">
+          <Clock className="test-interface-timer-icon" />
+          <span className="test-interface-timer-value">{formatTime(timeRemaining)}</span>
+        </div>
+      </div>
+      
+      <div className="test-interface-progress">
+        <div className="test-interface-progress-text">
+          Question {currentQuestionIndex + 1} of {test.questions.length}
+        </div>
+        <div className="test-interface-progress-bar">
+          <div 
+            className="test-interface-progress-fill"
+            style={{ width: `${((currentQuestionIndex + 1) / test.questions.length) * 100}%` }}
+          ></div>
+        </div>
+        <div className="test-interface-progress-stats">
+          <span className="test-interface-answered">
+            {answeredCount} Answered
+          </span>
+          <span className="test-interface-unanswered">
+            {test.questions.length - answeredCount} Remaining
+          </span>
+        </div>
+      </div>
+      
+      <div className="test-interface-question-container">
+        <div className="test-interface-question">
+          <h3 className="test-interface-question-text">
+            {currentQuestionIndex + 1}. {currentQuestion.question}
+          </h3>
+          
+          <div className="test-interface-options">
+            {currentQuestion.options.map((option, index) => (
+              <div 
+                key={index}
+                className={`test-interface-option ${currentAnswer.selectedOption === index ? 'selected' : ''}`}
+                onClick={() => handleOptionSelect(index)}
+              >
+                <div className="test-interface-option-marker">
+                  {String.fromCharCode(65 + index)}
+                </div>
+                <div className="test-interface-option-text">
+                  {option}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
-
-      <div className="test-content">
-        <div className="test-content-grid">
-          {/* Question Panel */}
-          <div className="test-question-panel">
-            <div className="test-question-card">
-              <div className="test-question-header">
-                <div>
-                  <h2>Question {currentQuestion + 1} of {questions.length}</h2>
-                  <p>{questions[currentQuestion].subject} • {questions[currentQuestion].topic}</p>
-                </div>
-                <button
-                  onClick={handleFlagQuestion}
-                  className={`test-flag-btn${flaggedQuestions.has(currentQuestion) ? ' flagged' : ''}`}
-                >
-                  <Flag size={16} />
-                  <span>{flaggedQuestions.has(currentQuestion) ? 'Flagged' : 'Flag'}</span>
-                </button>
-              </div>
-
-              <div className="test-question-text">
-                {questions[currentQuestion].question}
-              </div>
-
-              <div className="test-options">
-                {questions[currentQuestion].options.map((option, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleAnswerSelect(index)}
-                    className={`test-option-btn${answers[currentQuestion] === index.toString() ? ' selected' : ''}`}
-                  >
-                    <div className="test-option-radio">
-                      {answers[currentQuestion] === index.toString() && <div className="test-option-dot"></div>}
-                    </div>
-                    <span>{String.fromCharCode(65 + index)}. {option}</span>
-                  </button>
-                ))}
-              </div>
-
-              <div className="test-question-footer">
-                <button
-                  onClick={() => setCurrentQuestion(Math.max(0, currentQuestion - 1))}
-                  disabled={currentQuestion === 0}
-                  className="test-btn-secondary"
-                >
-                  <ChevronLeft size={16} />
-                  <span>Previous</span>
-                </button>
-                <div className="test-question-actions">
-                  <button className="test-btn-gray">
-                    Clear Response
-                  </button>
-                  <button className="test-btn-blue">
-                    Mark for Review
-                  </button>
-                </div>
-                <button
-                  onClick={() => setCurrentQuestion(Math.min(questions.length - 1, currentQuestion + 1))}
-                  disabled={currentQuestion === questions.length - 1}
-                  className="test-btn-primary"
-                >
-                  <span>Next</span>
-                  <ChevronRight size={16} />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Question Navigator */}
-          <div className="test-nav-panel">
-            <div className="test-nav-card">
-              <h3>Question Navigator</h3>
-              <div className="test-nav-grid">
-                {questions.map((_, index) => {
-                  const status = index === currentQuestion ? 'current' : getQuestionStatus(index);
-                  return (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentQuestion(index)}
-                      className={`test-nav-btn ${getStatusColor(status)}`}
-                    >
-                      {index + 1}
-                    </button>
-                  );
-                })}
-              </div>
-              <div className="test-nav-legend">
-                <div><span className="testnav-answered"></span> Answered ({Object.keys(answers).length})</div>
-                <div><span className="testnav-flagged"></span> Flagged ({flaggedQuestions.size})</div>
-                <div><span className="testnav-notattempted"></span> Not Attempted ({questions.length - Object.keys(answers).length})</div>
-              </div>
-            </div>
-          </div>
-        </div>
+      
+      <div className="test-interface-actions">
+        <button 
+          className="test-interface-prev-btn"
+          onClick={handlePrevQuestion}
+          disabled={isFirstQuestion}
+        >
+          <ChevronLeft className="test-interface-action-icon" />
+          <span>Previous</span>
+        </button>
+        
+        {isLastQuestion ? (
+          <button 
+            className="test-interface-submit-btn"
+            onClick={handleSubmitTest}
+            disabled={isSubmitting}
+          >
+            <Send className="test-interface-action-icon" />
+            <span>{isSubmitting ? 'Submitting...' : 'Submit Test'}</span>
+          </button>
+        ) : (
+          <button 
+            className="test-interface-next-btn"
+            onClick={handleNextQuestion}
+          >
+            <span>Next</span>
+            <ChevronRight className="test-interface-action-icon" />
+          </button>
+        )}
       </div>
-
-      {/* Submit Modal */}
-      {showSubmitModal && (
-        <div className="test-modal-bg">
-          <div className="test-modal">
-            <div className="test-modal-header">
-              <AlertCircle size={24} className="test-modal-icon" />
-              <h2>Submit Test</h2>
-            </div>
-            <p>
-              Are you sure you want to submit the test? You have answered {Object.keys(answers).length} out of {questions.length} questions.
-            </p>
-            <div className="test-modal-actions">
-              <button 
-                onClick={() => setShowSubmitModal(false)}
-                className="test-btn-secondary"
-              >
-                Continue Test
-              </button>
-              <button 
-                onClick={handleSubmitTest}
-                className="test-btn-green"
-              >
-                Submit
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
-export default TestInterface; 
+export default TestInterface;

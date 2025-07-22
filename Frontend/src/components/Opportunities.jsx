@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Trophy,
   Calendar,
@@ -20,299 +20,138 @@ import {
   Zap,
   Globe,
   Briefcase,
-  School
+  School,
+  Loader
 } from 'lucide-react';
 import './Opportunities.css';
 
 
- const Opportunities = ({ onNavigate }) => {
+ const Opportunities = ({ onNavigate, currentUser = {} }) => {
   const [activeTab, setActiveTab] = useState('scholarships');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
-
-  const scholarships = [
-    {
-      id: 1,
-      title: 'National Science Talent Search Scholarship',
-      provider: 'Government of India',
-      amount: '₹1,50,000',
-      deadline: '2024-01-15',
-      category: 'science',
-      eligibility: 'Class 12 students with 90%+ in Science',
-      description: 'Merit-based scholarship for students pursuing science education',
-      applicants: 12450,
-      selected: 500,
-      difficulty: 'High',
-      requirements: ['Academic transcripts', 'Research proposal', 'Recommendation letters'],
-      status: 'open',
-      image: 'https://images.pexels.com/photos/5428019/pexels-photo-5428019.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
-    },
-    {
-      id: 2,
-      title: 'JEE Advanced Merit Scholarship',
-      provider: 'IIT Foundation',
-      amount: '₹2,00,000',
-      deadline: '2024-02-20',
-      category: 'engineering',
-      eligibility: 'JEE Advanced rank under 1000',
-      description: 'Scholarship for top JEE Advanced performers',
-      applicants: 8930,
-      selected: 200,
-      difficulty: 'High',
-      requirements: ['JEE Advanced scorecard', 'Income certificate', 'Caste certificate (if applicable)'],
-      status: 'open',
-      image: 'https://images.pexels.com/photos/1181677/pexels-photo-1181677.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
-    },
-    {
-      id: 3,
-      title: 'NEET Medical Excellence Award',
-      provider: 'Medical Council of India',
-      amount: '₹1,75,000',
-      deadline: '2024-01-30',
-      category: 'medical',
-      eligibility: 'NEET rank under 500',
-      description: 'Support for aspiring medical professionals',
-      applicants: 15670,
-      selected: 300,
-      difficulty: 'High',
-      requirements: ['NEET scorecard', 'Medical fitness certificate', 'Character certificate'],
-      status: 'open',
-      image: 'https://images.pexels.com/photos/4386465/pexels-photo-4386465.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
-    },
-    {
-      id: 4,
-      title: 'Women in STEM Scholarship',
-      provider: 'Tech Foundation',
-      amount: '₹1,25,000',
-      deadline: '2024-03-15',
-      category: 'technology',
-      eligibility: 'Female students in STEM fields',
-      description: 'Encouraging women participation in science and technology',
-      applicants: 6789,
-      selected: 150,
-      difficulty: 'Medium',
-      requirements: ['Academic records', 'Project portfolio', 'Personal statement'],
-      status: 'open',
-      image: 'https://images.pexels.com/photos/3861958/pexels-photo-3861958.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
+  const [opportunities, setOpportunities] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [error, setError] = useState(null);
+  
+  // Handle loading more opportunities
+  const handleLoadMore = async () => {
+    try {
+      setIsLoadingMore(true);
+      
+      // Call API to generate more opportunities
+      const response = await fetch('/api/opportunities/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ count: 5 })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to load more opportunities');
+      }
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Add new opportunities to existing ones
+        setOpportunities(prevItems => [...prevItems, ...data.opportunities]);
+      } else {
+        throw new Error(data.message || 'Failed to load more opportunities');
+      }
+    } catch (error) {
+      console.error('Error loading more opportunities:', error);
+      setError(error.message);
+    } finally {
+      setIsLoadingMore(false);
     }
-  ];
-
-  const competitions = [
-    {
-      id: 1,
-      title: 'National Science Olympiad',
-      organizer: 'Science Foundation',
-      prize: '₹50,000',
-      deadline: '2024-01-20',
-      category: 'science',
-      level: 'National',
-      description: 'Test your scientific knowledge and problem-solving skills',
-      participants: 25000,
-      winners: 10,
-      difficulty: 'High',
-      subjects: ['Physics', 'Chemistry', 'Biology', 'Mathematics'],
-      status: 'open',
-      image: 'https://images.pexels.com/photos/159832/science-formula-physics-school-159832.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
-    },
-    {
-      id: 2,
-      title: 'Inter-School Mathematics Competition',
-      organizer: 'Math Society',
-      prize: '₹25,000',
-      deadline: '2024-02-10',
-      category: 'mathematics',
-      level: 'Regional',
-      description: 'Challenging mathematical problems for bright minds',
-      participants: 8500,
-      winners: 5,
-      difficulty: 'Medium',
-      subjects: ['Algebra', 'Geometry', 'Calculus', 'Statistics'],
-      status: 'open',
-      image: 'https://images.pexels.com/photos/1496154/pexels-photo-1496154.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
-    },
-    {
-      id: 3,
-      title: 'Young Innovators Challenge',
-      organizer: 'Innovation Hub',
-      prize: '₹1,00,000',
-      deadline: '2024-02-28',
-      category: 'innovation',
-      level: 'National',
-      description: 'Showcase your innovative ideas and win big',
-      participants: 12000,
-      winners: 3,
-      difficulty: 'High',
-      subjects: ['Technology', 'Science', 'Engineering', 'Design'],
-      status: 'open',
-      image: 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
+  };
+  
+  // Fetch opportunities from API
+  useEffect(() => {
+    const fetchOpportunities = async () => {
+      try {
+        setIsLoading(true);
+        
+        // Fetch from API
+        const response = await fetch('/api/opportunities', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch opportunities');
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          setOpportunities(data.opportunities);
+        } else {
+          throw new Error(data.message || 'Failed to fetch opportunities');
+        }
+      } catch (error) {
+        console.error('Error fetching opportunities:', error);
+        setError(error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchOpportunities();
+  }, []);
+  
+  // Define opportunity counts by type
+  const [opportunityCounts, setOpportunityCounts] = useState({
+    scholarships: 0,
+    competitions: 0,
+    exams: 0,
+    internships: 0,
+    hackathons: 0
+  });
+  
+  // Update opportunity counts when opportunities change
+  useEffect(() => {
+    if (opportunities.length > 0) {
+      const counts = {
+        scholarships: 0,
+        competitions: 0,
+        exams: 0,
+        internships: 0,
+        hackathons: 0
+      };
+      
+      opportunities.forEach(item => {
+        switch (item.type) {
+          case 'Scholarship': counts.scholarships++; break;
+          case 'Competition': counts.competitions++; break;
+          case 'Exam': counts.exams++; break;
+          case 'Internship': counts.internships++; break;
+          case 'Hackathon': counts.hackathons++; break;
+          default: break;
+        }
+      });
+      
+      setOpportunityCounts(counts);
     }
-  ];
-
-  const exams = [
-    {
-      id: 1,
-      title: 'JEE Main 2024',
-      organizer: 'NTA',
-      date: '2024-01-24',
-      category: 'engineering',
-      level: 'National',
-      description: 'Joint Entrance Examination for engineering admissions',
-      applicants: 1200000,
-      centers: 400,
-      difficulty: 'High',
-      subjects: ['Physics', 'Chemistry', 'Mathematics'],
-      status: 'upcoming',
-      registrationEnd: '2024-01-10',
-      image: 'https://images.pexels.com/photos/5428019/pexels-photo-5428019.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
-    },
-    {
-      id: 2,
-      title: 'NEET 2024',
-      organizer: 'NTA',
-      date: '2024-05-05',
-      category: 'medical',
-      level: 'National',
-      description: 'National medical entrance examination',
-      applicants: 1800000,
-      centers: 500,
-      difficulty: 'High',
-      subjects: ['Physics', 'Chemistry', 'Biology'],
-      status: 'upcoming',
-      registrationEnd: '2024-03-15',
-      image: 'https://images.pexels.com/photos/4386465/pexels-photo-4386465.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
-    },
-    {
-      id: 3,
-      title: 'KVPY 2024',
-      organizer: 'IISc',
-      date: '2024-03-10',
-      category: 'science',
-      level: 'National',
-      description: 'Kishore Vaigyanik Protsahan Yojana',
-      applicants: 150000,
-      centers: 200,
-      difficulty: 'Medium',
-      subjects: ['Physics', 'Chemistry', 'Biology', 'Mathematics'],
-      status: 'upcoming',
-      registrationEnd: '2024-02-20',
-      image: 'https://images.pexels.com/photos/1181677/pexels-photo-1181677.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
-    }
-  ];
-
-  const internships = [
-    {
-      id: 1,
-      title: 'Google Summer of Code 2024',
-      company: 'Google',
-      duration: '3 months',
-      stipend: '$3,000',
-      deadline: '2024-04-02',
-      category: 'technology',
-      level: 'International',
-      description: 'Work on open source projects with mentorship from Google engineers',
-      applicants: 50000,
-      selected: 1200,
-      difficulty: 'High',
-      skills: ['Programming', 'Open Source', 'Git', 'Documentation'],
-      status: 'open',
-      image: 'https://images.pexels.com/photos/270348/pexels-photo-270348.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
-    },
-    {
-      id: 2,
-      title: 'Microsoft Student Partner Program',
-      company: 'Microsoft',
-      duration: '1 year',
-      stipend: 'Varies',
-      deadline: '2024-03-15',
-      category: 'technology',
-      level: 'Global',
-      description: 'Lead technical communities and events at your university',
-      applicants: 25000,
-      selected: 500,
-      difficulty: 'Medium',
-      skills: ['Leadership', 'Public Speaking', 'Microsoft Technologies', 'Community Building'],
-      status: 'open',
-      image: 'https://images.pexels.com/photos/1181677/pexels-photo-1181677.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
-    },
-    {
-      id: 3,
-      title: 'Research Internship at ISRO',
-      company: 'ISRO',
-      duration: '6 months',
-      stipend: '₹25,000/month',
-      deadline: '2024-02-28',
-      category: 'research',
-      level: 'National',
-      description: 'Work on cutting-edge space research projects',
-      applicants: 15000,
-      selected: 100,
-      difficulty: 'High',
-      skills: ['Research', 'Space Technology', 'Data Analysis', 'Technical Writing'],
-      status: 'open',
-      image: 'https://images.pexels.com/photos/73873/rocket-launch-rocket-take-off-nasa-73873.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
-    }
-  ];
-
-  const hackathons = [
-    {
-      id: 1,
-      title: 'Smart India Hackathon 2024',
-      organizer: 'Government of India',
-      prize: '₹1,00,000',
-      deadline: '2024-02-15',
-      category: 'technology',
-      level: 'National',
-      description: '36-hour hackathon to solve real-world problems',
-      participants: 100000,
-      winners: 50,
-      difficulty: 'High',
-      themes: ['Healthcare', 'Education', 'Agriculture', 'Smart Cities'],
-      status: 'open',
-      image: 'https://images.pexels.com/photos/1181677/pexels-photo-1181677.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
-    },
-    {
-      id: 2,
-      title: 'HackMIT 2024',
-      organizer: 'MIT',
-      prize: '$10,000',
-      deadline: '2024-03-01',
-      category: 'technology',
-      level: 'International',
-      description: 'Premier student hackathon at MIT',
-      participants: 5000,
-      winners: 10,
-      difficulty: 'High',
-      themes: ['AI/ML', 'Blockchain', 'IoT', 'Web Development'],
-      status: 'open',
-      image: 'https://images.pexels.com/photos/1181677/pexels-photo-1181677.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
-    },
-    {
-      id: 3,
-      title: 'Code for Good Hackathon',
-      organizer: 'TechForGood',
-      prize: '₹50,000',
-      deadline: '2024-02-20',
-      category: 'social',
-      level: 'National',
-      description: 'Build solutions for social impact',
-      participants: 8000,
-      winners: 15,
-      difficulty: 'Medium',
-      themes: ['Social Impact', 'Environment', 'Education', 'Healthcare'],
-      status: 'open',
-      image: 'https://images.pexels.com/photos/1181677/pexels-photo-1181677.jpeg?auto=compress&cs=tinysrgb&w=400&h=250'
-    }
-  ];
+  }, [opportunities]);
 
   const getCurrentData = () => {
-    switch (activeTab) {
-      case 'scholarships': return scholarships;
-      case 'competitions': return competitions;
-      case 'exams': return exams;
-      case 'internships': return internships;
-      case 'hackathons': return hackathons;
-      default: return [];
-    }
+    // Filter by type based on active tab
+    return opportunities.filter(item => {
+      switch (activeTab) {
+        case 'scholarships': return item.type === 'Scholarship';
+        case 'competitions': return item.type === 'Competition';
+        case 'exams': return item.type === 'Exam';
+        case 'internships': return item.type === 'Internship';
+        case 'hackathons': return item.type === 'Hackathon';
+        default: return true;
+      }
+    });
   };
 
   const filteredData = getCurrentData().filter(item => {
@@ -370,11 +209,11 @@ import './Opportunities.css';
 
       <div className="opportunities-tabs">
         {[
-          { id: 'scholarships', label: 'Scholarships', count: scholarships.length },
-          { id: 'competitions', label: 'Competitions', count: competitions.length },
-          { id: 'exams', label: 'Entrance Exams', count: exams.length },
-          { id: 'internships', label: 'Internships', count: internships.length },
-          { id: 'hackathons', label: 'Hackathons', count: hackathons.length }
+          { id: 'scholarships', label: 'Scholarships', count: opportunityCounts.scholarships },
+          { id: 'competitions', label: 'Competitions', count: opportunityCounts.competitions },
+          { id: 'exams', label: 'Entrance Exams', count: opportunityCounts.exams },
+          { id: 'internships', label: 'Internships', count: opportunityCounts.internships },
+          { id: 'hackathons', label: 'Hackathons', count: opportunityCounts.hackathons }
         ].map((tab) => {
           const Icon = getTabIcon(tab.id);
           return (
@@ -422,15 +261,33 @@ import './Opportunities.css';
             <option value="social">Social Impact</option>
           </select>
           
-          <button className="opportunities-alert-btn">
+          <button 
+            className="opportunities-alert-btn"
+            onClick={handleLoadMore}
+            disabled={isLoadingMore}
+          >
             <Bell className="opportunities-alert-icon" />
-            <span>Set Alerts</span>
+            <span>{isLoadingMore ? 'Loading...' : 'Load More'}</span>
           </button>
         </div>
       </div>
 
+      {isLoading && (
+        <div className="opportunities-loading">
+          <Loader className="opportunities-loading-spinner" />
+          <p>Loading opportunities...</p>
+        </div>
+      )}
+      
+      {error && (
+        <div className="opportunities-error">
+          <p>Error loading opportunities: {error}</p>
+          <button onClick={() => window.location.reload()}>Retry</button>
+        </div>
+      )}
+
       <div className="opportunities-grid">
-        {filteredData.map(item => (
+        {!isLoading && filteredData.map(item => (
           <div key={item.id} className="opportunity-card">
             <div className="opportunity-image-container">
               <img 
@@ -556,11 +413,23 @@ import './Opportunities.css';
         ))}
       </div>
 
-      {filteredData.length === 0 && (
+      {filteredData.length === 0 && !isLoading && (
         <div className="opportunities-empty-state">
           <Trophy className="opportunities-empty-icon" />
           <h3 className="opportunities-empty-title">No opportunities found</h3>
           <p className="opportunities-empty-text">Try adjusting your search or filter criteria</p>
+        </div>
+      )}
+      
+      {filteredData.length > 0 && !isLoading && (
+        <div className="opportunities-load-more">
+          <button 
+            className="opportunities-load-more-btn"
+            onClick={handleLoadMore}
+            disabled={isLoadingMore}
+          >
+            {isLoadingMore ? 'Loading more opportunities...' : 'Load More Opportunities'}
+          </button>
         </div>
       )}
     </div>
