@@ -1,181 +1,141 @@
-IntelliLearn — AI-Assisted Learning Platform
+# IntelliLearn — AI-Assisted Learning Platform
+
 IntelliLearn is a full-stack web application delivering an engaging, AI-powered learning experience with spaced-repetition flashcards, semantic search, and real-time collaboration. Copy and paste this README into your repository and update placeholders as needed.
 
-🚀 Live Demo
-Frontend: http://localhost:5173
+## 🚀 Live Demo
 
-Backend: http://localhost:5000
+- Frontend: http://localhost:5173  
+- Backend: http://localhost:5000  
 
-📋 Overview
+## 📋 Overview
+
 IntelliLearn enables learners to:
+- Generate intelligent flashcard decks from notes
+- Perform semantic searches across course materials
+- Track progress with adaptive, Bloom-taxonomy tagging
+- Collaborate in real time via integrated quizzes
 
-Generate intelligent flashcard decks from notes
+## ✨ Key Features
 
-Perform semantic searches across course materials
+**🎴 Intelligent Flashcards**  
+- AI-generated Q&A pairs  
+- Spaced-repetition scheduling  
+- Bloom taxonomy tagging  
 
-Track progress with adaptive, Bloom-taxonomy tagging
+**🔍 Semantic Search**  
+- Embed notes with OpenAI embeddings  
+- Fast, full-text and vector search  
+- Retrieval-Augmented Generation (RAG)
 
-Collaborate in real time via integrated quizzes
+**📡 Real-Time Collaboration**  
+- Live quizzes with Socket.IO  
+- Peer discussion rooms  
+- Progress syncing across devices
 
-✨ Key Features
-🎴 Intelligent Flashcards
+**📊 Analytics Dashboard**  
+- Learner progress metrics  
+- Top-performing decks  
+- Usage trends and insights  
 
-AI-generated Q&A pairs
+## 🏗️ Technology Stack
 
-Spaced-repetition scheduling
+**Backend**  
+- Node.js + Express  
+- PostgreSQL + Prisma + pgvector  
+- OpenAI API & LangChain  
+- JWT Authentication  
+- GitHub Actions CI/CD  
 
-Bloom taxonomy tagging
+**Frontend**  
+- Vue 3 + Vite  
+- Tailwind CSS  
+- Pinia for state management  
+- Vite Plugin PWA  
 
-🔍 Semantic Search
+## 🛠️ Installation & Setup
 
-Embed notes with OpenAI embeddings
+### Prerequisites
 
-Fast, full-text and vector search
+- Node.js v18+ & npm v9+  
+- PostgreSQL ≥15  
+- OpenAI API key  
 
-Retrieval-Augmented Generation (RAG)
-
-📡 Real-Time Collaboration
-
-Live quizzes with Socket.IO
-
-Peer discussion rooms
-
-Progress syncing across devices
-
-📊 Analytics Dashboard
-
-Learner progress metrics
-
-Top-performing decks
-
-Usage trends and insights
-
-🏗️ Technology Stack
-Backend
-
-Node.js + Express
-
-PostgreSQL + Prisma + pgvector
-
-OpenAI API & LangChain
-
-JWT Authentication
-
-GitHub Actions CI/CD
-
-Frontend
-
-Vue 3 + Vite
-
-Tailwind CSS
-
-Pinia for state management
-
-Vite Plugin PWA
-
-🛠️ Installation & Setup
-Prerequisites
-Node.js v18+ & npm v9+
-
-PostgreSQL ≥15
-
-OpenAI API key
-
-Backend
-bash
+### Backend
 cd Backend
 npm install
 
-# Copy .env.example → .env and fill in:
-DATABASE_URL=postgresql://user:pass@localhost:5432/intellilearn
-OPENAI_API_KEY=sk-...
-PORT=5000
-JWT_SECRET=your_jwt_secret
 
-npm run dev
-Frontend
-bash
-cd Frontend
-npm install
 
-# Copy .env.example → .env and set:
-VITE_API_URL=http://localhost:5000/api
 
-npm run dev
-📡 API Endpoints
-Method	Endpoint	Description	Auth
-POST	/api/auth/register	Create new user	❌
-POST	/api/auth/login	Obtain JWT & refresh cookie	❌
-GET	/api/users/me	Get current user profile	✅
-POST	/api/flashcards	Bulk create flashcards from text	✅
-GET	/api/search	Semantic search across notes	✅
-GET	/api/lessons/:id	Retrieve lesson details	✅
-🎯 Usage Guide
-For Learners
-Register & Login
+### Frontend
 
-Upload Notes / Text
 
-Generate Flashcards
 
-Study with Spaced Repetition
 
-Review Analytics Dashboard
+## 📡 API Endpoints
 
-For Instructors
-Add Course Materials
+| Method | Endpoint                   | Description                                       | Auth |
+|--------|----------------------------|---------------------------------------------------|------|
+| POST   | /api/auth/register         | Create new user                                   | ❌   |
+| POST   | /api/auth/login            | Obtain JWT & refresh cookie                       | ❌   |
+| GET    | /api/users/me              | Get current user profile                          | ✅   |
+| POST   | /api/flashcards            | Bulk create flashcards from text                  | ✅   |
+| GET    | /api/search                | Semantic search across notes                      | ✅   |
+| GET    | /api/lessons/:id           | Retrieve lesson details                           | ✅   |
 
-Create Quiz Sessions
+## 🎯 Usage Guide
 
-Monitor Learner Progress
+### For Learners
 
-Export Performance Reports
+1. **Register & Login**  
+2. **Upload Notes / Text**  
+3. **Generate Flashcards**  
+4. **Study with Spaced Repetition**  
+5. **Review Analytics Dashboard**  
 
-🔒 Security Features
-JWT Authentication with HTTP-only refresh cookies
+### For Instructors
 
-Input Validation & Sanitization
+1. **Add Course Materials**  
+2. **Create Quiz Sessions**  
+3. **Monitor Learner Progress**  
+4. **Export Performance Reports**  
 
-Role-based Access Control for instructors vs. learners
+## 🔒 Security Features
 
-Secure CORS Configuration
+- **JWT Authentication** with HTTP-only refresh cookies  
+- **Input Validation & Sanitization**  
+- **Role-based Access Control** for instructors vs. learners  
+- **Secure CORS Configuration**
 
-🖼️ Screenshots
-Place your website screenshots in an images/ folder and include them here:
+## 🖼️ Screenshots
 
-text
-![Dashboard Overview](images/dashboard.png)  
-*Learner analytics dashboard with progress charts.*
+Create an `images/` folder at the repo root and add your PNG/JPG files. Then include:
 
-![Flashcards View](images/flashcards.png)  
-*AI-generated flashcard deck interface.*
-Create an images/ directory at the repo root and add your PNG/JPG files.
 
-🚀 Deployment
-Frontend (Vercel)
-bash
+## 🚀 Deployment
+
+### Frontend (Vercel)
 cd Frontend
 npm run build
-# Deploy to Vercel via CLI or GitHub integration
-Backend (Railway / Render)
-Link your GitHub repo
 
-Set environment variables (DATABASE_URL, OPENAI_API_KEY, JWT_SECRET)
 
-Deploy via one-click button
 
-🤝 Contributing
-Fork the repo
+### Backend (Railway / Render)
 
-Create feature branch: git checkout -b feature/YourFeature
+- Link your GitHub repo  
+- Set environment variables (`DATABASE_URL`, `OPENAI_API_KEY`, `JWT_SECRET`)  
+- Deploy via one-click button
 
-Commit changes: git commit -m "Add YourFeature"
+## 🤝 Contributing
 
-Push & open PR
+1. Fork the repo  
+2. Create feature branch: `git checkout -b feature/YourFeature`  
+3. Commit changes: `git commit -m "Add YourFeature"`  
+4. Push & open PR  
+5. Ensure lint, tests, and type checks pass via `npm run prepush`
 
-Ensure lint, tests, and type checks pass via npm run prepush
+## 📝 License
 
-📝 License
-MIT License © 2025 Shivam Sharma
-See LICENSE for full text.
+MIT License © 2025 Shivam Sharma  
+See [LICENSE](./LICENSE) for full text.
 
