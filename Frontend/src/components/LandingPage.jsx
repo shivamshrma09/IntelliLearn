@@ -33,12 +33,11 @@ import { Link } from 'react-router-dom';
             {/* Header */}
             <header className="header-main">
                 <div className="header-content-wrapper">
-                    <a href="#" className="header-logo-group">
                         <div className="header-logo-icon-wrapper">
-                            <FaRocket className="header-logo-text" size={24} />
-                        </div>
-                        <span className="header-brand-name">IntelliLearn</span>
-                    </a>
+                             <span>IL</span>
+                                   </div>
+                          <span className="header-brand-name">IntelliLearn</span>
+
 
                     <nav className="header-nav-desktop">
                         <a href="#features" className="header-nav-link">Features</a>
@@ -76,16 +75,7 @@ import { Link } from 'react-router-dom';
             {/* Hero Section */}
             <section className="hero-section">
                 <div className="section-content-wrapper hero-content-wrapper-modified">
-                    <div className="hero-video-container">
-                        {/* Replace YOUR_YOUTUBE_VIDEO_ID with your actual YouTube video ID */}
-                        <iframe
-                            src="https://www.youtube.com/embed/YOUR_YOUTUBE_VIDEO_ID"
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                            title="IntelliLearn Demo Video"
-                        ></iframe>
-                    </div>
+                 
                     <div className="hero-text-and-buttons">
                         <h1 className="hero-title">
                             Master Your Exams with <span className="hero-title-gradient">AI-Powered Learning</span>
