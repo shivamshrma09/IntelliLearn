@@ -126,7 +126,7 @@ npm run dev
 
 ---
 
-4. 🚑 Dashboard - Mybatch , Librery , opportunity , test , setting
+4. 🚑 Dashboard - Mybatch whole process 
 <img width="1912" height="905" alt="Screenshot 2025-07-23 151222" src="https://github.com/user-attachments/assets/505a2bf1-5714-4827-925f-4d2228d8e03b" />
 <img width="1900" height="911" alt="Screenshot 2025-07-23 143521" src="https://github.com/user-attachments/assets/c625444d-8f90-4523-b906-714221d8b954" />
 <img width="1916" height="911" alt="Screenshot 2025-07-23 143303" src="https://github.com/user-attachments/assets/9ac36f2f-f6ff-4c3e-a826-e411503c5c41" />
@@ -135,6 +135,25 @@ npm run dev
 <img width="1914" height="912" alt="Screenshot 2025-07-23 143353" src="https://github.com/user-attachments/assets/fdd9d562-d1fa-4836-8d1e-e49f0dbd8264" />
 <img width="1910" height="905" alt="Screenshot 2025-07-23 143457" src="https://github.com/user-attachments/assets/f6c4b059-b68d-4f9d-877e-51644d40a498" />
 <img width="1917" height="907" alt="Screenshot 2025-07-23 143434" src="https://github.com/user-attachments/assets/529e2729-a175-4c85-9fbe-e79fd50557a2" />
+
+5. 🚑 Dashboard - library whole process
+   <img width="3600" height="4770" alt="LibraryDashboard (2)" src="https://github.com/user-attachments/assets/fd58139c-e6d2-472a-9c30-1c81bfe8fbf2" />
+
+
+7. 🚑 Dashboard - opportunities whole process
+   <img width="3600" height="5574" alt="OpportunitiesHub" src="https://github.com/user-attachments/assets/9a324062-6d3a-44be-bc75-9453468e5f92" />
+
+8. 🚑 Dashboard - opportunities whole process
+   ![Uploading OpportunitiesHub.png…]()
+
+9. 🚑 Dashboard - setting whole process
+   
+   <img width="1878" height="898" alt="Screenshot 2025-07-23 153024" src="https://github.com/user-attachments/assets/e4d5caed-02e4-4c1c-9d47-cab7cabda4d6" />
+
+
+
+
+
 
 
 
