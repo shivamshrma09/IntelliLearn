@@ -188,6 +188,27 @@ const MyBatch = ({ initialTab = 'my-batches', currentUser = {} }) => {
   const [syllabusInputType, setSyllabusInputType] = useState("text");
   const [newSyllabusText, setNewSyllabusText] = useState("");
 
+  // Load flashcards from local storage
+  const loadFlashcardsFromStorage = (batchId) => {
+    try {
+      const storedFlashcards = localStorage.getItem(`flashcards_${batchId}`);
+      if (storedFlashcards) {
+        setFlashcards(JSON.parse(storedFlashcards));
+      }
+    } catch (error) {
+      console.error('Error loading flashcards from storage:', error);
+    }
+  };
+
+  // Save flashcards to local storage
+  const saveFlashcardsToStorage = (batchId, flashcardsData) => {
+    try {
+      localStorage.setItem(`flashcards_${batchId}`, JSON.stringify(flashcardsData));
+    } catch (error) {
+      console.error('Error saving flashcards to storage:', error);
+    }
+  };
+
   // Handler for opening flashcards modal with generated content
   const handleOpenFlashcards = async (chapter, topic) => {
     setCurrentChapter(chapter);
@@ -205,10 +226,17 @@ const MyBatch = ({ initialTab = 'my-batches', currentUser = {} }) => {
           5
         );
         
-        setFlashcards(prev => ({
-          ...prev,
+        const updatedFlashcards = {
+          ...flashcards,
           [key]: generatedFlashcards
-        }));
+        };
+        
+        setFlashcards(updatedFlashcards);
+        
+        // Save to local storage
+        if (selectedBatch) {
+          saveFlashcardsToStorage(selectedBatch.id, updatedFlashcards);
+        }
       } catch (error) {
         console.error('Error generating flashcards:', error);
       } finally {
@@ -242,6 +270,27 @@ const MyBatch = ({ initialTab = 'my-batches', currentUser = {} }) => {
     }
   };
 
+  // Load resources from local storage
+  const loadResourcesFromStorage = (batchId) => {
+    try {
+      const storedResources = localStorage.getItem(`resources_${batchId}`);
+      if (storedResources) {
+        setResources(JSON.parse(storedResources));
+      }
+    } catch (error) {
+      console.error('Error loading resources from storage:', error);
+    }
+  };
+
+  // Save resources to local storage
+  const saveResourcesToStorage = (batchId, resourcesData) => {
+    try {
+      localStorage.setItem(`resources_${batchId}`, JSON.stringify(resourcesData));
+    } catch (error) {
+      console.error('Error saving resources to storage:', error);
+    }
+  };
+
   // Handler for opening resources modal with generated content
   const handleOpenResources = async (chapter, topic) => {
     setCurrentChapter(chapter);
@@ -258,10 +307,17 @@ const MyBatch = ({ initialTab = 'my-batches', currentUser = {} }) => {
           topic?.title || chapter.title
         );
         
-        setResources(prev => ({
-          ...prev,
+        const updatedResources = {
+          ...resources,
           [key]: generatedResources
-        }));
+        };
+        
+        setResources(updatedResources);
+        
+        // Save to local storage
+        if (selectedBatch) {
+          saveResourcesToStorage(selectedBatch.id, updatedResources);
+        }
       } catch (error) {
         console.error('Error generating resources:', error);
       } finally {
@@ -306,23 +362,70 @@ const MyBatch = ({ initialTab = 'my-batches', currentUser = {} }) => {
     });
   };
 
+  // Function to load progress from database
+  const loadProgressFromDatabase = async (batchId) => {
+    try {
+      const response = await fetch(`/api/progress/${batchId}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      
+      if (response.ok) {
+        return await response.json();
+      }
+    } catch (error) {
+      console.error('Error loading progress:', error);
+    }
+    return null;
+  };
+
+  // Function to load batch content from local storage
+  const loadBatchContentFromStorage = (batchId) => {
+    try {
+      const storedData = localStorage.getItem(`batch_${batchId}`);
+      if (storedData) {
+        return JSON.parse(storedData);
+      }
+    } catch (error) {
+      console.error('Error loading batch content from storage:', error);
+    }
+    return null;
+  };
+
   useEffect(() => {
     const fetchBatches = async () => {
-      try {
-        // Try to fetch from API
-        const res = await fetch('/api/batches', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+      // Always load batches from local storage first
+      const allStoredBatches = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('batch_')) {
+          const storedData = loadBatchContentFromStorage(key.replace('batch_', ''));
+          if (storedData) allStoredBatches.push(storedData);
+        }
+      }
+      
+      if (allStoredBatches.length > 0) {
+        setBatches(allStoredBatches);
+      } else {
+        try {
+          // Only try API if no local batches found
+          const res = await fetch('/api/batches', {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+          });
+          
+          if (res.ok) {
+            const data = await res.json();
+            setBatches(data);
+          } else {
+            throw new Error("Failed to load batches");
           }
-        });
-        
-        if (!res.ok) throw new Error("Failed to load batches");
-        const data = await res.json();
-        setBatches(data);
-      } catch (err) {
-        console.error("Batch fetch error:", err.message);
-        // Use sample data for demo
-        const sampleBatches = [
+        } catch (err) {
+          console.error("Batch fetch error:", err.message);
+          // Use sample data for demo
+          const sampleBatches = [
           {
             id: 1,
             title: "Web Development Fundamentals",
@@ -455,13 +558,14 @@ const MyBatch = ({ initialTab = 'my-batches', currentUser = {} }) => {
           }
         ];
         
-        // Load saved notes from localStorage if available
-        const savedNotes = localStorage.getItem('batchNotes');
-        if (savedNotes) {
-          setNotes(JSON.parse(savedNotes));
+          setBatches(sampleBatches);
         }
-        
-        setBatches(sampleBatches);
+      }
+      
+      // Load saved notes from localStorage
+      const savedNotes = localStorage.getItem('batchNotes');
+      if (savedNotes) {
+        setNotes(JSON.parse(savedNotes));
       }
     };
     fetchBatches();
@@ -516,8 +620,11 @@ Only return strict JSON, no text outside JSON.
         };
       }
       const chapters = Array.isArray(generatedPlan.chapters) ? generatedPlan.chapters : [];
-      const newBatch = {
-        id: Date.now(),
+      const batchId = Date.now().toString();
+      
+      // Basic batch info for database (no detailed content)
+      const batchForDatabase = {
+        id: batchId,
         title: generatedPlan.batchName || newTitle || "Untitled",
         subject: newSubject,
         difficulty: newDifficulty,
@@ -531,42 +638,51 @@ Only return strict JSON, no text outside JSON.
         completedChapters: 0,
         enrolledStudents: 1,
         type: "custom",
+        description: generatedPlan.description
+      };
+      
+      // Full batch data for local storage
+      const batchForStorage = {
+        id: batchId,
+        title: generatedPlan.batchName || newTitle || "Untitled",
         aiLearningPlan: {
           batchName: generatedPlan.batchName,
           description: generatedPlan.description,
           chapters,
-        },
-        completionStatus: chapters.map(ch => ({
-          completed: false,
-          topics: Array.isArray(ch.topics) ? ch.topics.map(() => ({ completed: false })) : [],
-          testAttempted: false,
-        }))
+        }
       };
       
+      // Completion status for database
+      const completionStatus = chapters.map(ch => ({
+        completed: false,
+        topics: Array.isArray(ch.topics) ? ch.topics.map(() => ({ completed: false })) : [],
+        testAttempted: false,
+      }));
+      
+      const newBatch = batchForStorage;
+      
       try {
+        // Save basic batch info to database
         const response = await fetch("/api/batches", {
           method: "POST",
           headers: { 
             "Content-Type": "application/json",
             "Authorization": `Bearer ${localStorage.getItem('token')}`
           },
-          body: JSON.stringify(newBatch)
+          body: JSON.stringify(batchForDatabase)
         });
-        if (!response.ok) throw new Error("Failed to save batch to backend.");
-        const saved = await response.json();
-        setBatches(prev => [saved.batch, ...prev]);
         
-        // Generate resources based on the batch
-        await fetch(`/api/batches/${newBatch.id}/generate-resources`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        });
+        if (!response.ok) throw new Error("Failed to save batch to backend.");
+        
+        // Save complete batch data to local storage
+        localStorage.setItem(`batch_${batchId}`, JSON.stringify(batchForStorage));
+        
+        setBatches(prev => [batchForStorage, ...prev]);
       } catch (err) {
         console.error("Backend error:", err.message);
-        // Add batch locally for demo
-        setBatches(prev => [newBatch, ...prev]);
+        // Save to local storage as fallback
+        localStorage.setItem(`batch_${batchId}`, JSON.stringify(batchForStorage));
+        setBatches(prev => [batchForStorage, ...prev]);
       }
       
       resetForm();
@@ -606,6 +722,21 @@ Only return strict JSON, no text outside JSON.
   const handleBatchClick = (batch) => {
     setSelectedBatch(batch);
     setShowBatchDetails(true);
+    
+    // Load batch content from local storage
+    const storedContent = loadBatchContentFromStorage(batch.id);
+    if (storedContent && storedContent.aiLearningPlan) {
+      // Update batch with stored content
+      setSelectedBatch({
+        ...batch,
+        aiLearningPlan: storedContent.aiLearningPlan
+      });
+    }
+    
+    // Load resources and flashcards from local storage
+    loadResourcesFromStorage(batch.id);
+    loadFlashcardsFromStorage(batch.id);
+    
     // Load any saved notes for this batch
     const noteKey = `${batch.id}-${0}`; // Default to first chapter
     if (notes[noteKey]) {
@@ -991,6 +1122,7 @@ Provide the assignment in a concise paragraph format.
   // Function to check if a chapter is unlocked (available for study)
   const isChapterUnlocked = (batch, chapterIndex) => {
     if (chapterIndex === 0) return true; // First chapter is always unlocked
+    if (!batch.completionStatus || !batch.completionStatus[chapterIndex - 1]) return true;
     
     // Check if previous chapter has a test
     const prevChapterStatus = batch.completionStatus[chapterIndex - 1];
@@ -1005,17 +1137,25 @@ Provide the assignment in a concise paragraph format.
     return true;
   };
   
+
+
   // Function to mark a topic as completed
   const markTopicCompleted = (chapterIndex, topicIndex) => {
-    if (!selectedBatch) return;
+    if (!selectedBatch || !selectedBatch.completionStatus || !selectedBatch.completionStatus[chapterIndex]) return;
     
     const updatedBatches = batches.map(batch => {
       if (batch.id === selectedBatch.id) {
-        const updatedCompletionStatus = [...batch.completionStatus];
+        const updatedCompletionStatus = [...(batch.completionStatus || [])];
+        if (!updatedCompletionStatus[chapterIndex]) {
+          updatedCompletionStatus[chapterIndex] = { completed: false, topics: [], testAttempted: false };
+        }
+        if (!updatedCompletionStatus[chapterIndex].topics[topicIndex]) {
+          updatedCompletionStatus[chapterIndex].topics[topicIndex] = { completed: false };
+        }
         updatedCompletionStatus[chapterIndex].topics[topicIndex].completed = true;
         
         // Check if all topics in the chapter are completed
-        const allTopicsCompleted = updatedCompletionStatus[chapterIndex].topics.every(topic => topic.completed);
+        const allTopicsCompleted = updatedCompletionStatus[chapterIndex].topics.every(topic => topic && topic.completed);
         
         // Update chapter completion status
         if (allTopicsCompleted) {
@@ -1023,16 +1163,25 @@ Provide the assignment in a concise paragraph format.
         }
         
         // Calculate overall progress
-        const totalTopics = batch.aiLearningPlan.chapters.reduce(
-          (sum, chapter) => sum + chapter.topics.length, 0
-        );
+        const totalTopics = batch.aiLearningPlan?.chapters?.reduce(
+          (sum, chapter) => sum + (chapter.topics?.length || 0), 0
+        ) || 0;
         const completedTopics = updatedCompletionStatus.reduce(
-          (sum, chapter) => sum + chapter.topics.filter(topic => topic.completed).length, 0
+          (sum, chapter) => sum + (chapter.topics?.filter(topic => topic && topic.completed).length || 0), 0
         );
-        const progress = Math.round((completedTopics / totalTopics) * 100);
+        const progress = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
         
         // Count completed chapters
         const completedChapters = updatedCompletionStatus.filter(chapter => chapter.completed).length;
+        
+        // Save complete batch data to local storage
+        const updatedBatch = {
+          ...batch,
+          completionStatus: updatedCompletionStatus,
+          progress,
+          completedChapters
+        };
+        localStorage.setItem(`batch_${batch.id}`, JSON.stringify(updatedBatch));
         
         return {
           ...batch,
@@ -1116,6 +1265,13 @@ Provide the assignment in a concise paragraph format.
         updatedCompletionStatus[chapterIndex].testScore = score;
         updatedCompletionStatus[chapterIndex].testResults = results;
         
+        // Save complete batch data to local storage
+        const updatedBatch = {
+          ...batch,
+          completionStatus: updatedCompletionStatus
+        };
+        localStorage.setItem(`batch_${batch.id}`, JSON.stringify(updatedBatch));
+        
         return {
           ...batch,
           completionStatus: updatedCompletionStatus
@@ -1165,7 +1321,7 @@ Provide the assignment in a concise paragraph format.
     setNotes(updatedNotes);
     setCurrentNote("");
     
-    // Save to localStorage
+    // Save notes to localStorage only (not database)
     localStorage.setItem('batchNotes', JSON.stringify(updatedNotes));
   };
   
@@ -1611,10 +1767,10 @@ Only return valid JSON, no other text.
                 <h3>Syllabus</h3>
                 {selectedBatch.aiLearningPlan.chapters.map((chapter, index) => {
                   const isUnlocked = isChapterUnlocked(selectedBatch, index);
-                  const chapterStatus = selectedBatch.completionStatus[index];
-                  const isCompleted = chapterStatus && chapterStatus.completed;
-                  const testAttempted = chapterStatus && chapterStatus.testAttempted;
-                  const assignmentCompleted = chapterStatus && chapterStatus.assignmentCompleted;
+                  const chapterStatus = selectedBatch.completionStatus?.[index] || { completed: false, topics: [], testAttempted: false };
+                  const isCompleted = chapterStatus.completed;
+                  const testAttempted = chapterStatus.testAttempted;
+                  const assignmentCompleted = chapterStatus.assignmentCompleted;
                   const noteKey = `${selectedBatch.id}-${index}`;
                   const chapterNote = notes[noteKey] || "";
                   
