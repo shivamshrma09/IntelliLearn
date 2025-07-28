@@ -3,6 +3,7 @@
 import React, { useState, useContext } from "react";
 import { UserDataContext } from "../context/UserContext";
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import axios from 'axios';
 import './SignupPage.css';
 
 const SignupPage = ({onNavigate}) => {
@@ -40,20 +41,29 @@ const SignupPage = ({onNavigate}) => {
       return;
     }
     setErrors({});
+    
     try {
-      // Mock successful registration for demo
-      const mockUser = {
-        _id: "mock-user-id",
-        name: name,
-        email: email,
-        course: course
-      };
-      
-      setUserData(mockUser);
-      localStorage.setItem("token", "mock-token-12345");
-      onNavigate('dashboard');
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL || 'http://localhost:1000'}/students/register`,
+        {
+          name,
+          email,
+          password,
+          course
+        }
+      );
+
+      if (response.status === 201 || response.status === 200) {
+        const data = response.data;
+        setUserData(data.user);
+        localStorage.setItem("token", data.token);
+        onNavigate('dashboard');
+      }
     } catch (err) {
-      setErrors({ email: "Registration failed. Try another email." });
+      console.error('Signup error:', err);
+      setErrors({ 
+        general: err.response?.data?.message || "Registration failed. Please try again." 
+      });
     }
   };
 
@@ -180,6 +190,11 @@ const SignupPage = ({onNavigate}) => {
               </label>
             </div>
             {errors.agreeTerms && <p className="signup-error">{errors.agreeTerms}</p>}
+            
+            {errors.general && (
+              <p className="signup-error">{errors.general}</p>
+            )}
+            
             <button type="submit" className="signup-submit-btn">Create Account</button>
           </form>
           <div className="signup-divider"><span>Or continue with</span></div>

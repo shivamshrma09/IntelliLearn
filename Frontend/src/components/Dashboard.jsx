@@ -34,7 +34,7 @@ const Dashboard = ({ onNavigate }) => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     
-    fetch('http://localhost:1000/students/user', {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:1000'}/students/user`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,

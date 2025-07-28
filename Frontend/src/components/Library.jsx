@@ -62,7 +62,7 @@ const Library = () => {
       }));
 
       for (const resource of enrichedResources) {
-        const res = await fetch("http://localhost:1000/students/add-library", {
+        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:1000'}/students/add-library`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -96,7 +96,7 @@ const Library = () => {
     }
 
     setLoading(true); // Indicate loading for user data
-    fetch('http://localhost:1000/students/user', {
+    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:1000'}/students/user`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,

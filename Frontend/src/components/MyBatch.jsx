@@ -674,7 +674,7 @@ Only return strict JSON, no text outside JSON.
       
       // Save to student's batches array in database
       try {
-        const studentResponse = await fetch("http://localhost:1000/students/add-batch", {
+        const studentResponse = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:1000'}/students/add-batch`, {
           method: "POST",
           headers: { 
             "Content-Type": "application/json",

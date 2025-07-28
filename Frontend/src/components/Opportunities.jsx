@@ -31,7 +31,7 @@ const Opportunities = () => {
         return; // Exit if no token
       }
       try {
-        const res = await fetch("http://localhost:1000/students/user", {
+        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:1000'}/students/user`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -71,7 +71,7 @@ const Opportunities = () => {
       try {
         // --- IMPORTANT: Correct the endpoint to /ai/generate ---
         const res = await fetch(
-          `http://localhost:1000/ai/generate?type=${tab}&course=${course}`
+`${import.meta.env.VITE_API_URL || 'http://localhost:1000'}/ai/generate?type=${tab}&course=${course}`
         );
         if (!res.ok) {
           const errorText = await res.text();

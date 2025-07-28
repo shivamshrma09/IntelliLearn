@@ -31,7 +31,7 @@ const LoginPage = ({ onNavigate }) => {
 
     try {
       const response = await axios.post(
-        `http://localhost:1000/students/login`,
+        `${import.meta.env.VITE_API_URL || 'http://localhost:1000'}/students/login`,
         { email, password }
       );
 
