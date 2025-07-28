@@ -1,8 +1,10 @@
 import React from 'react';
-import './LoadingSpinner.css'; // Add your CSS styles here
 
-const LoadingSpinner = ({ onNavigate }) => {
-  return <div className="loading-spinner">Loading...</div>;
-};
+const LoadingSpinner = ({ message = "Loading..." }) => (
+  <div className="loading-spinner">
+    <div className="spinner"></div>
+    <p>{message}</p>
+  </div>
+);
 
 export default LoadingSpinner;

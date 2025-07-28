@@ -84,6 +84,8 @@ router.get('/:id', async (req, res) => {
 
 router.post('/add-batch', studentcontrollers.addBatchToStudent);   
 router.post('/add-library', studentcontrollers.addLibraryToStudent);
+router.post('/update-study-session', studentcontrollers.updateStudySession);
+router.get('/user-stats', studentcontrollers.getUserWithStats);
 
 
 module.exports = router;

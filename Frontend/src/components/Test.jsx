@@ -3,12 +3,12 @@ import { Zap, XCircle } from "lucide-react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import "./Test.css";
 
-// Your API key for Gemini (Keep this secure in env variables for production)
-const GOOGLE_API_KEY = "AIzaSyC5wCrEK1HSLGpnbOZ0vVqsBl83QuR-VJI";
+// Secure API key from environment variables
+// const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY || process.env.VITE_GOOGLE_API_KEY;
 
 // Gemini model setup
 const getGeminiModel = (modelName = "gemini-1.5-flash") => {
-  const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
+  const genAI = new GoogleGenerativeAI('AIzaSyBEnbGedRZio64eBgi_2EDQLX8kOFOTT4w');
   return genAI.getGenerativeModel({ model: modelName });
 };
 

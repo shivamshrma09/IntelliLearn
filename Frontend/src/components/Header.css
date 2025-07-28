@@ -64,7 +64,7 @@
 .header-logo-text {
   font-size: 1.25rem;
   font-weight: bold;
-  color: #2ada2a;
+  color:#6d28d9;
 }
 
 /* Search */
@@ -188,4 +188,33 @@
   .header-user-name {
     display: block;
   }
+}
+
+.header-todo-btn {
+  position: relative;
+  padding: 8px;
+  border-radius: 8px;
+  color: #6b7280;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.header-todo-btn:hover {
+  background: #f3f4f6;
+  color: #3b82f6;
+}
+
+.header-user-avatar-placeholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #3b82f6, #a855f7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 0.875rem;
 }

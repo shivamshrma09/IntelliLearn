@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Search, Trophy, Flame, Menu } from 'lucide-react';
+import { Bell, Search, Trophy, Flame, Menu, CheckSquare } from 'lucide-react';
 import './Header.css';
 
-const Header = ({ onMenuToggle }) => {
+const Header = ({ onMenuToggle, onTodoToggle }) => {
   const [user, setUser] = useState({
     name: "User",
     streak: 0,
@@ -69,6 +69,14 @@ const Header = ({ onMenuToggle }) => {
             <button className="header-bell-btn" aria-label="Notifications">
               <Bell size={20} />
               <span className="header-bell-badge">3</span>
+            </button>
+            <button 
+              onClick={onTodoToggle} 
+              className="header-todo-btn" 
+              aria-label="Todo List"
+              title="Open Todo List"
+            >
+              <CheckSquare size={20} />
             </button>
             <div className="header-user">
               {user.avatar ? (

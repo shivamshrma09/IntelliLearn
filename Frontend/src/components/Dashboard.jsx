@@ -6,12 +6,15 @@ import {
   Award,
   Play,
   Trophy,
-  Calendar,
-  Users,
   ArrowRight,
-  Zap,
   BookOpen,
+  CheckSquare,
+  Code,
+  BarChart3,
+  Calendar,
+  Flame
 } from 'lucide-react';
+import timeTracker from '../utils/timeTracker';
 import './Dashboard.css';
 
 const Dashboard = ({ onNavigate }) => {
@@ -20,6 +23,12 @@ const Dashboard = ({ onNavigate }) => {
     streak: 0,
     totalPoints: 0,
     numberOfBatchesCompleted: 0
+  });
+  const [currentTime, setCurrentTime] = useState(0);
+  const [realTimeStats, setRealTimeStats] = useState({
+    studyTime: 0,
+    streak: 0,
+    todayPoints: 0
   });
 
   useEffect(() => {
@@ -44,23 +53,45 @@ const Dashboard = ({ onNavigate }) => {
     .catch(error => {
       console.error('Error fetching user:', error);
     });
+
+    // Start time tracking
+    timeTracker.startTracking();
+
+    // Update real-time stats every second
+    const interval = setInterval(() => {
+      const totalTime = timeTracker.getTotalTimeToday();
+      const streak = timeTracker.updateStreak();
+      setCurrentTime(totalTime);
+      setRealTimeStats({
+        studyTime: totalTime,
+        streak: streak,
+        todayPoints: Math.floor(totalTime / 60000) * 10 // 10 points per minute
+      });
+    }, 1000);
+
+    // Cleanup on unmount
+    return () => {
+      clearInterval(interval);
+      timeTracker.stopTracking();
+      timeTracker.updateWeeklyStats();
+    };
   }, []);
 
   const stats = [
     {
       label: 'Total Points',
-      value: user.totalPoints,
+      value: user.totalPoints + realTimeStats.todayPoints,
       icon: Target,
       color: 'dashboard-stat-blue',
-      change: '+12%',
+      change: `+${realTimeStats.todayPoints} today`,
       trend: 'up',
     },
     {
       label: 'Current Streak',
-      value: `${user.streak} days`,
+      value: `${Math.max(user.streak, realTimeStats.streak)} days`,
       icon: TrendingUp,
       color: 'dashboard-stat-orange',
-      change: '+2 days',
+      change: realTimeStats.streak > user.streak ? 'Updated!' : 'Keep going!',
       trend: 'up',
     },
     {
@@ -72,21 +103,37 @@ const Dashboard = ({ onNavigate }) => {
       trend: 'up',
     },
     {
-      label: 'Study Hours',
-      value: '156h',
+      label: 'Study Time Today',
+      value: timeTracker.getFormattedTime(currentTime),
       icon: Clock,
       color: 'dashboard-stat-purple',
-      change: '+15h this week',
+      change: 'Live tracking',
       trend: 'up',
     },
   ];
 
   const recentActivities = [
     {
+      type: 'study',
+      title: `Studied for ${timeTracker.getFormattedTime(currentTime)} today`,
+      time: 'Live',
+      icon: Clock,
+      color: 'dashboard-activity-blue',
+      bgColor: 'dashboard-activity-bg-blue'
+    },
+    {
+      type: 'points',
+      title: `Earned ${realTimeStats.todayPoints} points today`,
+      time: 'Today',
+      icon: Target,
+      color: 'dashboard-activity-green',
+      bgColor: 'dashboard-activity-bg-green'
+    },
+    {
       type: 'test',
       title: 'Scored 90% in Algebra Test',
       time: 'Yesterday',
-      icon: Target,
+      icon: Trophy,
       color: 'dashboard-activity-purple',
       bgColor: 'dashboard-activity-bg-purple'
     },
@@ -94,11 +141,50 @@ const Dashboard = ({ onNavigate }) => {
       type: 'achievement',
       title: 'Joined IntelliLearn Platform',
       time: 'Today',
-      icon: Trophy,
+      icon: Award,
       color: 'dashboard-activity-yellow',
       bgColor: 'dashboard-activity-bg-yellow'
     },
   ];
+
+
+
+
+
+  // Quick action cards for new features
+  const quickActions = [
+    {
+      title: '💻 LeetCode',
+      description: 'Track LeetCode problem solving',
+      icon: Code,
+      color: 'blue',
+      action: () => onNavigate('leetcode')
+    },
+    {
+      title: '✅ My Tasks',
+      description: 'Manage your daily todo list',
+      icon: CheckSquare,
+      color: 'blue',
+      action: () => onNavigate('todo')
+    },
+    {
+      title: '📊 Analytics',
+      description: 'View your learning progress',
+      icon: BarChart3,
+      color: 'blue',
+      action: () => onNavigate('analytics')
+    },
+    {
+      title: '🔥 Study Streak',
+      description: 'Maintain your daily streak',
+      icon: Flame,
+      color: 'blue',
+      action: () => onNavigate('streak')
+    }
+  ];
+
+
+
 
   const continueLearning = [
     {
@@ -120,9 +206,17 @@ const Dashboard = ({ onNavigate }) => {
   return (
     <div className="dashboard-root">
       <div className="dashboard-header">
-        <h1>Welcome back, {user.name}! 🚀</h1>
-        <p>You're on a {user.streak}-day streak! Keep up the amazing work.</p>
-        <p>Total Points: {user.totalPoints}</p>
+        <div className="dashboard-welcome">
+          <h1>Welcome back, {user.name}! 🚀</h1>
+          <p>You're on a <span className="streak-highlight">{Math.max(user.streak, realTimeStats.streak)}-day streak</span>! Keep up the amazing work.</p>
+        </div>
+        <div className="dashboard-points-card">
+          <div className="points-main">
+            <Target size={24} />
+            <span>{user.totalPoints + realTimeStats.todayPoints}</span>
+          </div>
+          <div className="points-today">+{realTimeStats.todayPoints} today</div>
+        </div>
       </div>
 
       <div className="dashboard-stats-grid">
@@ -206,6 +300,28 @@ const Dashboard = ({ onNavigate }) => {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+        
+        <div className="dashboard-main-right">
+          <div className="dashboard-section-card">
+            <h2>Quick Actions</h2>
+            <div className="quick-actions-grid">
+              {quickActions.map((action, index) => {
+                const Icon = action.icon;
+                return (
+                  <div 
+                    key={index} 
+                    className={`quick-action-card quick-action-${action.color}`}
+                    onClick={action.action}
+                  >
+                    <Icon className="quick-action-icon" />
+                    <h3>{action.title}</h3>
+                    <p>{action.description}</p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

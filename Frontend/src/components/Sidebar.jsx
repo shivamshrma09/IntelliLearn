@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Home, BookOpen, FileText, Gift, Settings, BarChart3
+  Home, BookOpen, FileText, Gift, Settings, BarChart3, CheckSquare, Code, Clock
 } from 'lucide-react';
 import './Sidebar.css';
 
@@ -10,6 +10,7 @@ const Sidebar = ({ isOpen, activeTab, onTabChange }) => {
     { id: 'my-batch', label: 'My Batch', icon: BookOpen },
     { id: 'library', label: 'Library', icon: FileText, description: 'Access learning materials' },
     { id: 'tests', label: 'Tests', icon: BarChart3, description: 'Practice with quizzes and tests' },
+    { id: 'leetcode', label: 'LeetCode', icon: Code, description: 'Track LeetCode problems' },
     { id: 'opportunities', label: 'Opportunities', icon: Gift, description: 'Discover learning opportunities' },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];

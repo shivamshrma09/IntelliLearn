@@ -13,12 +13,16 @@ import UserDataLoader from './components/UserDataLoader';
 import ErrorBoundary from './components/ErrorBoundary';
 import Library from './components/Library';
 import Opportunities  from './components/Opportunities';
-import Test from './components/Test'
+import Test from './components/Test';
+import LeetCodeTracker from './components/DSATodo';
+import TodoSidebar from './components/TodoSidebar';
+import PomodoroTimer from './components/PomodoroTimer';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('landing');
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [todoOpen, setTodoOpen] = useState(false);
 
   const { userData } = useUserData();
   
@@ -28,6 +32,7 @@ function App() {
   }, []);
 
   const toggleSidebar = () => setSidebarOpen(prev => !prev);
+  const toggleTodo = () => setTodoOpen(prev => !prev);
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -47,9 +52,10 @@ function App() {
 
       case 'opportunities':
          return <Opportunities currentUser={userData} />;
-
-        // These features are now integrated directly into MyBatch component
-        return <MyBatch currentUser={userData} initialTab={activeTab} />;
+      case 'leetcode':
+        return <LeetCodeTracker />;
+      case 'timer':
+        return <PomodoroTimer />;
       case 'settings':
         return <Settings currentUser={userData} />;
       default:
@@ -57,7 +63,7 @@ function App() {
     }
   };
 
-  const showLayout = ['dashboard', 'my-batch', 'library', 'tests', 'opportunities', 'settings'].includes(currentPage);
+  const showLayout = ['dashboard', 'my-batch', 'library', 'tests', 'opportunities', 'leetcode', 'timer', 'settings'].includes(currentPage);
 
   return (
     <ErrorBoundary>
@@ -67,7 +73,7 @@ function App() {
         {currentPage === 'signup' && <SignupPage onNavigate={setCurrentPage} />}
         {showLayout && (
           <div className="app" style={{ height: '100vh' }}>
-            <Header onMenuToggle={toggleSidebar} currentUser={userData} />
+            <Header onMenuToggle={toggleSidebar} onTodoToggle={toggleTodo} currentUser={userData} />
             <div className="app-body" style={{ display: 'flex', height: 'calc(100vh - 60px)' }}>
               <Sidebar isOpen={sidebarOpen} activeTab={activeTab} onTabChange={handleTabChange} />
               <main style={{ flex: 1, padding: '1rem', overflowY: 'auto', background: '#f9fafb' }}>
@@ -75,6 +81,7 @@ function App() {
                   {renderContent()}
                 </ErrorBoundary>
               </main>
+              <TodoSidebar isOpen={todoOpen} onClose={() => setTodoOpen(false)} />
             </div>
           </div>
         )}

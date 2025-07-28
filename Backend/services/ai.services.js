@@ -4,7 +4,7 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 // Replace "YOUR_GEMINI_API_KEY" with your actual API key.
 // It's highly recommended to use environment variables (e.g., process.env.GEMINI_API_KEY)
 // for your API key in a real application, rather than hardcoding it.
-const genAI = new GoogleGenerativeAI("AIzaSyBk3T9g7ozmrCRaKR5Q0OpzgaG877BhxEI"); // <<< Replace this placeholder!
+const genAI = new GoogleGenerativeAI("AIzaSyAiUZ7jN_OKeMM-mYDK3ptyNUMO5AZ3QH0"); // <<< Replace this placeholder!
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const generateResponse = async (prompt) => {

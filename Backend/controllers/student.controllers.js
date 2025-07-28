@@ -223,6 +223,128 @@ exports.addLibraryToStudent = async (req, res) => {
   }
 };
 
+// Update study time and points
+exports.updateStudySession = async (req, res) => {
+  try {
+    const { sessionTime, pointsEarned } = req.body;
+    
+    let userId = null;
+    if (req.headers.authorization) {
+      try {
+        const token = req.headers.authorization.replace('Bearer ', '');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        userId = decoded.id || decoded._id;
+      } catch (tokenError) {
+        return res.status(401).json({ message: 'Invalid token' });
+      }
+    }
+
+    if (!userId) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+
+    const student = await studentModel.findById(userId);
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    const today = new Date().toDateString();
+    
+    // Initialize studySessions if it doesn't exist
+    if (!student.studySessions) {
+      student.studySessions = [];
+    }
+
+    // Find or create today's session
+    let todaySession = student.studySessions.find(session => session.date === today);
+    if (!todaySession) {
+      todaySession = {
+        date: today,
+        totalTime: 0,
+        sessions: [],
+        pointsEarned: 0
+      };
+      student.studySessions.push(todaySession);
+    }
+
+    // Update session data
+    todaySession.totalTime += sessionTime;
+    todaySession.pointsEarned += pointsEarned;
+    todaySession.sessions.push({
+      start: new Date(Date.now() - sessionTime),
+      end: new Date(),
+      duration: sessionTime
+    });
+
+    // Update total points
+    student.totalPoints += pointsEarned;
+    student.lastActiveDate = new Date();
+
+    // Update streak
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toDateString();
+    
+    const yesterdaySession = student.studySessions.find(session => session.date === yesterdayStr);
+    if (yesterdaySession && yesterdaySession.totalTime > 0) {
+      student.streak += 1;
+    } else if (student.streak === 0) {
+      student.streak = 1;
+    }
+
+    await student.save();
+
+    res.status(200).json({
+      message: 'Study session updated successfully',
+      totalPoints: student.totalPoints,
+      streak: student.streak,
+      todayStudyTime: todaySession.totalTime
+    });
+
+  } catch (err) {
+    console.error('Error updating study session:', err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Get user with real-time stats
+exports.getUserWithStats = async (req, res) => {
+  try {
+    let userId = null;
+    if (req.headers.authorization) {
+      try {
+        const token = req.headers.authorization.replace('Bearer ', '');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        userId = decoded.id || decoded._id;
+      } catch (tokenError) {
+        return res.status(401).json({ message: 'Invalid token' });
+      }
+    }
+
+    if (!userId) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+
+    const student = await studentModel.findById(userId);
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    const today = new Date().toDateString();
+    const todaySession = student.studySessions?.find(session => session.date === today);
+    
+    res.status(200).json({
+      ...student.toObject(),
+      todayStudyTime: todaySession?.totalTime || 0,
+      todayPoints: todaySession?.pointsEarned || 0
+    });
+
+  } catch (err) {
+    console.error('Error fetching user stats:', err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
 
 
 exports.loginstudent = async (req, res, next) => {

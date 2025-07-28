@@ -144,6 +144,17 @@ const FlashcardSchema = new mongoose.Schema({
 });
 
 
+const StudySessionSchema = new mongoose.Schema({
+  date: { type: String, required: true },
+  totalTime: { type: Number, default: 0 }, // in milliseconds
+  sessions: [{
+    start: { type: Date, required: true },
+    end: { type: Date, required: true },
+    duration: { type: Number, required: true } // in milliseconds
+  }],
+  pointsEarned: { type: Number, default: 0 }
+});
+
 const studentSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
@@ -163,7 +174,9 @@ const studentSchema = new mongoose.Schema({
   enrolledInTest: { type: String },
   enrolledInOpportunity: { type: String },
   enrolledInCourse: { type: String },
-  libraryItems: [libraryItemSchema]
+  libraryItems: [libraryItemSchema],
+  studySessions: [StudySessionSchema],
+  lastActiveDate: { type: Date, default: Date.now }
 });
 
 // Static method to hash password

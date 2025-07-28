@@ -3,52 +3,25 @@ import React from 'react';
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null, errorInfo: null };
+    this.state = { hasError: false, error: null };
   }
 
   static getDerivedStateFromError(error) {
-    return { hasError: true };
+    return { hasError: true, error };
   }
 
   componentDidCatch(error, errorInfo) {
-    this.setState({
-      error: error,
-      errorInfo: errorInfo
-    });
-    console.error("Error caught by ErrorBoundary:", error, errorInfo);
+    console.error('Error caught by boundary:', error, errorInfo);
   }
 
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ 
-          padding: '20px', 
-          margin: '20px', 
-          backgroundColor: '#fff1f0', 
-          border: '1px solid #ffa39e',
-          borderRadius: '4px'
-        }}>
-          <h2>Something went wrong</h2>
-          <p>The application encountered an error. Please try refreshing the page.</p>
-          <details style={{ whiteSpace: 'pre-wrap', marginTop: '10px' }}>
-            <summary>Error Details</summary>
-            {this.state.error && this.state.error.toString()}
-            <br />
-            {this.state.errorInfo && this.state.errorInfo.componentStack}
-          </details>
-          <button 
-            onClick={() => window.location.reload()}
-            style={{
-              marginTop: '15px',
-              padding: '8px 16px',
-              backgroundColor: '#1890ff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            Refresh Page
+        <div className="error-boundary">
+          <h2>🚨 Something went wrong</h2>
+          <p>We're sorry, but something unexpected happened.</p>
+          <button onClick={() => window.location.reload()}>
+            Reload Page
           </button>
         </div>
       );
