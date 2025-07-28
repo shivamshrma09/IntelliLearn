@@ -25,6 +25,7 @@ app.use(cors({
     'http://127.0.0.1:3000', 
     'http://127.0.0.1:5173',
     'https://intelli-learn-wie5.vercel.app',
+    'https://intelli-learn-omega.vercel.app',
     'https://intellilearn.vercel.app'
   ],
   credentials: true,
