@@ -2,23 +2,23 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const BatchSchema = new mongoose.Schema({
+const BatchProgressSchema = new mongoose.Schema({
   id: String,
   title: String,
   subject: String,
-  difficulty: String,
-  language: String,
-  estimatedTime: String,
-  instructor: String,
-  image: String,
-  progress: Number,
+  progress: { type: Number, default: 0 },
   totalChapters: Number,
-  completedChapters: Number,
-  enrolledStudents: Number,
-  type: String,
-  aiLearningPlan: Object,
+  completedChapters: { type: Number, default: 0 },
   completionStatus: Array,
+  testResults: [{
+    chapterId: String,
+    score: Number,
+    totalQuestions: Number,
+    answers: Array,
+    timestamp: { type: Date, default: Date.now }
+  }],
   createdAt: { type: Date, default: Date.now },
+  lastAccessed: { type: Date, default: Date.now }
 });
 
 
@@ -109,23 +109,20 @@ const TestAttemptSchema = new mongoose.Schema({
 });
 
 
-
-const LibraryItemSchema = new mongoose.Schema({
+const libraryItemSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  type: { type: String, required: true },
-  subject: { type: String, required: true },
-  batch: { type: String },
-  content: { type: String, required: true },
-  readTime: { type: String },
-  lastAccessed: { type: String },
-  bookmarked: { type: Boolean, default: false },
-  tags: [{ type: String }],
-  rating: { type: Number },
-  views: { type: Number },
-  likes: { type: Number, default: 0 },
-  likedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],
-  url: { type: String },
-  course: { type: String, required: true },
+  description: String,
+  url: String,
+  tags: [String],
+  readingTime: String,
+  rating: Number,
+  views: Number,
+
+  type: { type: String, required: true },     // जरूरी है
+  subject: { type: String, required: true },  // जरूरी है
+  content: { type: String, required: true },  // जरूरी है
+  course: { type: String, required: true },   // जरूरी है
+
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -156,7 +153,7 @@ const studentSchema = new mongoose.Schema({
   rank: { type: Number, default: 0 },
   streak: { type: Number, default: 0 },
   numberOfBatchesCompleted: { type: Number, default: 0 },
-  batches: [BatchSchema],
+  batches: [BatchProgressSchema],
   certificates: [CertificateSchema],
   tests: [TestSchema],
   createdAt: { type: Date, default: Date.now },
@@ -166,9 +163,7 @@ const studentSchema = new mongoose.Schema({
   enrolledInTest: { type: String },
   enrolledInOpportunity: { type: String },
   enrolledInCourse: { type: String },
-  libraryItems: [LibraryItemSchema]
-
-  
+  libraryItems: [libraryItemSchema]
 });
 
 // Static method to hash password

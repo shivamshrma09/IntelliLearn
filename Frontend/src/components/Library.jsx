@@ -1,249 +1,318 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
-  Search,
-  Filter,
-  BookOpen,
-  FileText,
-  Headphones,
-  Video,
-  Image,
-  Download,
-  Share2,
-  Star,
-  Clock,
-  Eye,
-  Bookmark,
-  Plus,
-  Grid,
-  List,
-  Tag,
-  Calendar
+  Search, BookOpen, FileText, Headphones, Video, Image,
+  Download, Share2, Star, Clock, Eye, Bookmark, Plus, Grid, List,
 } from 'lucide-react';
 import './Library.css';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+// IMPORTANT: NEVER EXPOSE YOUR API KEY DIRECTLY IN CLIENT-SIDE CODE!
+// For a production app, you MUST proxy this through your own backend server.
+// For development, you might use an environment variable (e.g., process.env.REACT_APP_GEMINI_API_KEY)
+// const genAI = new GoogleGenerativeAI(process.env.REACT_APP_GEMINI_API_KEY); // Recommended way
+const genAI = new GoogleGenerativeAI("AIzaSyBT9qazHDn2OdwUaAjYFpzbXIsTioc1ovY"); // Using your provided key for demonstration ONLY
 
- const Library = ({ onNavigate ,  currentUser = {}  }) => {
+const Library = () => {
+  // State variables for component functionality
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [viewMode, setViewMode] = useState('grid');
-  const [selectedTags, setSelectedTags] = useState([]);
-  const { streak = 0, points = 0, avatar = '', name = 'User' ,cource = 'Electric engineering' } = currentUser;
+  // const [selectedTags, setSelectedTags] = useState([]); // Not currently used, can remove if not planned
+  const [aiRecommendedResources, setAiRecommendedResources] = useState([]); // Stores parsed AI recommendations
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [user, setUser] = useState(null); // Stores user data, initialized to null
+  const [isFetchingAi, setIsFetchingAi] = useState(false); // Renamed for clarity to avoid conflict with general loading
 
+  // State to store combined library data from user's saved items and AI recommendations
+  const [combinedLibrary, setCombinedLibrary] = useState([]);
 
+  // Helper to parse views string to number
+  const parseViews = useCallback((views) => {
+    if (typeof views === "number") return views;
+    if (!views) return null;
+    const str = views.toString().toUpperCase().trim();
+    if (str.endsWith("M")) return parseFloat(str) * 1000000;
+    if (str.endsWith("K")) return parseFloat(str) * 1000;
+    const n = parseInt(str, 10);
+    return isNaN(n) ? null : n;
+  }, []);
 
+  // Function to save AI resources to student database (memoized)
+  const saveToStudentDatabase = useCallback(async (resources) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.warn("No token found, can't save to student database");
+        return;
+      }
 
+      const userCourse = user?.course || "Unknown Course";
 
+      // Enrich AI resources with required fields for your backend
+      // Ensure 'url' is always present as it's a key for deduplication and often required by the backend
+      const enrichedResources = resources.map(item => ({
+        ...item,
+        url: item.url || '#', // Provide a fallback URL if missing
+        course: userCourse,
+        content: item.content || item.description || "No content provided", // Prioritize content, then description
+        subject: (item.tags && item.tags.length > 0) ? item.tags[0] : "General",
+        type: item.type || "document",
+        views: parseViews(item.views),
+      }));
 
-  //librery links 
-  const GOOGLE_API_KEY = "AIzaSyB2G1eKOy_4iwK8oiBVzsvkS9kjT20L0-U"; // <-- **IMPORTANT: REPLACE THIS WITH YOUR ACTUAL API KEY**
-  const getGeminiModel = (modelName = "gemini-1.5-flash") => { // Using 1.5-flash for faster responses
-    const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
-    return genAI.getGenerativeModel({ model: modelName });
-  };
-  
+      for (const resource of enrichedResources) {
+        const res = await fetch("http://localhost:1000/students/add-library", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(resource),
+        });
 
+        if (!res.ok) {
+          const errorData = await res.json();
+          console.error("Failed to save resource:", errorData.message);
+          // If a resource fails to save, you might want to handle it (e.g., skip or re-attempt)
+        } else {
+          const result = await res.json();
+          console.log("Resource saved:", result.message);
+        }
+      }
+    } catch (error) {
+      console.error("Error saving to student database:", error.message);
+    }
+  }, [user, parseViews]); // Add user and parseViews to dependencies
 
-  const prompt = `
-I am a student currently pursuing a course in "${cource}". I have study batches or topics related to the following subjects and topics: ${libraryItems
-  .map(item => `${item.subject}: ${item.tags.join(', ')}`)
-  .join('; ')}.
+  // --- Fetch User Data Effect ---
+  // Fetches user data on component mount
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setError('Authentication token not found. Please log in.');
+      // Optionally redirect to login page here
+      return;
+    }
 
-Can you recommend me a list of the top 10 high-quality, free online resources (like articles, videos, PDFs, lectures, tutorials etc.) for these subjects and topics?
+    setLoading(true); // Indicate loading for user data
+    fetch('http://localhost:1000/students/user', {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(response => {
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Unauthorized: Please log in again.');
+        }
+        throw new Error(`Failed to fetch user data: ${response.statusText}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      setUser(data);
+      setError(''); // Clear any previous errors
+      // console.log("User data fetched:", data); // For debugging
+    })
+    .catch(err => {
+      setError(err.message);
+      console.error("User data fetch error:", err);
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+  }, []); // Empty dependency array means it runs once on mount
 
-Make sure the resources are:
-- Educational and trustworthy (published by universities, educators, or learning websites)
-- Free to access
-- Include a variety of formats (videos, PDFs, articles etc.)
-- Include the title and the full URL of each item 
+  // AI Prompt (memoized)
+  const aiPrompt = useMemo(() => {
+    if (!user?.course) return ''; // Ensure user and user.course exist
 
-Return the recommendations in markdown format, like this:
-1. **[Title of Resource](https://link.to/resource)** - A brief 1-line description.
+    return `
+You are an expert educational resource recommender. I am a student currently pursuing the course "${user.course}".
 
-Please retrieve and give me only free, publicly available resources.
+Please provide exactly 10 free, high-quality educational resources in JSON array format, with these properties:
+- title (string)
+- description (string)
+- tags (array of strings, include resource's type)
+- type (string) — resource type such as 'chapter', 'notes', 'audio', 'video', 'image', 'document', or 'tutorial'
+- url (string) - response a valid and real url (crucial for deduplication)
+- readingTime (string or null)
+- rating (number or null)
+- views (number or string)
+- subject (string) — subject or category of the resource
+- content (string) — brief summary or content description
+- course (string) — the course name "${user.course}"
+
+Return only JSON array, strictly without extra text or comments.
 `;
+  }, [user]);
+
+  // Fetch AI recommendations effect
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      // Only fetch if user data is loaded, AI prompt is ready,
+      // no previous AI recommendations, and not already fetching AI
+      if (!user || !aiPrompt || aiRecommendedResources.length > 0 || isFetchingAi) {
+        return;
+      }
+
+      setIsFetchingAi(true); // Set fetching state to true
+      setLoading(true); // Show general loading indicator while AI fetches
+      setError('');
+      try {
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const result = await model.generateContent(aiPrompt);
+        const responseText = result.response.text();
+        // console.log("Raw AI Response:", responseText); // Log raw response for debugging
+
+        try {
+          // Clean response: remove markdown backticks (```json and ```)
+          const cleanedResponse = responseText.replace(/```json\n?|\n?```/g, '').trim();
+          const parsedResources = JSON.parse(cleanedResponse);
+
+          if (Array.isArray(parsedResources) && parsedResources.length > 0) {
+            setAiRecommendedResources(parsedResources);
+            saveToStudentDatabase(parsedResources); // Save to backend
+            setError('');
+          } else {
+            setError("AI response was not a valid JSON array or was empty. Please try again.");
+            console.error("AI parsing error: Expected non-empty array, got", parsedResources);
+            setAiRecommendedResources([]); // Clear potential bad data
+          }
+        } catch (jsonParseError) {
+          setError(`Failed to parse AI response: ${jsonParseError.message}. Raw response: "${responseText.substring(0, 200)}..."`);
+          console.error("JSON parsing error:", jsonParseError);
+          setAiRecommendedResources([]);
+        }
+      } catch (apiError) {
+        setError(`Failed to fetch AI recommendations: ${apiError.message}. Make sure your API key is valid and not exposed!`);
+        console.error("Gemini API call error:", apiError);
+      } finally {
+        setLoading(false); // Hide general loading
+        setIsFetchingAi(false); // Reset AI fetching state
+      }
+    };
+
+    fetchRecommendations();
+  }, [user, aiPrompt, aiRecommendedResources.length, isFetchingAi, saveToStudentDatabase]); // Added saveToStudentDatabase to dependencies
+
+  // Merge user's library items and AI recommended resources into combinedLibrary
+  useEffect(() => {
+    if (!user) return;
+
+    // Ensure user.libraryItems is treated as an array; backend might return null or undefined
+    const userLibrary = Array.isArray(user.libraryItems) ? user.libraryItems : [];
+    const aiResources = Array.isArray(aiRecommendedResources) ? aiRecommendedResources : [];
+
+    // console.log("Merging: User Library:", userLibrary); // Debugging
+    // console.log("Merging: AI Resources:", aiResources); // Debugging
+
+    // Create a Set to keep track of seen URLs for deduplication
+    const seenUrls = new Set();
+    const merged = [];
+
+    // Add user's existing library items first
+    userLibrary.forEach(item => {
+      if (item.url && !seenUrls.has(item.url)) {
+        merged.push(item);
+        seenUrls.add(item.url);
+      } else if (!item.url) { // If user's item has no URL, still add it if it's unique by title/description
+          // Fallback for items without URLs. Be cautious with this as it's less reliable for deduplication.
+          // For simplicity, let's assume URLs are always present and unique for now.
+          merged.push(item);
+      }
+    });
+
+    // Add AI resources, avoiding duplicates by URL
+    aiResources.forEach(aiRes => {
+      // Only add if it has a URL and that URL hasn't been seen before
+      if (aiRes.url && !seenUrls.has(aiRes.url)) {
+        merged.push(aiRes);
+        seenUrls.add(aiRes.url);
+      }
+    });
+
+    setCombinedLibrary(merged);
+    // console.log("Combined Library:", merged); // Debugging
+  }, [user, aiRecommendedResources]); // Re-run when user or AI recommendations change
+
+  // Helper functions for icons and colors (memoized for performance)
+  const getTypeIcon = useMemo(() => (type) => ({
+    chapter: BookOpen,
+    notes: FileText,
+    audio: Headphones,
+    video: Video,
+    image: Image,
+    document: FileText,
+    tutorial: BookOpen
+  }[type] || BookOpen), []);
+
+  const getTypeColor = useMemo(() => (type) => ({
+    chapter: 'text-blue-500',
+    notes: 'text-green-500',
+    audio: 'text-purple-500',
+    video: 'text-red-500',
+    image: 'text-yellow-500',
+    document: 'text-indigo-500',
+    tutorial: 'text-orange-500'
+  }[type] || 'text-gray-500'), []);
+
+  const getTagBgColor = useMemo(() => (type) => ({
+    chapter: 'bg-blue-500',
+    notes: 'bg-green-500',
+    audio: 'bg-purple-500',
+    video: 'bg-red-500',
+    image: 'bg-yellow-500',
+    document: 'bg-indigo-500',
+    tutorial: 'bg-orange-500'
+  }[type] || 'bg-gray-500'), []);
 
 
+  // Conditional rendering for initial loading and errors
+  if (loading && !user && !error) {
+    return <div className="loading-screen">Loading user data...</div>;
+  }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  const libraryItems = [
-    {
-      id: 1,
-      title: 'Mechanics - Chapter 1',
-      type: 'chapter',
-      subject: 'Physics',
-      batch: 'JEE Main 2024 Physics',
-      icon: BookOpen,
-      color: 'bg-blue-500',
-      content: 'Comprehensive chapter on classical mechanics covering Newton\'s laws, motion, and forces.',
-      readTime: '45 min',
-      lastAccessed: '2 days ago',
-      bookmarked: true,
-      tags: ['JEE', 'Physics', 'Mechanics'],
-      rating: 4.8,
-      views: 1247
-    },
-    {
-      id: 2,
-      title: 'Thermodynamics Notes',
-      type: 'notes',
-      subject: 'Physics',
-      batch: 'JEE Main 2024 Physics',
-      icon: FileText,
-      color: 'bg-green-500',
-      content: 'Personal notes on thermodynamics with key formulas and problem-solving strategies.',
-      readTime: '30 min',
-      lastAccessed: '1 day ago',
-      bookmarked: false,
-      tags: ['JEE', 'Physics', 'Thermodynamics'],
-      rating: 4.6,
-      views: 892
-    },
-    {
-      id: 3,
-      title: 'Optics Audio Summary',
-      type: 'audio',
-      subject: 'Physics',
-      batch: 'JEE Main 2024 Physics',
-      icon: Headphones,
-      color: 'bg-purple-500',
-      content: 'Audio summary of optics chapter covering reflection, refraction, and interference.',
-      readTime: '25 min',
-      lastAccessed: '3 days ago',
-      bookmarked: true,
-      tags: ['JEE', 'Physics', 'Optics'],
-      rating: 4.7,
-      views: 634
-    },
-    {
-      id: 4,
-      title: 'Organic Chemistry Video',
-      type: 'video',
-      subject: 'Chemistry',
-      batch: 'NEET Chemistry',
-      icon: Video,
-      color: 'bg-red-500',
-      content: 'Video explanation of organic chemistry reactions and mechanisms.',
-      readTime: '60 min',
-      lastAccessed: '1 week ago',
-      bookmarked: false,
-      tags: ['NEET', 'Chemistry', 'Organic'],
-      rating: 4.9,
-      views: 2341
-    },
-    {
-      id: 5,
-      title: 'Cell Biology Diagrams',
-      type: 'image',
-      subject: 'Biology',
-      batch: 'NEET Biology',
-      icon: Image,
-      color: 'bg-yellow-500',
-      content: 'Collection of detailed cell biology diagrams and illustrations.',
-      readTime: '15 min',
-      lastAccessed: '5 days ago',
-      bookmarked: true,
-      tags: ['NEET', 'Biology', 'Cell'],
-      rating: 4.5,
-      views: 1523
-    },
-    {
-      id: 6,
-      title: 'Calculus Problem Sets',
-      type: 'chapter',
-      subject: 'Mathematics',
-      batch: 'JEE Mathematics',
-      icon: BookOpen,
-      color: 'bg-indigo-500',
-      content: 'Advanced calculus problems with detailed solutions and explanations.',
-      readTime: '90 min',
-      lastAccessed: '2 weeks ago',
-      bookmarked: false,
-      tags: ['JEE', 'Mathematics', 'Calculus'],
-      rating: 4.8,
-      views: 987
-    }
-  ];
-
-  const tags = ['JEE', 'NEET', 'Physics', 'Chemistry', 'Biology', 'Mathematics', 'Mechanics', 'Thermodynamics', 'Optics', 'Organic', 'Cell', 'Calculus'];
-
-  const filteredItems = libraryItems.filter(item => {
-    const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.content.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesFilter = filterType === 'all' || item.type === filterType;
-
-    const matchesTags = selectedTags.length === 0 || 
-                       selectedTags.every(tag => item.tags.includes(tag));
-
-    return matchesSearch && matchesFilter && matchesTags;
-  });
-
-  const handleTagToggle = (tag) => {
-    setSelectedTags(prev => 
-      prev.includes(tag) 
-        ? prev.filter(t => t !== tag)
-        : [...prev, tag]
+  if (error && !user) {
+    return (
+      <div className="error-screen">
+        <h2>Error Loading User Data</h2>
+        <p>{error}</p>
+        <p>Please ensure you are logged in and the server is running.</p>
+      </div>
     );
-  };
+  }
 
-  const getTypeIcon = (type) => {
-    switch (type) {
-      case 'chapter': return BookOpen;
-      case 'notes': return FileText;
-      case 'audio': return Headphones;
-      case 'video': return Video;
-      case 'image': return Image;
-      default: return BookOpen;
+  // Filter combinedLibrary according to searchTerm and filterType
+  const filteredLibrary = combinedLibrary.filter(resource => {
+    // Filter by resource type if a specific filter is selected
+    if (filterType !== 'all' && resource.type !== filterType) {
+      return false;
     }
-  };
+    // Filter by search term in title, description, tags, or subject
+    const search = searchTerm.toLowerCase();
+    if (search.length === 0) return true;
 
-  const getTypeColor = (type) => {
-    switch (type) {
-      case 'chapter': return 'bg-blue-500';
-      case 'notes': return 'bg-green-500';
-      case 'audio': return 'bg-purple-500';
-      case 'video': return 'bg-red-500';
-      case 'image': return 'bg-yellow-500';
-      default: return 'bg-gray-500';
-    }
-  };
+    const inTitle = resource.title?.toLowerCase().includes(search);
+    const inDescription = resource.description?.toLowerCase().includes(search);
+    const inTags = resource.tags?.some(tag => typeof tag === 'string' && tag.toLowerCase().includes(search)); // Added type check for tags
+    const inSubject = resource.subject?.toLowerCase().includes(search);
+
+    return inTitle || inDescription || inTags || inSubject;
+  });
 
   return (
     <div className="library-container">
       <div className="library-header">
         <div className="library-header-content">
           <h1 className="library-title">Library</h1>
-          <p className="library-subtitle">
-            Access all your saved content, notes, and learning materials
-          </p>
+          <p className="library-subtitle">Access all your saved content and discover new resources!</p>
         </div>
-        <button className="library-add-btn">
-          <Plus className="library-add-icon" />
-          <span>Add Content</span>
+        <button className="library-add-btn" type="button">
+          <Plus className="library-add-icon" /> Add Content
         </button>
       </div>
 
@@ -255,15 +324,17 @@ Please retrieve and give me only free, publicly available resources.
               type="text"
               placeholder="Search library..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={e => setSearchTerm(e.target.value)}
               className="library-search-input"
+              aria-label="Search library"
             />
           </div>
-          
+
           <select
             value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
+            onChange={e => setFilterType(e.target.value)}
             className="library-filter-select"
+            aria-label="Filter library by type"
           >
             <option value="all">All Types</option>
             <option value="chapter">Chapters</option>
@@ -271,170 +342,114 @@ Please retrieve and give me only free, publicly available resources.
             <option value="audio">Audio</option>
             <option value="video">Videos</option>
             <option value="image">Images</option>
+            <option value="document">Documents</option>
+            <option value="tutorial">Tutorials</option>
           </select>
-          
+
           <div className="library-view-toggle">
             <button
               onClick={() => setViewMode('grid')}
               className={`library-view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+              aria-label="Grid view"
+              type="button"
             >
               <Grid className="library-view-icon" />
             </button>
             <button
               onClick={() => setViewMode('list')}
               className={`library-view-btn ${viewMode === 'list' ? 'active' : ''}`}
+              aria-label="List view"
+              type="button"
             >
               <List className="library-view-icon" />
             </button>
           </div>
         </div>
-        
-        <div className="library-tags">
-          <div className="library-tags-container">
-            {tags.map(tag => (
-              <button
-                key={tag}
-                onClick={() => handleTagToggle(tag)}
-                className={`library-tag ${selectedTags.includes(tag) ? 'active' : ''}`}
-              >
-                {tag}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
 
-      {viewMode === 'grid' ? (
-        <div className="library-grid">
-          {filteredItems.map(item => {
-            const Icon = getTypeIcon(item.type);
-            return (
-              <div key={item.id} className="library-card">
-                <div className="library-card-content">
-                  <div className="library-card-header">
-                    <div className={`library-card-icon ${getTypeColor(item.type)}`}>
-                      <Icon className="library-icon" />
-                    </div>
-                    <button className="library-bookmark-btn">
-                      <Bookmark className={`library-bookmark-icon ${item.bookmarked ? 'bookmarked' : ''}`} />
-                    </button>
-                  </div>
-                  
-                  <h3 className="library-card-title">{item.title}</h3>
-                  <p className="library-card-description">{item.content}</p>
-                  
-                  <div className="library-card-meta">
-                    <div className="library-meta-item">
-                      <Clock className="library-meta-icon" />
-                      <span>{item.readTime}</span>
-                    </div>
-                    <div className="library-meta-item">
-                      <Eye className="library-meta-icon" />
-                      <span>{item.views}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="library-card-footer">
-                    <div className="library-rating">
-                      <Star className="library-rating-icon" />
-                      <span className="library-rating-text">{item.rating}</span>
-                    </div>
-                    <div className="library-actions">
-                      <button className="library-action-btn">
-                        <Share2 className="library-action-icon" />
-                      </button>
-                      <button className="library-action-btn">
-                        <Download className="library-action-icon" />
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className="library-card-tags">
-                    {item.tags.slice(0, 3).map(tag => (
-                      <span key={tag} className="library-card-tag">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  
-                  <button className="library-open-btn">
-                    Open
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="library-list">
-          <div className="library-list-container">
-            {filteredItems.map(item => {
-              const Icon = getTypeIcon(item.type);
+      <div className="ai-resources-section">
+        <h2 className="ai-resources-heading">
+          Resources for <span className="highlight-course">{user?.course || 'your course'}</span>
+        </h2>
+
+        {loading && <p className="loading-message">Loading resources...</p>}
+        {error && <p className="error-message">Error: {error}</p>}
+        {!loading && !error && combinedLibrary.length === 0 && (
+          <p className="no-resources-message">No resources available yet. Try refreshing or check your user data and API key.</p>
+        )}
+
+        {combinedLibrary.length > 0 && (
+          <div className={`library-items-display ${viewMode}`}>
+            {filteredLibrary.map((item, index) => {
+              const TypeIcon = getTypeIcon(item.type);
               return (
-                <div key={item.id} className="library-list-item">
-                  <div className="library-list-content">
-                    <div className={`library-list-icon ${getTypeColor(item.type)}`}>
-                      <Icon className="library-icon" />
-                    </div>
-                    
-                    <div className="library-list-details">
-                      <div className="library-list-header">
-                        <h3 className="library-list-title">{item.title}</h3>
-                        <div className="library-list-actions">
-                          <button className="library-bookmark-btn">
-                            <Bookmark className={`library-bookmark-icon ${item.bookmarked ? 'bookmarked' : ''}`} />
-                          </button>
-                          <button className="library-action-btn">
-                            <Share2 className="library-action-icon" />
-                          </button>
-                          <button className="library-action-btn">
-                            <Download className="library-action-icon" />
-                          </button>
-                        </div>
-                      </div>
-                      
-                      <p className="library-list-description">{item.content}</p>
-                      
-                      <div className="library-list-footer">
-                        <div className="library-list-meta">
-                          <div className="library-meta-item">
-                            <Clock className="library-meta-icon" />
-                            <span>{item.readTime}</span>
-                          </div>
-                          <div className="library-meta-item">
-                            <Eye className="library-meta-icon" />
-                            <span>{item.views}</span>
-                          </div>
-                          <div className="library-meta-item">
-                            <Star className="library-rating-icon" />
-                            <span>{item.rating}</span>
-                          </div>
-                          <div className="library-meta-item">
-                            <Calendar className="library-meta-icon" />
-                            <span>{item.lastAccessed}</span>
-                          </div>
-                        </div>
-                        
-                        <button className="library-open-btn">
-                          Open
-                        </button>
-                      </div>
-                    </div>
+                <div
+                  key={item.url || `item-${index}`} // Use URL as key if unique, fallback to index
+                  className={`library-item-card ${viewMode}`}
+                >
+                  <div className="item-header">
+                    <TypeIcon className={`item-icon ${getTypeColor(item.type)}`} size={24} />
+                    <h3 className="item-title">
+                      {item.title}
+                    </h3>
                   </div>
+
+                  {/* New div to group content for list view flexibility */}
+                  <div className="item-details">
+                    <p className="item-description">
+                      {item.description}
+                    </p>
+
+                    <div className="item-tags">
+                      <ul>
+                        {item.tags && Array.isArray(item.tags) && item.tags.map((tag, tagIndex) => (
+                          <li
+                            key={tagIndex}
+                            className={`item-tag ${getTagBgColor(item.type)}`}
+                          >
+                            {tag}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="item-meta">
+                      {item.readingTime && (
+                        <div>
+                          <Clock size={14} /> {item.readingTime}
+                        </div>
+                      )}
+                      {(item.rating !== null && item.rating !== undefined) && ( // Check for null/undefined
+                        <div>
+                          <Star size={14} /> {item.rating}/5 Rating
+                        </div>
+                      )}
+                      {(item.views !== null && item.views !== undefined) && ( // Check for null/undefined
+                        <div>
+                          <Eye size={14} /> {item.views} Views
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="item-footer">
+                      {item.url && ( // Only render link if URL exists
+                        <a
+                          href={item.url}
+                          className="item-url-link"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Go to Resource <Share2 size={14} />
+                        </a>
+                      )}
+                    </div>
+                  </div> {/* End item-details */}
                 </div>
               );
             })}
           </div>
-        </div>
-      )}
-
-      {filteredItems.length === 0 && (
-        <div className="library-empty-state">
-          <BookOpen className="library-empty-icon" />
-          <h3 className="library-empty-title">No content found</h3>
-          <p className="library-empty-text">Try adjusting your search or filter criteria</p>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

@@ -8,53 +8,56 @@ const cookieParser = require("cookie-parser");
 
 const connectToDb = require("./db/db");
 const studentRoutes = require("./routes/student.route");
+const batchRoutes = require("./routes/batch.routes");
+const progressRoutes = require("./routes/progress.routes");
 const Student = require("./models/student.models");
-const Batch = require("./models/batch.models"); // ✅ [IMPORTANT] Corrected import
-
+const Batch = require("./models/batch.models"); 
+const aiRoutes = require("./routes/ai.routes"); 
 const app = express();
 
-// Connect to MongoDB
+
 connectToDb();
 
-// Middleware
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:5173', 'http://127.0.0.1:3000', 'http://127.0.0.1:5173'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// JWT token verify middleware
-const verifyToken = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-  if (!token) return res.status(401).json({ message: "No token provided" });
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded.id;
-    next();
-  } catch (error) {
-    return res.status(403).json({ message: "Invalid token" });
-  }
-};
 
-// Test route
 app.get("/", (req, res) => {
   res.send("Hello World from backend");
 });
 
-// Routes
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.json({ status: "OK", timestamp: new Date().toISOString() });
+});
+
 app.use("/students", studentRoutes);
-app.get("/api/user", verifyToken, async (req, res) => {
-  try {
-    const student = await Student.findById(req.userId).select("-password");
-    if (!student) {
-      return res.status(404).json({ message: "Student not found" });
-    }
-    res.json(student);
-  } catch (error) {
-    console.error("Error fetching user:", error);
-    res.status(500).json({ message: error.message });
-  }
+// app.use("/api", studentRoutes);
+app.use("/api/batches", batchRoutes);
+app.use("/api/progress", progressRoutes);
+app.use("/ai", aiRoutes); // ✅ [IMPORTANT] Added AI routes
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({ 
+    message: 'Internal server error', 
+    error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+  });
+});
+
+// 404 handler
+app.use('*', (req, res) => {
+  console.log('404 - Route not found:', req.method, req.originalUrl);
+  res.status(404).json({ message: 'Route not found' });
 });
 
 module.exports = app;

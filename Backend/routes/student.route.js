@@ -1,70 +1,89 @@
-const express = require("express");
-const { body } = require("express-validator");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-
-const Student = require("../models/student.models");
+const express = require('express');
 const router = express.Router();
+const { body } = require("express-validator")
+const studentcontrollers = require("../controllers/student.controllers");
+const authMiddleware = require('../middlewares/student.middleware');
+const Student = require('../models/student.models');
+const jwt = require('jsonwebtoken');
 
-// Register
-router.post(
-  "/register",
-  [
-    body("email").isEmail(),
-    body("name").notEmpty(),
-    body("password").isLength({ min: 6 }),
-    body("course").notEmpty(),
-  ],
-  async (req, res) => {
+
+router.post('/register', [
+    body('email').isEmail().withMessage('Invalid Email'),
+    body('name').isLength({ min: 3 }).withMessage('First name must be at least 3 characters long'),
+    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+        body('course').isLength({ min: 3 }).withMessage('First name must be at least 3 characters long'),
+
+],
+    studentcontrollers.RegisterStudent
+)
+
+router.post('/login', [
+    body('email').isEmail().withMessage('Invalid Email'),
+    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
+],
+    studentcontrollers.loginstudent
+)
+
+
+
+
+
+
+
+
+router.get('/user', async (req, res) => {
     try {
-      const { name, email, password, course } = req.body;
+        const token = req.headers.authorization?.replace('Bearer ', '');
+        console.log('Token received:', token);
+        
+        if (!token) {
+            return res.status(401).json({ message: 'No token provided' });
+        }
+        
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log('Decoded token:', decoded);
+        
+        const student = await Student.findById(decoded.id);
+        console.log('Student found:', student);
+        
+        if (!student) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        
+        const userData = {
+            name: student.name,
+            email: student.email,
+            course: student.course,
+            streak: student.streak || 0,
+            totalPoints: student.totalPoints || 0,
+            numberOfBatchesCompleted: student.numberOfBatchesCompleted || 0,
+            libraryItems: student.libraryItems || []
 
-      const existing = await Student.findOne({ email });
-      if (existing) return res.status(400).json({ message: "Email already exists" });
-
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const newStudent = new Student({ name, email, password: hashedPassword, course });
-
-      await newStudent.save();
-
-      const token = newStudent.generateAuthToken();
-      const userData = { _id: newStudent._id, name, email };
-
-      res.status(201).json({ user: userData, token });
-    } catch (err) {
-      res.status(500).json({ message: "Registration failed", error: err.message });
+        };
+        
+        console.log('Sending user data:', userData);
+        res.json(userData);
+    } catch (error) {
+        console.error('Error in /user endpoint:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
-  }
-);
-
-// Login
-router.post("/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    const user = await Student.findOne({ email: email.trim().toLowerCase() });
-    if (!user) return res.status(401).json({ message: "Invalid credentials" });
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
-
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
-
-    const userData = {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      totalPoints: user.totalPoints,
-      rank: user.rank,
-      streak: user.streak,
-      numberOfBatchesCompleted: user.numberOfBatchesCompleted,
-    };
-
-    res.json({ user: userData, token });
-  } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({ message: "Server error" });
-  }
 });
+
+router.get('/:id', async (req, res) => {
+    try {
+        const student = await Student.findById(req.params.id);
+        if (!student) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(student);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+router.post('/add-batch', studentcontrollers.addBatchToStudent);   
+router.post('/add-library', studentcontrollers.addLibraryToStudent);
+
 
 module.exports = router;

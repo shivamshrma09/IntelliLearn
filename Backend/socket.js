@@ -1,9 +1,20 @@
-const socketIo = require('socket.io');
+let socketIo;
+try {
+    socketIo = require('socket.io');
+} catch (err) {
+    console.log('Socket.io not available, continuing without real-time features');
+}
+
 const studentModel = require('./models/student.models');
 
 let io;
 
 function initializeSocket(server) {
+    if (!socketIo) {
+        console.log('Socket.io not available, skipping socket initialization');
+        return;
+    }
+    
     io = socketIo(server, {
         cors: {
             origin: '*',

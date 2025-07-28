@@ -1,6 +1,5 @@
 // src/components/UserDataLoader.jsx
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { useUserData } from "../context/UserContext";
 
 const UserDataLoader = ({ children, onNavigate }) => {

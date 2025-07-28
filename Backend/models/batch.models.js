@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
 
 const BatchSchema = new mongoose.Schema({
-  id: { type: String, required: true, unique: true },
+  id: { type: String, required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'Student' },
   title: String,
   subject: String,
   difficulty: String,
@@ -9,13 +10,9 @@ const BatchSchema = new mongoose.Schema({
   estimatedTime: String,
   instructor: String,
   image: String,
-  progress: Number,
+  description: String,
   totalChapters: Number,
-  completedChapters: Number,
-  enrolledStudents: Number,
   type: String,
-  aiLearningPlan: Object,
-  completionStatus: Array,
   createdAt: { type: Date, default: Date.now }
 });
 

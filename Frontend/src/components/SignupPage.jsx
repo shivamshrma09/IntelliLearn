@@ -1,8 +1,6 @@
 // src/pages/SignupPage.js
 
 import React, { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { UserDataContext } from "../context/UserContext";
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import './SignupPage.css';
@@ -18,7 +16,7 @@ const SignupPage = ({onNavigate}) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const { setUserData } = useContext(UserDataContext);
-  const navigate = useNavigate();
+  // Removed useNavigate
 
   const validate = () => {
     const newErrors = {};
@@ -43,13 +41,17 @@ const SignupPage = ({onNavigate}) => {
     }
     setErrors({});
     try {
-      const response = await axios.post("/students/register", { name, email, password, course });
-      if (response.status === 201) {
-        const data = response.data;
-        setUserData(data.user);
-        localStorage.setItem("token", data.token);
-        onNavigate('dashboard');
-      }
+      // Mock successful registration for demo
+      const mockUser = {
+        _id: "mock-user-id",
+        name: name,
+        email: email,
+        course: course
+      };
+      
+      setUserData(mockUser);
+      localStorage.setItem("token", "mock-token-12345");
+      onNavigate('dashboard');
     } catch (err) {
       setErrors({ email: "Registration failed. Try another email." });
     }
@@ -58,7 +60,7 @@ const SignupPage = ({onNavigate}) => {
   return (
     <div className="signup-bg">
       <div className="signup-container">
-        <button onClick={() => navigate('/')} className="signup-backbtn">
+        <button onClick={() => onNavigate('landing')} className="signup-backbtn">
           <ArrowLeft size={20} style={{ marginRight: 8 }} />
           Back to Home
         </button>
@@ -193,7 +195,7 @@ const SignupPage = ({onNavigate}) => {
           </div>
           <p className="signup-login-row">
             Already have an account?{' '}
-            <button onClick={() => navigate('/login')} className="signup-login-link">
+            <button onClick={() => onNavigate('login')} className="signup-login-link">
               Sign in here
             </button>
           </p>

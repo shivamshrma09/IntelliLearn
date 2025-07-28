@@ -4,7 +4,6 @@ import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import MyBatch from './components/MyBatch';
-// Removed Library, Tests, and Opportunities imports as they're no longer needed
 import Settings from './components/Settings';
 import LandingPage from './components/LandingPage';
 import LoginPage from './components/LoginPage';
@@ -12,6 +11,10 @@ import SignupPage from './components/SignupPage';
 import BatchCreation from './components/BatchCreation';
 import UserDataLoader from './components/UserDataLoader';
 import ErrorBoundary from './components/ErrorBoundary';
+import Library from './components/Library';
+import Opportunities  from './components/Opportunities';
+import Test from './components/Test'
+
 function App() {
   const [currentPage, setCurrentPage] = useState('landing');
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -38,8 +41,13 @@ function App() {
       case 'my-batch':
         return <MyBatch currentUser={userData} />;
       case 'library':
+        return <Library currentUser={userData} />;
       case 'tests':
+         return <Test currentUser={userData} />;
+
       case 'opportunities':
+         return <Opportunities currentUser={userData} />;
+
         // These features are now integrated directly into MyBatch component
         return <MyBatch currentUser={userData} initialTab={activeTab} />;
       case 'settings':
