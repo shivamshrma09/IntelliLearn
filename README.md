@@ -6,8 +6,8 @@ IntelliLearn is a full-stack web application delivering an engaging, AI-powered 
 
 ## 🚀 Live Demo
 
-- **Frontend:** http://localhost:5173  
-- **Backend:** http://localhost:5000  
+- **Frontend:** https://intelli-learn-mu.vercel.app/
+- **Backend:** https://intellilearn-ebae.onrender.com
 
 - **Figma UI (Design Source):** [Figma Link](https://www.dropbox.com/scl/fi/7o6h79nkm1irmqd9omcy0/banani-ui-export.zip?rlkey=66p1umdyw5pqveu40ylhfnyb2&st=aia2i2zz&dl=0)
 - **Demo Video:** [Watch Here](https://drive.google.com/drive/folders/1jGX0YGPnasuFn9vqv254nzWVTA82bx8W?usp=sharing)
