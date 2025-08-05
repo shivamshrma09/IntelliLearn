@@ -1,25 +1,24 @@
+/* Root Variables */
 :root {
   --clr-white: #ffffff;
-  --clr-gray-50: #f8fafc;
-  --clr-gray-100: #f1f5f9;
-  --clr-gray-200: #e2e8f0;
-  --clr-gray-400: #94a3b8;
-  --clr-gray-600: #475569;
-  --clr-gray-700: #334155;
-  --clr-gray-900: #0f172a;
-  --clr-blue-500: #3b82f6;
-  --clr-blue-600: #2563eb;
-  --clr-blue-700: #1d4ed8;
-  --clr-blue-800: #1e40af;
-  --clr-blue-900: #1e3a8a;
-  --clr-blue-300: #93c5fd;
-  --gradient-primary: linear-gradient(to right, #3b82f6, #1e40af);
-  --gradient-hover: linear-gradient(to right, #2563eb, #1e3a8a);
+  --clr-gray-50: #f0f9ff;
+  --clr-gray-100: #e0f2fe;
+  --clr-gray-200: #bae6fd;
+  --clr-gray-400: #7dd3fc;
+  --clr-gray-600: #0284c7;
+  --clr-gray-700: #0369a1;
+  --clr-gray-900: #0c4a6e;
+  --clr-blue-500: #0ea5e9;
+  --clr-blue-600: #0284c7;
+  --clr-blue-700: #0369a1;
+  --clr-blue-800: #075985;
+  --clr-blue-900: #0c4a6e;
+  --clr-blue-300: #7dd3fc;
+  --gradient-primary: linear-gradient(to right, #0ea5e9, #0369a1);
+  --gradient-hover: linear-gradient(to right, #0284c7, #075985);
   --radius: 0.5rem;
-  --shadow: 0 2px 10px rgba(59, 130, 246, 0.08);
+  --shadow: 0 2px 10px rgba(14, 165, 233, 0.15);
 }
-
-
 
 /* Reset & Base Style */
 * {
@@ -110,7 +109,7 @@ body {
 .header-brand-name {
   font-size: 1.3rem;
   font-weight: 800;
-  color: var(--clr-purple-700);
+  color: var(--clr-blue-800);
   letter-spacing: -0.5px;
   transition: color 0.3s ease-in-out;
 }
@@ -277,7 +276,7 @@ body {
 
 /* ---------------- Hero ---------------- */
 .hero-section {
-  background: var(--clr-gray-50);
+  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
   padding: 4rem 1rem;
   text-align: center;
 }
@@ -366,7 +365,7 @@ body {
 .hero-stat-number {
   font-size: 2rem;
   font-weight: 700;
-  background: var(--gradient-primary);
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -437,16 +436,16 @@ body {
 }
 
 .problem-icon {
-  color: var(--clr-purple-600);
+  color: var(--clr-blue-600);
 }
 
 .solution-icon {
-  color: var(--clr-green-500);
+  color: var(--clr-blue-700);
 }
 
 /* ---------------- Features Section ---------------- */
 .features-section {
-  background: var(--clr-gray-50);
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
   padding: 4rem 1rem;
 }
 
@@ -509,14 +508,14 @@ body {
 .how-it-works-number {
   font-size: 2rem;
   font-weight: 800;
-  background: var(--gradient-primary);
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 /* ---------------- Testimonials ---------------- */
 .testimonials-section {
-  background: var(--clr-gray-50);
+  background: linear-gradient(135deg, #f0f9ff 0%, #bae6fd 100%);
   padding: 4rem 1rem;
 }
 
@@ -546,7 +545,7 @@ body {
 
 .testimonial-stars {
   margin-top: 1rem;
-  color: var(--clr-yellow-400);
+  color: var(--clr-blue-500);
 }
 
 /* ---------------- Pricing ---------------- */
@@ -574,7 +573,7 @@ body {
 
 .pricing-card-popular {
   border: 2px solid var(--clr-blue-600);
-  background: white;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
 }
 
 .pricing-plan-title {
@@ -618,7 +617,7 @@ body {
 
 /* ---------------- FAQ ---------------- */
 .faq-section {
-  background: var(--clr-gray-50);
+  background: linear-gradient(135deg, #e0f2fe 0%, #7dd3fc 100%);
   padding: 4rem 1rem;
 }
 
@@ -640,7 +639,7 @@ body {
 
 /* ---------------- CTA ---------------- */
 .cta-section {
-  background: var(--gradient-primary);
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 50%, #0369a1 100%);
   padding: 4rem 1rem;
   text-align: center;
   color: white;
@@ -666,7 +665,7 @@ body {
 
 /* ---------------- Footer ---------------- */
 .footer-main {
-  background: var(--clr-gray-900);
+  background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 100%);
   color: var(--clr-white);
   padding: 3rem 1rem 2rem;
 }
@@ -713,7 +712,7 @@ body {
 }
 
 .footer-logo-icon-wrapper {
-  background: var(--gradient-primary);
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
   padding: 0.4rem;
   border-radius: 0.5rem;
 }
