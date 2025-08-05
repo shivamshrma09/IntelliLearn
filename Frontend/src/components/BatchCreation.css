@@ -1,0 +1,312 @@
+.batchcreation-root {
+  padding: 32px 16px;
+  max-width: 900px;
+    margin-left: 250px;
+
+  font-family: 'Inter', Arial, sans-serif;
+
+}
+.batchcreation-header {
+  margin-bottom: 32px;
+}
+.batchcreation-backbtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #6b7280;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-bottom: 16px;
+  transition: color 0.2s;
+}
+.batchcreation-backbtn:hover {
+  color: #111827;
+}
+.batchcreation-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #111827;
+}
+.batchcreation-desc {
+  color: #6b7280;
+  margin-top: 4px;
+}
+.batchcreation-steps {
+  margin-bottom: 32px;
+}
+.batchcreation-steps-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.batchcreation-step-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.1rem;
+  background: #e5e7eb;
+  color: #6b7280;
+  transition: background 0.2s, color 0.2s;
+}
+.batchcreation-step-circle.active,
+.batchcreation-step-circle.completed {
+  background: #3b82f6;
+  color: #fff;
+}
+.batchcreation-step-bar {
+  width: 96px;
+  height: 4px;
+  border-radius: 2px;
+  background: #e5e7eb;
+  margin: 0 16px;
+  transition: background 0.2s;
+}
+.batchcreation-step-bar.completed {
+  background: #3b82f6;
+}
+.batchcreation-step-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 0.97rem;
+  color: #6b7280;
+}
+.batchcreation-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+  border: 1px solid #e5e7eb;
+  padding: 32px;
+  margin-bottom: 24px;
+}
+.batchcreation-form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+@media (min-width: 768px) {
+  .batchcreation-form-row {
+    flex-direction: row;
+    gap: 32px;
+  }
+}
+.batchcreation-label {
+  display: block;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 8px;
+}
+.batchcreation-input,
+.batchcreation-select,
+.batchcreation-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 1rem;
+  color: #374151;
+  outline: none;
+  transition: border 0.2s, box-shadow 0.2s;
+  background: #f9fafb;
+}
+.batchcreation-input:focus,
+.batchcreation-select:focus,
+.batchcreation-textarea:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px #3b82f6;
+}
+.batchcreation-btn-primary {
+  background: linear-gradient(to right, #3b82f6, #a21caf);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 14px 32px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.batchcreation-btn-primary:hover {
+  background: linear-gradient(to right, #2563eb, #7c3aed);
+}
+.batchcreation-btn-secondary {
+  background: #f9fafb;
+  color: #374151;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  padding: 14px 32px;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.batchcreation-btn-secondary:hover {
+  background: #f3f4f6;
+}
+.batchcreation-upload-box {
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
+  padding: 32px;
+  text-align: center;
+  background: #f9fafb;
+}
+.batchcreation-upload-btn {
+  background: #3b82f6;
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 32px;
+  font-weight: 500;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.batchcreation-upload-btn:hover {
+  background: #2563eb;
+}
+.batchcreation-outline-banner {
+  background: linear-gradient(to right, #dbeafe, #ede9fe);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+.batchcreation-outline-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 768px) {
+  .batchcreation-outline-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.batchcreation-outline-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.batchcreation-chapter-card {
+  background: #f3f4f6;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 8px;
+}
+.batchcreation-chapter-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.batchcreation-chapter-title {
+  font-weight: 600;
+  color: #111827;
+}
+.batchcreation-chapter-duration {
+  font-size: 0.97rem;
+  color: #6b7280;
+}
+.batchcreation-chapter-edit-btn {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 4px;
+  transition: background 0.2s;
+}
+.batchcreation-chapter-edit-btn:hover {
+  background: #e5e7eb;
+}
+.batchcreation-chapter-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.batchcreation-chapter-topic {
+  font-size: 0.85rem;
+  background: #dbeafe;
+  color: #2563eb;
+  padding: 2px 10px;
+  border-radius: 9999px;
+}
+.batchcreation-modal-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.batchcreation-modal {
+  background: #fff;
+  border-radius: 16px;
+  max-width: 500px;
+  width: 100%;
+  padding: 32px 24px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.batchcreation-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.batchcreation-modal-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #111827;
+}
+.batchcreation-modal-close {
+  background: none;
+  border: none;
+  color: #6b7280;
+  border-radius: 6px;
+  padding: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.batchcreation-modal-close:hover {
+  background: #f3f4f6;
+}
+.batchcreation-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.batchcreation-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+.batchcreation-modal-btn {
+  background: #3b82f6;
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-weight: 500;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.batchcreation-modal-btn:hover {
+  background: #2563eb;
+}

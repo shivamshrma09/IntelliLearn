@@ -1,0 +1,70 @@
+let socketIo;
+try {
+    socketIo = require('socket.io');
+} catch (err) {
+    console.log('Socket.io not available, continuing without real-time features');
+}
+
+const studentModel = require('./models/student.models');
+
+let io;
+
+function initializeSocket(server) {
+    if (!socketIo) {
+        console.log('Socket.io not available, skipping socket initialization');
+        return;
+    }
+    
+    io = socketIo(server, {
+        cors: {
+            origin: '*',
+            methods: [ 'GET', 'POST' ]
+        }
+    });
+
+    io.on('connection', (socket) => {
+        console.log(`Client connected: ${socket.id}`);
+
+
+        socket.on('join', async (data) => {
+            const { userId, userType } = data;
+
+            if (userType === 'user') {
+                await studentModel.findByIdAndUpdate(userId, { socketId: socket.id });
+            } 
+        });
+
+
+        socket.on('update-location-student', async (data) => {
+            const { userId, location } = data;
+
+            if (!location || !location.ltd || !location.lng) {
+                return socket.emit('error', { message: 'Invalid location data' });
+            }
+
+            await studentModel.findByIdAndUpdate(userId, {
+                location: {
+                    ltd: location.ltd,
+                    lng: location.lng
+                }
+            });
+        });
+
+        socket.on('disconnect', () => {
+            console.log(`Client disconnected: ${socket.id}`);
+        });
+    });
+}
+
+const sendMessageToSocketId = (socketId, messageObject) => {
+
+console.log(messageObject);
+
+    if (io) {
+        io.to(socketId).emit(messageObject.event, messageObject.data);
+    } else {
+        console.log('Socket.io not initialized.');
+    }
+}
+
+module.exports = { initializeSocket, sendMessageToSocketId };

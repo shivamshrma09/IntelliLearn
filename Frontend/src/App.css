@@ -1,0 +1,62 @@
+html, body, #root, .app {
+  height: 100%;
+  margin: 0;
+  font-family: sans-serif;
+}
+.app-body {
+  display: flex;
+  height: calc(100vh - 60px);
+  overflow: hidden;
+}
+.sidebar-root {
+  width: 250px;
+  background-color: #1f2937;
+  color: white;
+  transition: width 0.3s ease;
+  overflow-y: auto;
+  box-sizing: border-box;
+  height: 100%;
+}
+.sidebar-root:not(.open) {
+  width: 0;
+  overflow: hidden;
+}
+header.header-root {
+  height: 60px;
+  background-color: #2563eb;
+  display: flex;
+  align-items: center;
+  color: white;
+  padding: 0 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.sidebar-menu-btn {
+  display: flex;
+  align-items: center;
+  border: none;
+  background: none;
+  color: inherit;
+  padding: 12px 20px;
+  width: 100%;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+.sidebar-menu-btn.active,
+.sidebar-menu-btn:hover {
+  background-color: #374151;
+  font-weight: 600;
+}
+.sidebar-menu-icon {
+  margin-right: 10px;
+}
+.main-content {
+  flex-grow: 1;
+  background-color: #f9fafb;
+  overflow-y: auto;
+  height: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+}

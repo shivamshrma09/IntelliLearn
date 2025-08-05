@@ -1,0 +1,194 @@
+/* 1. Parent Layout */
+.dashboard-layout {
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+}
+
+/* 2. Sidebar Styles */
+.sidebar-root {
+  position: fixed;
+  top: 4rem; /* Adjust if your header height is different */
+  left: 0;
+  z-index: 50;
+  width: 256px;
+  height: calc(100vh - 4rem);
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(30, 64, 175, 0.08);
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 1024px) {
+  .sidebar-root {
+    transform: translateX(0);
+  }
+}
+
+.sidebar-root.open {
+  transform: translateX(0);
+}
+
+/* 3. Main Content Styles */
+.main-content {
+  flex: 1;
+  margin-left: 0;
+  transition: margin-left 0.3s;
+}
+
+@media (min-width: 1024px) {
+  .main-content {
+    margin-left: 256px; /* Same as sidebar width */
+  }
+}
+
+/* 4. Sidebar Inner Elements */
+.sidebar-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.sidebar-menu-wrap {
+  flex: 1 1 0%;
+  display: flex;
+  flex-direction: column;
+  padding-top: 32px;
+  padding-bottom: 16px;
+  overflow-y: auto;
+}
+
+.sidebar-menu {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 12px;
+}
+
+.sidebar-menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  color: #374151;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.sidebar-menu-btn.active {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.sidebar-menu-btn:hover:not(.active) {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.sidebar-menu-icon {
+  width: 24px;
+  height: 24px;
+  color: #9ca3af;
+  transition: color 0.2s;
+}
+
+.sidebar-menu-icon.active {
+  color: #2563eb;
+}
+
+/* 5. Premium Section (Optional) */
+.sidebar-premium-wrap {
+  padding: 16px;
+}
+
+.sidebar-premium-card {
+  background: linear-gradient(to right, #3b82f6, #a21caf);
+  border-radius: 12px;
+  padding: 20px 16px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.sidebar-premium-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.97rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.sidebar-premium-star {
+  color: #facc15;
+}
+
+.sidebar-premium-desc {
+  font-size: 0.9rem;
+  opacity: 0.95;
+  margin-bottom: 14px;
+}
+
+.sidebar-premium-btn {
+  background: #fff;
+  color: #2563eb;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 18px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.sidebar-premium-btn:hover {
+  background: #f3f4f6;
+}
+
+/* 6. Mobile Overlay (Optional) */
+.mobile-overlay {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .mobile-overlay {
+    display: block;
+    position: fixed;
+    top: 4rem;
+    left: 0;
+    width: 100vw;
+    height: calc(100vh - 4rem);
+    background: rgba(0,0,0,0.2);
+    z-index: 49;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .mobile-overlay.show {
+    opacity: 1;
+    pointer-events: all;
+  }
+}
+
+
+
+.sidebar-root {
+  width: 250px;
+  transition: all 0.3s;
+  overflow: hidden;
+}
+
+.sidebar-root:not(.open) {
+  width: 0;
+  /* या display: none; */
+}
