@@ -29,6 +29,7 @@ app.use(cors({
     'https://intelli-learn-mu.vercel.app',
     'https://intelli-learn-two.vercel.app',
     'https://intellilearn.vercel.app'
+    'https://intelli-learn-beta.vercel.app'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
