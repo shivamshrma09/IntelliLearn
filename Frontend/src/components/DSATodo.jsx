@@ -1,654 +1,193 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Code, 
-  CheckCircle, 
-  Circle, 
-  Star, 
-  Clock, 
-  Target, 
-  TrendingUp,
-  Filter,
-  Search,
-  Plus,
-  Trash2,
-  Edit3,
-  Calendar,
-  Award,
-  BarChart3
-} from 'lucide-react';
-import './LeetCodeTracker.css';
+import React, { useState } from "react";
+import { Send, Upload } from "lucide-react";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import * as pdfjsLib from "pdfjs-dist/build/pdf";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 const LeetCodeTracker = () => {
-  const [problems, setProblems] = useState([]);
-  const [filter, setFilter] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [editingProblem, setEditingProblem] = useState(null);
-  const [newProblem, setNewProblem] = useState({
-    title: '',
-    difficulty: 'Easy',
-    category: 'Array',
-    url: '',
-    notes: '',
-    leetcodeId: '',
-    timeComplexity: '',
-    spaceComplexity: '',
-    attempts: 1,
-    tags: [],
-    timeTaken: 0,
-    language: 'JavaScript',
-    status: 'Todo'
-  });
+  const [text, setText] = useState("");
+  const [file, setFile] = useState(null);
+  const [fileUrl, setFileUrl] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
+  const [pdfText, setPdfText] = useState("");
+  const [error, setError] = useState("");
+  const [chat, setChat] = useState([]);       // [{question, answer}]
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [userProfile, setUserProfile] = useState({
-    username: '',
-    totalSolved: 0,
-    easySolved: 0,
-    mediumSolved: 0,
-    hardSolved: 0,
-    currentStreak: 0,
-    maxStreak: 0,
-    ranking: 0,
-    contestRating: 0
-  });
+  const genAI = new GoogleGenerativeAI("AIzaSyBT9qazHDn2OdwUaAjYFpzbXIsTioc1ovY");
 
-  const [showProfileModal, setShowProfileModal] = useState(false);
-  const [viewMode, setViewMode] = useState('grid'); // grid or list
-  const [sortBy, setSortBy] = useState('recent'); // recent, difficulty, status
+  const isFileUploaded = file !== null;
+  const isReadyToSend = file && text;
 
-  // Load problems from localStorage
-  useEffect(() => {
-    const savedProblems = localStorage.getItem('dsaProblems');
-    if (savedProblems) {
-      setProblems(JSON.parse(savedProblems));
-    } else {
-      // Initialize with some default problems
-      const defaultProblems = [
-        {
-          id: 1,
-          title: 'Two Sum',
-          difficulty: 'Easy',
-          category: 'Array',
-          completed: true,
-          url: 'https://leetcode.com/problems/two-sum/',
-          notes: 'HashMap approach for O(n) solution',
-          completedAt: new Date().toISOString(),
-          timeSpent: 30,
-          leetcodeId: '1',
-          timeComplexity: 'O(n)',
-          spaceComplexity: 'O(n)',
-          attempts: 2,
-          tags: ['Hash Table', 'Array'],
-          timeTaken: 25,
-          language: 'JavaScript',
-          status: 'Solved',
-          difficulty_color: 'easy',
-          acceptance_rate: 49.5
-        },
-        {
-          id: 2,
-          title: 'Add Two Numbers',
-          difficulty: 'Medium',
-          category: 'Linked List',
-          completed: false,
-          url: 'https://leetcode.com/problems/add-two-numbers/',
-          notes: '',
-          completedAt: null,
-          timeSpent: 0,
-          leetcodeId: '2',
-          timeComplexity: '',
-          spaceComplexity: '',
-          attempts: 0,
-          tags: ['Linked List', 'Math']
-        },
-        {
-          id: 3,
-          title: 'Longest Substring Without Repeating Characters',
-          difficulty: 'Medium',
-          category: 'String',
-          completed: false,
-          url: 'https://leetcode.com/problems/longest-substring-without-repeating-characters/',
-          notes: '',
-          completedAt: null,
-          timeSpent: 0,
-          leetcodeId: '3',
-          timeComplexity: '',
-          spaceComplexity: '',
-          attempts: 0,
-          tags: ['Hash Table', 'String', 'Sliding Window']
-        }
-      ];
-      setProblems(defaultProblems);
-      localStorage.setItem('dsaProblems', JSON.stringify(defaultProblems));
+  const handleTextChange = (e) => {
+    if (!isFileUploaded) {
+      setShowAlert(true);
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 6000);
     }
-  }, []);
-
-  // Save problems to localStorage
-  const saveProblems = (updatedProblems) => {
-    setProblems(updatedProblems);
-    localStorage.setItem('dsaProblems', JSON.stringify(updatedProblems));
+    setText(e.target.value);
   };
 
-  // Toggle problem completion
-  const toggleProblem = (id) => {
-    const updatedProblems = problems.map(problem => {
-      if (problem.id === id) {
-        return {
-          ...problem,
-          completed: !problem.completed,
-          completedAt: !problem.completed ? new Date().toISOString() : null
-        };
+  const handleFileChange = async (event) => {
+    setError("");
+    const selectedFile = event.target.files[0];
+    setFile(selectedFile);
+    setFileUrl(selectedFile ? URL.createObjectURL(selectedFile) : "");
+
+    if (selectedFile) {
+      try {
+        const text = await extractTextFromPdf(selectedFile);
+        setPdfText(text);
+        if (!text.trim()) {
+          setError("PDF में कोई text नहीं मिला। यह scanned PDF हो सकती है।");
+        }
+      } catch (err) {
+        setError("PDF फाइल पढ़ने में समस्या आ रही है: " + err.message);
       }
-      return problem;
-    });
-    saveProblems(updatedProblems);
+    }
   };
 
-  // Add new problem
-  const addProblem = () => {
-    if (!newProblem.title.trim()) return;
+  // PDF text extraction logic
+  const extractTextFromPdf = async (file) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    let textOutput = "";
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      const pageText = content.items.map((item) => item.str).join(" ");
+      textOutput += pageText + "\n";
+    }
+    return textOutput;
+  };
+
+  const handleSubmit = async () => {
+    if (!text) return;
+
+    setIsLoading(true);
+    const prompt = `You are a tutor. Use this content to answer the user's question: "${pdfText}" Question: "${text}"`;
     
-    const problem = {
-      id: Date.now(),
-      ...newProblem,
-      completed: false,
-      completedAt: null,
-      timeSpent: 0
-    };
-    
-    saveProblems([...problems, problem]);
-    setNewProblem({
-      title: '',
-      difficulty: 'Easy',
-      category: 'Array',
-      url: '',
-      notes: ''
-    });
-    setShowAddModal(false);
+    let responseText = "";
+    try {
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const result = await model.generateContent(prompt);
+      responseText = result.response.text() || "No answer received.";
+    } catch (err) {
+      responseText = "Sorry, something went wrong.";
+    } finally {
+      setChat((prev) => [
+        ...prev,
+        { question: text, answer: responseText }
+      ]);
+      setText(""); // Clear input
+      setIsLoading(false);
+    }
   };
-
-  // Delete problem
-  const deleteProblem = (id) => {
-    const updatedProblems = problems.filter(p => p.id !== id);
-    saveProblems(updatedProblems);
-  };
-
-  // Edit problem
-  const editProblem = (problem) => {
-    setEditingProblem(problem);
-    setNewProblem({
-      title: problem.title,
-      difficulty: problem.difficulty,
-      category: problem.category,
-      url: problem.url,
-      notes: problem.notes
-    });
-    setShowAddModal(true);
-  };
-
-  // Update problem
-  const updateProblem = () => {
-    const updatedProblems = problems.map(p => 
-      p.id === editingProblem.id 
-        ? { ...p, ...newProblem }
-        : p
-    );
-    saveProblems(updatedProblems);
-    setEditingProblem(null);
-    setNewProblem({
-      title: '',
-      difficulty: 'Easy',
-      category: 'Array',
-      url: '',
-      notes: ''
-    });
-    setShowAddModal(false);
-  };
-
-  // Filter problems
-  const filteredProblems = problems.filter(problem => {
-    const matchesFilter = filter === 'all' || 
-      (filter === 'completed' && problem.completed) ||
-      (filter === 'pending' && !problem.completed) ||
-      (filter === problem.difficulty.toLowerCase());
-    
-    const matchesSearch = problem.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      problem.category.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    return matchesFilter && matchesSearch;
-  });
-
-  // Calculate stats
-  const stats = {
-    total: problems.length,
-    completed: problems.filter(p => p.completed).length,
-    easy: problems.filter(p => p.difficulty === 'Easy').length,
-    medium: problems.filter(p => p.difficulty === 'Medium').length,
-    hard: problems.filter(p => p.difficulty === 'Hard').length,
-    completedToday: problems.filter(p => {
-      if (!p.completedAt) return false;
-      const today = new Date().toDateString();
-      const completedDate = new Date(p.completedAt).toDateString();
-      return today === completedDate;
-    }).length
-  };
-
-  const categories = ['Array', 'String', 'Linked List', 'Stack', 'Queue', 'Tree', 'Graph', 'Dynamic Programming', 'Greedy', 'Backtracking'];
-  const difficulties = ['Easy', 'Medium', 'Hard'];
 
   return (
-    <div className="dsa-todo-root">
-      {/* Header */}
-      <div className="dsa-header">
-        <div className="dsa-header-content">
-          <h1>💻 LeetCode Progress Tracker</h1>
-          <p>Master coding interviews with comprehensive problem tracking</p>
-          <button 
-            className="profile-btn"
-            onClick={() => setShowProfileModal(true)}
+    <div className="flex flex-col h-screen bg-white font-inter antialiased ml-[250px]">
+      <div className="bg-gradient-to-r from-purple-600 to-purple-400 text-white text-xl font-semibold py-4 px-6 shadow-md">
+        IntelliLearn Chat
+      </div>
+
+      {showAlert && (
+        <div className="fixed top-[120px] left-1/2 transform -translate-x-1/2 bg-red-100 text-red-700 border border-red-500 px-4 py-2 rounded-md shadow-md z-50">
+          ⚠️ First upload the file, then chat with AI.
+        </div>
+      )}
+
+      {error && (
+        <div className="fixed top-[160px] left-1/2 transform -translate-x-1/2 bg-red-100 text-red-700 border border-red-500 px-4 py-2 rounded-md shadow-md z-50">
+          {error}
+        </div>
+      )}
+
+      {/* PDF Open Button */}
+      {fileUrl && (
+        <div className="px-6 py-4 bg-gray-100 rounded-md m-4 max-w-lg flex justify-center">
+          <button
+            onClick={() => window.open(fileUrl, "_blank")}
+            className="bg-purple-600 text-white px-6 py-2 rounded-md hover:bg-purple-700 transition"
           >
-            👤 Profile
+            Open PDF in New Tab
           </button>
         </div>
-        <button 
-          className="dsa-add-btn"
-          onClick={() => setShowAddModal(true)}
-        >
-          <Plus size={20} />
-          Add Problem
-        </button>
-      </div>
+      )}
 
-      {/* Enhanced Stats Grid */}
-      <div className="leetcode-stats-container">
-        <div className="main-stats">
-          <div className="stat-card primary">
-            <div className="stat-icon">
-              <Target size={28} />
-            </div>
-            <div className="stat-content">
-              <h2>{stats.completed}</h2>
-              <p>Problems Solved</p>
-              <div className="stat-progress">
-                <div className="progress-bar">
-                  <div 
-                    className="progress-fill" 
-                    style={{width: `${(stats.completed / stats.total) * 100}%`}}
-                  ></div>
-                </div>
-                <span>{stats.total} Total</span>
-              </div>
-            </div>
-          </div>
-          
-          <div className="difficulty-breakdown">
-            <div className="difficulty-card easy">
-              <h3>{stats.easy}</h3>
-              <p>Easy</p>
-            </div>
-            <div className="difficulty-card medium">
-              <h3>{stats.medium}</h3>
-              <p>Medium</p>
-            </div>
-            <div className="difficulty-card hard">
-              <h3>{stats.hard}</h3>
-              <p>Hard</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="secondary-stats">
-          <div className="stat-item">
-            <Calendar size={20} />
-            <div>
-              <h4>{stats.completedToday}</h4>
-              <p>Solved Today</p>
-            </div>
-          </div>
-          <div className="stat-item">
-            <TrendingUp size={20} />
-            <div>
-              <h4>{Math.round((stats.completed / stats.total) * 100) || 0}%</h4>
-              <p>Completion Rate</p>
-            </div>
-          </div>
-          <div className="stat-item">
-            <Award size={20} />
-            <div>
-              <h4>{userProfile.currentStreak}</h4>
-              <p>Current Streak</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Enhanced Controls */}
-      <div className="leetcode-controls">
-        <div className="controls-left">
-          <div className="search-container">
-            <Search size={18} />
-            <input
-              type="text"
-              placeholder="Search by title, tags, or ID..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          
-          <div className="view-toggle">
-            <button 
-              className={viewMode === 'grid' ? 'active' : ''}
-              onClick={() => setViewMode('grid')}
-            >
-              Grid
-            </button>
-            <button 
-              className={viewMode === 'list' ? 'active' : ''}
-              onClick={() => setViewMode('list')}
-            >
-              List
-            </button>
-          </div>
-        </div>
-        
-        <div className="controls-right">
-          <select 
-            value={sortBy} 
-            onChange={(e) => setSortBy(e.target.value)}
-            className="sort-select"
-          >
-            <option value="recent">Recently Added</option>
-            <option value="difficulty">Difficulty</option>
-            <option value="status">Status</option>
-            <option value="attempts">Attempts</option>
-          </select>
-          
-          <div className="filter-chips">
-            {['all', 'completed', 'pending', 'easy', 'medium', 'hard'].map(filterType => (
-              <button 
-                key={filterType}
-                className={`filter-chip ${filter === filterType ? 'active' : ''}`}
-                onClick={() => setFilter(filterType)}
-              >
-                {filterType.charAt(0).toUpperCase() + filterType.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Problems List */}
-      <div className="dsa-problems-list">
-        {filteredProblems.length === 0 ? (
-          <div className="dsa-empty-state">
-            <Code size={48} />
-            <h3>No problems found</h3>
-            <p>Add some problems to start tracking your progress!</p>
-          </div>
+      {/* Chat interface */}
+      <div className="flex flex-col flex-1 px-6 py-4 bg-gray-50 overflow-y-auto space-y-4">
+        {chat.length === 0 ? (
+          <div className="text-gray-400 text-center mt-10">Start chatting after uploading your PDF!</div>
         ) : (
-          filteredProblems.map(problem => (
-            <div key={problem.id} className={`dsa-problem-card ${problem.completed ? 'completed' : ''}`}>
-              <div className="dsa-problem-main">
-                <button 
-                  className="dsa-problem-checkbox"
-                  onClick={() => toggleProblem(problem.id)}
-                >
-                  {problem.completed ? <CheckCircle size={20} /> : <Circle size={20} />}
-                </button>
-                <div className="dsa-problem-content">
-                  <h3>{problem.title}</h3>
-                  <div className="dsa-problem-meta">
-                    <span className={`dsa-difficulty ${problem.difficulty.toLowerCase()}`}>
-                      {problem.difficulty}
-                    </span>
-                    <span className="dsa-category">{problem.category}</span>
-                    {problem.completedAt && (
-                      <span className="dsa-completed-date">
-                        ✅ {new Date(problem.completedAt).toLocaleDateString()}
-                      </span>
-                    )}
-                  </div>
-                  {problem.notes && (
-                    <p className="dsa-problem-notes">💡 {problem.notes}</p>
-                  )}
-                  {problem.leetcodeId && (
-                    <div className="leetcode-info">
-                      <span className="leetcode-id">#{problem.leetcodeId}</span>
-                      {problem.timeComplexity && (
-                        <span className="complexity time">⏱️ {problem.timeComplexity}</span>
-                      )}
-                      {problem.spaceComplexity && (
-                        <span className="complexity space">💾 {problem.spaceComplexity}</span>
-                      )}
-                      {problem.attempts > 0 && (
-                        <span className="attempts">🎯 {problem.attempts} attempts</span>
-                      )}
-                    </div>
-                  )}
-                  {problem.tags && problem.tags.length > 0 && (
-                    <div className="problem-tags">
-                      {problem.tags.map((tag, idx) => (
-                        <span key={idx} className="tag">{tag}</span>
-                      ))}
-                    </div>
-                  )}
+          chat.map((msg, idx) => (
+            <div key={idx} className="space-y-3">
+              {/* User message - Right side */}
+              <div className="flex justify-end">
+                <div className="bg-blue-500 text-white rounded-2xl rounded-br-md px-4 py-3 max-w-[70%] shadow-sm">
+                  <p className="text-sm">{msg.question}</p>
                 </div>
               </div>
-              <div className="dsa-problem-actions">
-                {problem.url && (
-                  <a 
-                    href={problem.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="dsa-problem-link"
-                  >
-                    View Problem
-                  </a>
-                )}
-                <button 
-                  className="dsa-action-btn"
-                  onClick={() => editProblem(problem)}
-                >
-                  <Edit3 size={16} />
-                </button>
-                <button 
-                  className="dsa-action-btn delete"
-                  onClick={() => deleteProblem(problem.id)}
-                >
-                  <Trash2 size={16} />
-                </button>
+              {/* AI message - Left side */}
+              <div className="flex justify-start">
+                <div className="bg-white border border-gray-200 text-gray-800 rounded-2xl rounded-bl-md px-4 py-3 max-w-[70%] shadow-sm">
+                  <p className="text-sm whitespace-pre-wrap">{msg.answer}</p>
+                </div>
               </div>
             </div>
           ))
         )}
+        {isLoading && (
+          <div className="flex justify-start">
+            <div className="bg-white border border-gray-200 text-gray-500 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
+              <div className="flex items-center gap-2">
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                </div>
+                <span className="text-sm">AI is thinking...</span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Profile Modal */}
-      {showProfileModal && (
-        <div className="dsa-modal-overlay">
-          <div className="profile-modal">
-            <div className="modal-header">
-              <h2>👤 LeetCode Profile</h2>
-              <button onClick={() => setShowProfileModal(false)}>×</button>
-            </div>
-            <div className="profile-content">
-              <div className="profile-input">
-                <label>LeetCode Username:</label>
-                <input
-                  type="text"
-                  value={userProfile.username}
-                  onChange={(e) => setUserProfile({...userProfile, username: e.target.value})}
-                  placeholder="Enter your LeetCode username"
-                />
-              </div>
-              <div className="profile-stats">
-                <div className="profile-stat">
-                  <h3>{userProfile.totalSolved}</h3>
-                  <p>Total Solved</p>
-                </div>
-                <div className="profile-stat">
-                  <h3>{userProfile.currentStreak}</h3>
-                  <p>Current Streak</p>
-                </div>
-                <div className="profile-stat">
-                  <h3>{userProfile.contestRating}</h3>
-                  <p>Contest Rating</p>
-                </div>
-              </div>
-              <button 
-                className="save-profile-btn"
-                onClick={() => {
-                  localStorage.setItem('leetcodeProfile', JSON.stringify(userProfile));
-                  setShowProfileModal(false);
-                }}
-              >
-                Save Profile
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Message input */}
+      <div className="border-t bg-white p-4 shadow-inner">
+        <div className="flex items-center gap-4">
+          <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-600 hover:text-purple-600 transition">
+            <Upload className="w-5 h-5" />
+            <input
+              type="file"
+              onChange={handleFileChange}
+              className="hidden"
+              accept="application/pdf"
+            />
+            {file ? file.name : "Upload File"}
+          </label>
 
-      {/* Add/Edit Modal */}
-      {showAddModal && (
-        <div className="dsa-modal-overlay">
-          <div className="dsa-modal">
-            <h2>{editingProblem ? 'Edit Problem' : 'Add New Problem'}</h2>
-            <div className="dsa-form">
-              <input
-                type="text"
-                placeholder="Problem title"
-                value={newProblem.title}
-                onChange={(e) => setNewProblem({...newProblem, title: e.target.value})}
-              />
-              <select
-                value={newProblem.difficulty}
-                onChange={(e) => setNewProblem({...newProblem, difficulty: e.target.value})}
-              >
-                {difficulties.map(diff => (
-                  <option key={diff} value={diff}>{diff}</option>
-                ))}
-              </select>
-              <select
-                value={newProblem.category}
-                onChange={(e) => setNewProblem({...newProblem, category: e.target.value})}
-              >
-                {categories.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
-              <input
-                type="text"
-                placeholder="LeetCode ID (e.g., 1, 20, 121)"
-                value={newProblem.leetcodeId}
-                onChange={(e) => setNewProblem({...newProblem, leetcodeId: e.target.value})}
-              />
-              <input
-                type="url"
-                placeholder="LeetCode URL (optional)"
-                value={newProblem.url}
-                onChange={(e) => setNewProblem({...newProblem, url: e.target.value})}
-              />
-              <div className="complexity-row">
-                <input
-                  type="text"
-                  placeholder="Time: O(n)"
-                  value={newProblem.timeComplexity}
-                  onChange={(e) => setNewProblem({...newProblem, timeComplexity: e.target.value})}
-                />
-                <input
-                  type="text"
-                  placeholder="Space: O(1)"
-                  value={newProblem.spaceComplexity}
-                  onChange={(e) => setNewProblem({...newProblem, spaceComplexity: e.target.value})}
-                />
-              </div>
-              <div className="form-row">
-                <input
-                  type="number"
-                  placeholder="Attempts"
-                  value={newProblem.attempts}
-                  onChange={(e) => setNewProblem({...newProblem, attempts: parseInt(e.target.value) || 1})}
-                  min="1"
-                />
-                <input
-                  type="number"
-                  placeholder="Time (minutes)"
-                  value={newProblem.timeTaken}
-                  onChange={(e) => setNewProblem({...newProblem, timeTaken: parseInt(e.target.value) || 0})}
-                  min="0"
-                />
-              </div>
-              <div className="form-row">
-                <select
-                  value={newProblem.language}
-                  onChange={(e) => setNewProblem({...newProblem, language: e.target.value})}
-                >
-                  <option value="JavaScript">JavaScript</option>
-                  <option value="Python">Python</option>
-                  <option value="Java">Java</option>
-                  <option value="C++">C++</option>
-                  <option value="C">C</option>
-                  <option value="Go">Go</option>
-                </select>
-                <select
-                  value={newProblem.status}
-                  onChange={(e) => setNewProblem({...newProblem, status: e.target.value})}
-                >
-                  <option value="Todo">Todo</option>
-                  <option value="Attempted">Attempted</option>
-                  <option value="Solved">Solved</option>
-                  <option value="Review">Review</option>
-                </select>
-              </div>
-              <input
-                type="text"
-                placeholder="Tags: Array, Hash Table, Two Pointers"
-                value={newProblem.tags.join(', ')}
-                onChange={(e) => setNewProblem({...newProblem, tags: e.target.value.split(',').map(tag => tag.trim()).filter(tag => tag)})}
-              />
-              <textarea
-                placeholder="Solution approach & notes"
-                value={newProblem.notes}
-                onChange={(e) => setNewProblem({...newProblem, notes: e.target.value})}
-                rows="3"
-              />
-              <div className="dsa-modal-actions">
-                <button 
-                  className="dsa-btn-secondary"
-                  onClick={() => {
-                    setShowAddModal(false);
-                    setEditingProblem(null);
-                    setNewProblem({
-                      title: '',
-                      difficulty: 'Easy',
-                      category: 'Array',
-                      url: '',
-                      notes: '',
-                      leetcodeId: '',
-                      timeComplexity: '',
-                      spaceComplexity: '',
-                      attempts: 1,
-                      tags: [],
-                      timeTaken: 0,
-                      language: 'JavaScript',
-                      status: 'Todo'
-                    });
-                  }}
-                >
-                  Cancel
-                </button>
-                <button 
-                  className="dsa-btn-primary"
-                  onClick={editingProblem ? updateProblem : addProblem}
-                >
-                  {editingProblem ? 'Update' : 'Add'} Problem
-                </button>
-              </div>
-            </div>
-          </div>
+          <textarea
+            value={text}
+            onChange={handleTextChange}
+            placeholder="Type your question here..."
+            disabled={!isFileUploaded}
+            className="flex-1 p-3 rounded-md border border-gray-300 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm bg-gray-100"
+            rows={2}
+          />
+
+          {isReadyToSend && !isLoading && (
+            <button
+              onClick={handleSubmit}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md flex items-center gap-2"
+            >
+              <Send className="w-4 h-4" />
+              Send
+            </button>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };

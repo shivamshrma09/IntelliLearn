@@ -27,6 +27,7 @@ app.use(cors({
     'https://intelli-learn-wie5.vercel.app',
     'https://intelli-learn-omega.vercel.app',
     'https://intelli-learn-mu.vercel.app',
+    'https://intelli-learn-two.vercel.app',
     'https://intellilearn.vercel.app'
   ],
   credentials: true,

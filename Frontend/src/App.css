@@ -1,4 +1,4 @@
-html, body, #root, .app {
+/* html, body, #root, .app {
   height: 100%;
   margin: 0;
   font-family: sans-serif;
@@ -59,4 +59,12 @@ header.header-root {
   height: 100%;
   padding: 20px;
   box-sizing: border-box;
-}
+} */
+
+
+
+/* src/index.css */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

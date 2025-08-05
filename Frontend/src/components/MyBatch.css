@@ -9281,3 +9281,317 @@
     margin-top: 15px;
   }
 }
+
+/* Enhanced Features CSS */
+.mybatch-stats {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.mybatch-stat {
+  background: rgba(102, 126, 234, 0.1);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: #667eea;
+  font-weight: 500;
+}
+
+.mybatch-header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.mybatch-btn-analytics,
+.mybatch-btn-leaderboard {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mybatch-btn-analytics:hover,
+.mybatch-btn-leaderboard:hover {
+  background: #667eea;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.mybatch-card-btn-secondary {
+  background: transparent;
+  color: #667eea;
+  border: 1px solid #667eea;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mybatch-card-btn-secondary:hover {
+  background: #667eea;
+  color: white;
+}
+
+.mybatch-card-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.pw-analytics-modal,
+.pw-leaderboard-modal {
+  max-width: 800px;
+  width: 90%;
+}
+
+.pw-analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.pw-analytics-card {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.pw-analytics-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.pw-analytics-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.pw-analytics-trend {
+  font-size: 12px;
+  color: #28a745;
+}
+
+.pw-progress-bars {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: end;
+  height: 120px;
+  margin-top: 16px;
+}
+
+.pw-day-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.pw-day-bar {
+  width: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 4px;
+  min-height: 10px;
+}
+
+.pw-day-progress span {
+  font-size: 12px;
+  color: #666;
+}
+
+.pw-leaderboard-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.pw-tab {
+  padding: 8px 16px;
+  border: none;
+  background: #f8f9fa;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.pw-tab.active {
+  background: #667eea;
+  color: white;
+}
+
+.pw-leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pw-leaderboard-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.pw-leaderboard-item.top-three {
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+}
+
+.pw-rank {
+  font-size: 18px;
+  font-weight: bold;
+  min-width: 40px;
+  text-align: center;
+}
+
+.pw-user-info {
+  flex: 1;
+}
+
+.pw-username {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.pw-user-stats {
+  font-size: 12px;
+  color: #666;
+}
+
+.pw-points {
+  font-weight: bold;
+  color: #667eea;
+}
+
+.mybatch-smart-insights {
+  margin-bottom: 24px;
+}
+
+.mybatch-insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.mybatch-insight-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.mybatch-insight-card h4 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.mybatch-insight-card p {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.mybatch-action-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.mybatch-action-row:last-child {
+  margin-bottom: 0;
+}
+
+.mybatch-btn-collaborate,
+.mybatch-btn-ai-help {
+  background: rgba(40, 167, 69, 0.1);
+  color: #28a745;
+  border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.mybatch-btn-collaborate:hover,
+.mybatch-btn-ai-help:hover {
+  background: #28a745;
+  color: white;
+}
+
+.mybatch-btn-resources,
+.mybatch-btn-flashcards,
+.mybatch-btn-test,
+.mybatch-btn-download {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.3s ease;
+  flex: 1;
+}
+
+.mybatch-btn-resources {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.mybatch-btn-resources:hover {
+  background: #3b82f6;
+  color: white;
+}
+
+.mybatch-btn-flashcards {
+  background: rgba(139, 92, 246, 0.1);
+  color: #8b5cf6;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.mybatch-btn-flashcards:hover {
+  background: #8b5cf6;
+  color: white;
+}
+
+.mybatch-btn-test {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.mybatch-btn-test:hover {
+  background: #ef4444;
+  color: white;
+}
+
+.mybatch-btn-download {
+  background: rgba(107, 114, 128, 0.1);
+  color: #6b7280;
+  border: 1px solid rgba(107, 114, 128, 0.3);
+}
+
+.mybatch-btn-download:hover {
+  background: #6b7280;
+  color: white;
+}
