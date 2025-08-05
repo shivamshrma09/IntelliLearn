@@ -126,24 +126,24 @@ const Dashboard = ({ onNavigate }) => {
       title: `Earned ${realTimeStats.todayPoints} points today`,
       time: 'Today',
       icon: Target,
-      color: 'dashboard-activity-green',
-      bgColor: 'dashboard-activity-bg-green'
+      color: 'dashboard-activity-blue',
+      bgColor: 'dashboard-activity-bg-blue'
     },
     {
       type: 'test',
       title: 'Scored 90% in Algebra Test',
       time: 'Yesterday',
       icon: Trophy,
-      color: 'dashboard-activity-purple',
-      bgColor: 'dashboard-activity-bg-purple'
+      color: 'dashboard-activity-blue',
+      bgColor: 'dashboard-activity-bg-blue'
     },
     {
       type: 'achievement',
       title: 'Joined IntelliLearn Platform',
       time: 'Today',
       icon: Award,
-      color: 'dashboard-activity-yellow',
-      bgColor: 'dashboard-activity-bg-yellow'
+      color: 'dashboard-activity-blue',
+      bgColor: 'dashboard-activity-bg-blue'
     },
   ];
 
@@ -199,7 +199,7 @@ const Dashboard = ({ onNavigate }) => {
       title: 'Science Batch',
       chapter: 'Chapter 2',
       progress: 80,
-      color: 'green'
+      color: 'blue'
     },
   ];
 

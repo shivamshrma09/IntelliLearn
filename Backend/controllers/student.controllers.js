@@ -34,12 +34,15 @@ exports.RegisterStudent = async (req, res) => {
         name: student.name,
         email: student.email,
         course: student.course,
+        totalPoints: student.totalPoints || 0,
+        streak: student.streak || 0
       },
+      message: "Registration successful"
     });
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: err.message });
+    console.error('Registration error:', err);
+    res.status(500).json({ message: err.message || "Registration failed" });
   }
 };
 

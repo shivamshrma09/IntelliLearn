@@ -61,9 +61,18 @@ const SignupPage = ({onNavigate}) => {
       }
     } catch (err) {
       console.error('Signup error:', err);
-      setErrors({ 
-        general: err.response?.data?.message || "Registration failed. Please try again." 
-      });
+      if (err.response?.data?.errors) {
+        // Handle validation errors
+        const validationErrors = {};
+        err.response.data.errors.forEach(error => {
+          validationErrors[error.path] = error.msg;
+        });
+        setErrors(validationErrors);
+      } else {
+        setErrors({ 
+          general: err.response?.data?.message || "Registration failed. Please try again." 
+        });
+      }
     }
   };
 

@@ -9,10 +9,9 @@ const jwt = require('jsonwebtoken');
 
 router.post('/register', [
     body('email').isEmail().withMessage('Invalid Email'),
-    body('name').isLength({ min: 3 }).withMessage('First name must be at least 3 characters long'),
+    body('name').isLength({ min: 3 }).withMessage('Name must be at least 3 characters long'),
     body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
-        body('course').isLength({ min: 3 }).withMessage('First name must be at least 3 characters long'),
-
+    body('course').isLength({ min: 3 }).withMessage('Course must be at least 3 characters long'),
 ],
     studentcontrollers.RegisterStudent
 )
