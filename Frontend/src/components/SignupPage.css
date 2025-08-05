@@ -1,6 +1,6 @@
 .signup-bg {
   min-height: 100vh;
-  background: linear-gradient(135deg, #eff6ff 0%, #ede9fe 100%);
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -44,7 +44,7 @@
 .signup-logo-icon {
   width: 40px;
   height: 40px;
-  background: linear-gradient(to right, #3b82f6, #a21caf);
+  background: linear-gradient(to right, #0ea5e9, #0284c7);
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -98,8 +98,8 @@
   background: #f9fafb;
 }
 .signup-input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px #3b82f6;
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 2px #0ea5e9;
 }
 .signup-input-error {
   border-color: #ef4444;
@@ -137,7 +137,7 @@
 .signup-checkbox {
   width: 16px;
   height: 16px;
-  accent-color: #3b82f6;
+  accent-color: #0ea5e9;
   border-radius: 4px;
   margin-top: 3px;
 }
@@ -146,17 +146,17 @@
   color: #374151;
 }
 .signup-link {
-  color: #2563eb;
+  color: #0284c7;
   font-weight: 500;
   text-decoration: none;
   transition: color 0.2s;
 }
 .signup-link:hover {
-  color: #1d4ed8;
+  color: #0369a1;
 }
 .signup-submit-btn {
   width: 100%;
-  background: linear-gradient(to right, #3b82f6, #a21caf);
+  background: linear-gradient(to right, #0ea5e9, #0284c7);
   color: #fff;
   padding: 14px 0;
   border-radius: 8px;
@@ -167,7 +167,7 @@
   transition: background 0.2s, transform 0.2s;
 }
 .signup-submit-btn:hover {
-  background: linear-gradient(to right, #2563eb, #7c3aed);
+  background: linear-gradient(to right, #0284c7, #0369a1);
   transform: scale(1.04);
 }
 .signup-divider {
@@ -228,14 +228,14 @@
 .signup-login-link {
   background: none;
   border: none;
-  color: #2563eb;
+  color: #0284c7;
   font-weight: 600;
   cursor: pointer;
   transition: color 0.2s;
   margin-left: 2px;
 }
 .signup-login-link:hover {
-  color: #1d4ed8;
+  color: #0369a1;
 }
 .signup-benefits {
   margin-top: 24px;
@@ -271,9 +271,9 @@
 }
 
 .signup-input:focus {
-  border-color: #3b82f6;
+  border-color: #0ea5e9;
   outline: none;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
 }
 
 select.signup-input {
