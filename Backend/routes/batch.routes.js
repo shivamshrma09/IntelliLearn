@@ -23,4 +23,13 @@ router.post('/:id/test-results', batchController.saveTestResults);
 // Save notes
 router.post('/:id/notes', batchController.saveNotes);
 
+// Get user analytics
+router.get('/analytics/user', batchController.getUserAnalytics);
+
+// Get leaderboard
+router.get('/leaderboard/global', batchController.getLeaderboard);
+
+// Join study group
+router.post('/:batchId/study-group/join', batchController.joinStudyGroup);
+
 module.exports = router;

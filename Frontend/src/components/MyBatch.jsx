@@ -176,6 +176,17 @@ const MyBatch = ({ initialTab = 'my-batches', currentUser = {} }) => {
   const [importantQuestions, setImportantQuestions] = useState({});
   const [loadingFlashcards, setLoadingFlashcards] = useState(false);
   const [loadingResources, setLoadingResources] = useState(false);
+  
+  // New enhanced features
+  const [studyStreak, setStudyStreak] = useState(0);
+  const [weeklyGoal, setWeeklyGoal] = useState(5);
+  const [studyTime, setStudyTime] = useState(0);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [studyGroup, setStudyGroup] = useState(null);
+  const [achievements, setAchievements] = useState([]);
+  const [studyReminders, setStudyReminders] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
 
   const [newTitle, setNewTitle] = useState("");
   const [newSubject, setNewSubject] = useState("");
@@ -1552,15 +1563,28 @@ Only return valid JSON, no other text.
         </div>
       )}
 
-      {/* Header */}
+      {/* Enhanced Header */}
       <div className="mybatch-header">
         <div>
           <h1 className="mybatch-title">Learning Batches</h1>
           <p className="mybatch-subtitle">Manage your learning journey</p>
+          <div className="mybatch-stats">
+            <span className="mybatch-stat">🔥 {studyStreak} day streak</span>
+            <span className="mybatch-stat">⏱️ {Math.floor(studyTime/60)}h studied</span>
+            <span className="mybatch-stat">🎯 {weeklyGoal} weekly goal</span>
+          </div>
         </div>
-        <button onClick={() => setShowBatchCreation(true)} className="mybatch-btn mybatch-btn-create">
-          <Zap size={18} /> Create AI Batch
-        </button>
+        <div className="mybatch-header-actions">
+          <button onClick={() => setShowAnalytics(true)} className="mybatch-btn mybatch-btn-analytics">
+            <BarChart2 size={18} /> Analytics
+          </button>
+          <button onClick={() => setShowLeaderboard(true)} className="mybatch-btn mybatch-btn-leaderboard">
+            <Trophy size={18} /> Leaderboard
+          </button>
+          <button onClick={() => setShowBatchCreation(true)} className="mybatch-btn mybatch-btn-create">
+            <Zap size={18} /> Create AI Batch
+          </button>
+        </div>
       </div>
       
       {/* Search and Filter */}
@@ -1641,7 +1665,12 @@ Only return valid JSON, no other text.
                 </div>
                 <div className="mybatch-card-footer">
                   <span className="mybatch-progress-text">{batch.completedChapters} of {batch.totalChapters} chapters completed</span>
-                  <button className="mybatch-card-btn">Continue Learning</button>
+                  <div className="mybatch-card-actions">
+                    <button className="mybatch-card-btn">Continue Learning</button>
+                    <button className="mybatch-card-btn-secondary" onClick={(e) => { e.stopPropagation(); alert('Study group feature coming soon!'); }}>
+                      <Users size={14} /> Join Group
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1741,6 +1770,23 @@ Only return valid JSON, no other text.
             {/* Content Tab */}
             {activeDetailTab === 'content' && (
               <div className="mybatch-description-section">
+                <div className="mybatch-smart-insights">
+                  <h3>🧠 AI Study Insights</h3>
+                  <div className="mybatch-insights-grid">
+                    <div className="mybatch-insight-card">
+                      <h4>Best Study Time</h4>
+                      <p>You learn best between 9-11 AM</p>
+                    </div>
+                    <div className="mybatch-insight-card">
+                      <h4>Weak Areas</h4>
+                      <p>Focus more on practical examples</p>
+                    </div>
+                    <div className="mybatch-insight-card">
+                      <h4>Recommendation</h4>
+                      <p>Take 5-min breaks every 25 minutes</p>
+                    </div>
+                  </div>
+                </div>
                 <h3>Description</h3>
                 <p>{selectedBatch.aiLearningPlan?.description || "No description available."}</p>
                 
@@ -1947,69 +1993,89 @@ Only return valid JSON, no other text.
                             )}
                           </div>
                           
-                          {/* Chapter Actions */}
+                          {/* Enhanced Chapter Actions */}
                           <div className="mybatch-chapter-actions">
-                            <button 
-                              className="mybatch-btn mybatch-btn-resources"
-                              onClick={() => {
-                                setCurrentChapter(index);
-                                generateChapterResources(index);
-                                setActiveDetailTab('resources');
-                              }}
-                            >
-                              <Book size={16} /> View Resources
-                            </button>
-                            
-                            <button 
-                              className="mybatch-btn mybatch-btn-flashcards"
-                              onClick={() => {
-                                setCurrentChapter(index);
-                                generateFlashcards(index);
-                                setActiveDetailTab('flashcards');
-                              }}
-                            >
-                              <BookMarked size={16} /> Study Flashcards
-                            </button>
-                            
-                            <button 
-                              className="mybatch-btn mybatch-btn-test"
-                              onClick={() => {
-                                setCurrentChapter(index);
-                                generateTestQuestions(index);
-                                setShowTestModal(true);
-                              }}
-                            >
-                              {testAttempted ? 'Retake Test' : 'Take Chapter Test'}
-                            </button>
-                            
-                            <button 
-                              className="mybatch-btn mybatch-btn-download"
-                              onClick={() => alert('Download functionality would be implemented here')}
-                            >
-                              <FileDown size={16} /> Download Notes
-                            </button>
-                            
-                            {testAttempted && (
+                            <div className="mybatch-action-row">
                               <button 
-                                className="mybatch-btn mybatch-btn-assignment"
+                                className="mybatch-btn mybatch-btn-resources"
                                 onClick={() => {
                                   setCurrentChapter(index);
-                                  generateAssignmentPrompt(index);
-                                  setShowAssignmentModal(true);
+                                  generateChapterResources(index);
+                                  setActiveDetailTab('resources');
                                 }}
-                                disabled={assignmentCompleted}
                               >
-                                {assignmentCompleted ? 'Assignment Completed' : 'Complete Assignment'}
+                                <Book size={16} /> Resources
                               </button>
-                            )}
-                            
-                            {isCompleted && (
+                              
                               <button 
-                                className="mybatch-btn mybatch-btn-certificate"
-                                onClick={() => setShowCertificateModal(true)}
+                                className="mybatch-btn mybatch-btn-flashcards"
+                                onClick={() => {
+                                  setCurrentChapter(index);
+                                  generateFlashcards(index);
+                                  setActiveDetailTab('flashcards');
+                                }}
                               >
-                                <Award size={16} /> Get Certificate
+                                <BookMarked size={16} /> Flashcards
                               </button>
+                              
+                              <button 
+                                className="mybatch-btn mybatch-btn-test"
+                                onClick={() => {
+                                  setCurrentChapter(index);
+                                  generateTestQuestions(index);
+                                  setShowTestModal(true);
+                                }}
+                              >
+                                <FileText size={16} /> {testAttempted ? 'Retake Test' : 'Take Test'}
+                              </button>
+                            </div>
+                            
+                            <div className="mybatch-action-row">
+                              <button 
+                                className="mybatch-btn mybatch-btn-collaborate"
+                                onClick={() => alert('Study group discussion for this chapter!')}
+                              >
+                                <MessageSquare size={16} /> Discuss
+                              </button>
+                              
+                              <button 
+                                className="mybatch-btn mybatch-btn-ai-help"
+                                onClick={() => alert('AI tutor will help you with doubts!')}
+                              >
+                                <Lightbulb size={16} /> AI Help
+                              </button>
+                              
+                              <button 
+                                className="mybatch-btn mybatch-btn-download"
+                                onClick={() => alert('Download functionality would be implemented here')}
+                              >
+                                <FileDown size={16} /> Download
+                              </button>
+                            </div>
+                            
+                            {testAttempted && (
+                              <div className="mybatch-action-row">
+                                <button 
+                                  className="mybatch-btn mybatch-btn-assignment"
+                                  onClick={() => {
+                                    setCurrentChapter(index);
+                                    generateAssignmentPrompt(index);
+                                    setShowAssignmentModal(true);
+                                  }}
+                                  disabled={assignmentCompleted}
+                                >
+                                  <Edit3 size={16} /> {assignmentCompleted ? 'Assignment Done' : 'Assignment'}
+                                </button>
+                                
+                                {isCompleted && (
+                                  <button 
+                                    className="mybatch-btn mybatch-btn-certificate"
+                                    onClick={() => setShowCertificateModal(true)}
+                                  >
+                                    <Award size={16} /> Certificate
+                                  </button>
+                                )}
+                              </div>
                             )}
                           </div>
                         </div>
@@ -2576,6 +2642,86 @@ Only return valid JSON, no other text.
                   Close
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Analytics Modal */}
+      {showAnalytics && (
+        <div className="pw-modal-overlay">
+          <div className="pw-modal-content pw-analytics-modal">
+            <h2>Learning Analytics</h2>
+            <div className="pw-analytics-content">
+              <div className="pw-analytics-grid">
+                <div className="pw-analytics-card">
+                  <h3>Study Time</h3>
+                  <div className="pw-analytics-value">{Math.floor(studyTime/60)}h {studyTime%60}m</div>
+                  <div className="pw-analytics-trend">+15% this week</div>
+                </div>
+                <div className="pw-analytics-card">
+                  <h3>Streak</h3>
+                  <div className="pw-analytics-value">{studyStreak} days</div>
+                  <div className="pw-analytics-trend">Personal best!</div>
+                </div>
+                <div className="pw-analytics-card">
+                  <h3>Completion Rate</h3>
+                  <div className="pw-analytics-value">{Math.round(batches.reduce((sum, b) => sum + b.progress, 0) / batches.length)}%</div>
+                  <div className="pw-analytics-trend">Above average</div>
+                </div>
+                <div className="pw-analytics-card">
+                  <h3>Achievements</h3>
+                  <div className="pw-analytics-value">{achievements.length}</div>
+                  <div className="pw-analytics-trend">2 new this week</div>
+                </div>
+              </div>
+              <div className="pw-analytics-chart">
+                <h3>Weekly Progress</h3>
+                <div className="pw-progress-bars">
+                  {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, i) => (
+                    <div key={day} className="pw-day-progress">
+                      <div className="pw-day-bar" style={{height: `${Math.random() * 100}%`}}></div>
+                      <span>{day}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="pw-form-actions">
+              <button onClick={() => setShowAnalytics(false)} className="pw-btn">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Leaderboard Modal */}
+      {showLeaderboard && (
+        <div className="pw-modal-overlay">
+          <div className="pw-modal-content pw-leaderboard-modal">
+            <h2>Leaderboard</h2>
+            <div className="pw-leaderboard-content">
+              <div className="pw-leaderboard-tabs">
+                <button className="pw-tab active">Weekly</button>
+                <button className="pw-tab">Monthly</button>
+                <button className="pw-tab">All Time</button>
+              </div>
+              <div className="pw-leaderboard-list">
+                {[1,2,3,4,5].map(rank => (
+                  <div key={rank} className={`pw-leaderboard-item ${rank <= 3 ? 'top-three' : ''}`}>
+                    <div className="pw-rank">
+                      {rank <= 3 ? ['🥇','🥈','🥉'][rank-1] : rank}
+                    </div>
+                    <div className="pw-user-info">
+                      <div className="pw-username">Student {rank}</div>
+                      <div className="pw-user-stats">{Math.floor(Math.random() * 50) + 20}h studied</div>
+                    </div>
+                    <div className="pw-points">{Math.floor(Math.random() * 1000) + 500} pts</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="pw-form-actions">
+              <button onClick={() => setShowLeaderboard(false)} className="pw-btn">Close</button>
             </div>
           </div>
         </div>

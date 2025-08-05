@@ -1,5 +1,9 @@
 const Batch = require('../models/batch.models');
 const jwt = require('jsonwebtoken');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+
+// Initialize Gemini AI
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || 'AIzaSyC5wCrEK1HSLGpnbOZ0vVqsBl83QuR-VJI');
 
 // Get all batches for user
 exports.getBatches = async (req, res) => {
@@ -191,5 +195,75 @@ exports.saveNotes = async (req, res) => {
   } catch (error) {
     console.error('Error saving notes:', error);
     res.status(500).json({ message: 'Error saving notes', error: error.message });
+  }
+};
+
+// Get user analytics
+exports.getUserAnalytics = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const batches = await Batch.find({ userId });
+    
+    const analytics = {
+      totalBatches: batches.length,
+      completedBatches: batches.filter(b => b.progress === 100).length,
+      averageProgress: batches.reduce((sum, b) => sum + (b.progress || 0), 0) / batches.length || 0,
+      studyStreak: 7, // Mock data - implement actual streak calculation
+      weeklyStudyTime: 25, // Mock data - implement actual time tracking
+      achievements: [
+        { id: 1, name: 'First Batch', description: 'Created your first batch', earned: true },
+        { id: 2, name: 'Quick Learner', description: 'Completed a batch in under a week', earned: false }
+      ]
+    };
+    
+    res.json(analytics);
+  } catch (error) {
+    console.error('Error fetching analytics:', error);
+    res.status(500).json({ message: 'Error fetching analytics', error: error.message });
+  }
+};
+
+// Get leaderboard
+exports.getLeaderboard = async (req, res) => {
+  try {
+    // Mock leaderboard data - implement actual leaderboard logic
+    const leaderboard = [
+      { rank: 1, username: 'Student A', studyTime: 45, points: 950 },
+      { rank: 2, username: 'Student B', studyTime: 38, points: 820 },
+      { rank: 3, username: 'Student C', studyTime: 32, points: 750 },
+      { rank: 4, username: 'Student D', studyTime: 28, points: 680 },
+      { rank: 5, username: 'Student E', studyTime: 25, points: 620 }
+    ];
+    
+    res.json(leaderboard);
+  } catch (error) {
+    console.error('Error fetching leaderboard:', error);
+    res.status(500).json({ message: 'Error fetching leaderboard', error: error.message });
+  }
+};
+
+// Join study group
+exports.joinStudyGroup = async (req, res) => {
+  try {
+    const { batchId } = req.params;
+    const userId = req.user._id;
+    
+    // Mock study group functionality
+    const studyGroup = {
+      id: `group_${batchId}`,
+      batchId,
+      members: [
+        { id: userId, name: 'You', joinedAt: new Date() },
+        { id: 'user2', name: 'Student B', joinedAt: new Date(Date.now() - 86400000) },
+        { id: 'user3', name: 'Student C', joinedAt: new Date(Date.now() - 172800000) }
+      ],
+      activeDiscussions: 3,
+      lastActivity: new Date()
+    };
+    
+    res.json({ message: 'Joined study group successfully', studyGroup });
+  } catch (error) {
+    console.error('Error joining study group:', error);
+    res.status(500).json({ message: 'Error joining study group', error: error.message });
   }
 };

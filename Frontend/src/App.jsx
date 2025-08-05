@@ -17,6 +17,8 @@ import Test from './components/Test';
 import LeetCodeTracker from './components/DSATodo';
 import TodoSidebar from './components/TodoSidebar';
 import PomodoroTimer from './components/PomodoroTimer';
+import DashboardModern from './components/DashboardModern';
+import SaveYourResource from './components/SaveYourResource'; 
 
 function App() {
   const [currentPage, setCurrentPage] = useState('landing');
@@ -54,8 +56,8 @@ function App() {
          return <Opportunities currentUser={userData} />;
       case 'leetcode':
         return <LeetCodeTracker />;
-      case 'timer':
-        return <PomodoroTimer />;
+      case 'save-resource':
+        return <SaveYourResource />;
       case 'settings':
         return <Settings currentUser={userData} />;
       default:
@@ -63,7 +65,7 @@ function App() {
     }
   };
 
-  const showLayout = ['dashboard', 'my-batch', 'library', 'tests', 'opportunities', 'leetcode', 'timer', 'settings'].includes(currentPage);
+  const showLayout = ['dashboard', 'my-batch', 'library', 'tests', 'opportunities', 'leetcode', 'save-resource', 'timer', 'settings'].includes(currentPage);
 
   return (
     <ErrorBoundary>
