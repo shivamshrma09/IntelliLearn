@@ -1,24 +1,25 @@
-/* Root Variables */
 :root {
   --clr-white: #ffffff;
-  --clr-gray-50: #f9fafb;
-  --clr-gray-100: #f3f4f6;
-  --clr-gray-200: #e5e7eb;
-  --clr-gray-400: #9ca3af;
-  --clr-gray-600: #4b5563;
-  --clr-gray-700: #374151;
-  --clr-gray-900: #111827;
+  --clr-gray-50: #f8fafc;
+  --clr-gray-100: #f1f5f9;
+  --clr-gray-200: #e2e8f0;
+  --clr-gray-400: #94a3b8;
+  --clr-gray-600: #475569;
+  --clr-gray-700: #334155;
+  --clr-gray-900: #0f172a;
   --clr-blue-500: #3b82f6;
   --clr-blue-600: #2563eb;
-  --clr-purple-600: #8b5cf6;
-  --clr-purple-700: #6d28d9;
-  --clr-yellow-400: #fcd34d;
-  --clr-green-500: #22c55e;
-  --gradient-primary: linear-gradient(to right, var(--clr-blue-500), var(--clr-purple-600));
-  --gradient-hover: linear-gradient(to right, var(--clr-blue-600), var(--clr-purple-700));
+  --clr-blue-700: #1d4ed8;
+  --clr-blue-800: #1e40af;
+  --clr-blue-900: #1e3a8a;
+  --clr-blue-300: #93c5fd;
+  --gradient-primary: linear-gradient(to right, #3b82f6, #1e40af);
+  --gradient-hover: linear-gradient(to right, #2563eb, #1e3a8a);
   --radius: 0.5rem;
-  --shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  --shadow: 0 2px 10px rgba(59, 130, 246, 0.08);
 }
+
+
 
 /* Reset & Base Style */
 * {
